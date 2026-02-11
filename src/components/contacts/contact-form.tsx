@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,9 +9,11 @@ import { useOrg } from "@/components/providers/org-provider";
 import { useToast } from "@/components/providers/toast-provider";
 import { RELATIONSHIP_TYPES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
+import { getInitials } from "@/lib/utils/format";
+import { uploadContactPhoto, deleteContactPhoto } from "@/lib/supabase/storage";
 import type { Contact, Company } from "@/types/database";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
+import { StarIcon as StarOutlineIcon, CameraIcon } from "@heroicons/react/24/outline";
 
 const contactSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -74,6 +76,45 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!contact;
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    contact?.profile_photo_url ?? null
+  );
+  const [photoRemoved, setPhotoRemoved] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPhotoError(null);
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setPhotoError("Please select a JPEG, PNG, GIF, or WebP image.");
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setPhotoError("Image must be under 5 MB.");
+      return;
+    }
+
+    setPhotoFile(file);
+    setPhotoRemoved(false);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
+  function handlePhotoRemove() {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    setPhotoRemoved(true);
+    setPhotoError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   const {
     register,
     handleSubmit,
@@ -128,6 +169,30 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
     setIsSubmitting(true);
 
     try {
+      let profilePhotoUrl: string | null | undefined;
+
+      // Handle photo upload for new contacts — we need the record ID first
+      // For edits, we can upload immediately
+      if (photoFile && isEditing) {
+        // Delete old photo if replacing
+        if (contact.profile_photo_url) {
+          await deleteContactPhoto(supabase, contact.profile_photo_url).catch(
+            () => {} // non-fatal: old file may already be gone
+          );
+        }
+        profilePhotoUrl = await uploadContactPhoto(
+          supabase,
+          org.id,
+          contact.id,
+          photoFile
+        );
+      } else if (photoRemoved && isEditing && contact.profile_photo_url) {
+        await deleteContactPhoto(supabase, contact.profile_photo_url).catch(
+          () => {}
+        );
+        profilePhotoUrl = null;
+      }
+
       const payload = {
         first_name: values.first_name,
         last_name: values.last_name || null,
@@ -150,6 +215,9 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         website_url: values.website_url || null,
         notes: values.notes || null,
         rating: values.rating || null,
+        ...(profilePhotoUrl !== undefined && {
+          profile_photo_url: profilePhotoUrl,
+        }),
       };
 
       if (isEditing) {
@@ -161,11 +229,28 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         if (error) throw error;
         toast.success("Branch updated", "This branch's details have been saved.");
       } else {
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
           .from("contacts")
-          .insert({ ...payload, org_id: org.id });
+          .insert({ ...payload, org_id: org.id })
+          .select("id")
+          .single();
 
         if (error) throw error;
+
+        // Upload photo for newly created contact
+        if (photoFile && inserted) {
+          const url = await uploadContactPhoto(
+            supabase,
+            org.id,
+            inserted.id,
+            photoFile
+          );
+          await supabase
+            .from("contacts")
+            .update({ profile_photo_url: url })
+            .eq("id", inserted.id);
+        }
+
         toast.success("Branch added", "A new branch has been added to your tree.");
       }
 
@@ -189,6 +274,60 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-8">
+      {/* Photo */}
+      <section>
+        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+          Photo
+        </h3>
+        <div className="flex items-center gap-5">
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-semibold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+            {photoPreview ? (
+              <img
+                src={photoPreview}
+                alt="Contact photo"
+                className="h-16 w-16 rounded-full object-cover"
+              />
+            ) : (
+              getInitials(watch("first_name"), watch("last_name"))
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              >
+                <CameraIcon className="h-4 w-4" />
+                {photoPreview ? "Change photo" : "Upload photo"}
+              </button>
+              {photoPreview && (
+                <button
+                  type="button"
+                  onClick={handlePhotoRemove}
+                  className="rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoSelect}
+              className="hidden"
+            />
+            {photoError && (
+              <p className={errorClassName}>{photoError}</p>
+            )}
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              JPEG, PNG, GIF, or WebP. Max 5 MB.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Basic Information */}
       <section>
         <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
