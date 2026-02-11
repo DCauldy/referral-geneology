@@ -58,6 +58,14 @@ const labelClassName =
 
 const errorClassName = "mt-1 text-xs text-red-600 dark:text-red-400";
 
+function formatPhone(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 0) return "";
+  if (digits.length <= 3) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+}
+
 export function ContactForm({ contact, onSuccess }: ContactFormProps) {
   const supabase = useSupabase();
   const { org } = useOrg();
@@ -78,8 +86,8 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
       first_name: contact?.first_name ?? "",
       last_name: contact?.last_name ?? "",
       email: contact?.email ?? "",
-      phone: contact?.phone ?? "",
-      mobile_phone: contact?.mobile_phone ?? "",
+      phone: contact?.phone ? formatPhone(contact.phone) : "",
+      mobile_phone: contact?.mobile_phone ? formatPhone(contact.mobile_phone) : "",
       job_title: contact?.job_title ?? "",
       company_id: contact?.company_id ?? "",
       industry: contact?.industry ?? "",
@@ -151,14 +159,14 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
           .eq("id", contact.id);
 
         if (error) throw error;
-        toast.success("Contact updated", "The contact has been updated successfully.");
+        toast.success("Branch updated", "This branch's details have been saved.");
       } else {
         const { error } = await supabase
           .from("contacts")
           .insert({ ...payload, org_id: org.id });
 
         if (error) throw error;
-        toast.success("Contact created", "The contact has been created successfully.");
+        toast.success("Branch added", "A new branch has been added to your tree.");
       }
 
       onSuccess?.();
@@ -236,9 +244,10 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             <input
               id="phone"
               type="tel"
-              {...register("phone")}
+              value={watch("phone")}
+              onChange={(e) => setValue("phone", formatPhone(e.target.value))}
               className={inputClassName}
-              placeholder="+1 (555) 123-4567"
+              placeholder="(555) 123-4567"
             />
           </div>
           <div>
@@ -248,9 +257,10 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             <input
               id="mobile_phone"
               type="tel"
-              {...register("mobile_phone")}
+              value={watch("mobile_phone")}
+              onChange={(e) => setValue("mobile_phone", formatPhone(e.target.value))}
               className={inputClassName}
-              placeholder="+1 (555) 987-6543"
+              placeholder="(555) 987-6543"
             />
           </div>
         </div>

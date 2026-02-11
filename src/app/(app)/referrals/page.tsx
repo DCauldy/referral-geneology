@@ -17,7 +17,7 @@ export default function ReferralsPage() {
             Referrals
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Track referral chains and relationships.
+            Follow the new growth extending from every branch of your tree.
           </p>
         </div>
         <Link

@@ -51,7 +51,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
 
   async function handleDelete() {
     if (!contact) return;
-    if (!window.confirm("Are you sure you want to delete this contact? This action cannot be undone.")) {
+    if (!window.confirm("Are you sure you want to prune this branch? This action cannot be undone.")) {
       return;
     }
 
@@ -63,7 +63,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
         .eq("id", contact.id);
 
       if (error) throw error;
-      toast.success("Contact deleted", "The contact has been removed.");
+      toast.success("Branch pruned", "The branch has been removed from your tree.");
       router.push("/contacts");
     } catch (err) {
       toast.error(
@@ -334,7 +334,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       {activeTab === "referrals" && (
         <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Referral connections and chain visualization will appear here.
+            This branch's growth connections and referral chains will appear here.
           </p>
         </div>
       )}
@@ -342,7 +342,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       {activeTab === "deals" && (
         <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Associated deals will appear here.
+            Fruit borne from this branch will appear here.
           </p>
         </div>
       )}
@@ -350,7 +350,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       {activeTab === "activity" && (
         <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Activity timeline will appear here.
+            This branch's growth log will appear here.
           </p>
         </div>
       )}
@@ -358,7 +358,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       {activeTab === "documents" && (
         <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Attached documents will appear here.
+            Documents attached to this branch will appear here.
           </p>
         </div>
       )}

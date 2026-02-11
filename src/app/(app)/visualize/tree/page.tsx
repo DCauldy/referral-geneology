@@ -19,7 +19,7 @@ export default function TreeVisualizationPage() {
             Tree View
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Visualize your referral network as a hierarchical tree.
+            Trace every branch from trunk to tip in your referral tree.
           </p>
         </div>
         <ViewSwitcher />

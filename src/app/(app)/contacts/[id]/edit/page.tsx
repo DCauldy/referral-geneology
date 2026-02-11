@@ -29,7 +29,7 @@ export default function EditContactPage({
         Edit Contact
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Update contact information.
+        Tend to this branch's details.
       </p>
 
       <div className="mt-6 max-w-2xl">

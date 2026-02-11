@@ -19,7 +19,7 @@ export default function NewCompanyPage() {
         Add Company
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Create a new company in your database.
+        Plant new roots in your network.
       </p>
 
       <div className="mt-6 max-w-2xl">

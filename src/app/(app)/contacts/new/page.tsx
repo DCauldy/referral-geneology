@@ -19,7 +19,7 @@ export default function NewContactPage() {
         Add Contact
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Create a new contact in your database.
+        Add a new branch to your tree.
       </p>
 
       <div className="mt-6 max-w-2xl">

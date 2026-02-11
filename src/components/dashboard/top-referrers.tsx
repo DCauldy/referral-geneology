@@ -80,7 +80,7 @@ export function TopReferrers() {
   if (referrers.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        No referrers yet. Create referrals to see top referrers.
+        No standout branches yet. Create referrals to see who drives the most growth.
       </div>
     );
   }

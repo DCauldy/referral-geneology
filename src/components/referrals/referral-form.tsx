@@ -114,7 +114,7 @@ export function ReferralForm({
         return;
       }
 
-      toast.success("Referral created", "The referral has been recorded.");
+      toast.success("New growth recorded", "A new connection is extending your tree.");
       onSuccess?.();
     } catch (err) {
       toast.error(

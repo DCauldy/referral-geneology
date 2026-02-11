@@ -117,14 +117,14 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
           .eq("id", company.id);
 
         if (error) throw error;
-        toast.success("Company updated", "The company has been updated successfully.");
+        toast.success("Roots updated", "The root details have been saved.");
       } else {
         const { error } = await supabase
           .from("companies")
           .insert({ ...payload, org_id: org.id });
 
         if (error) throw error;
-        toast.success("Company created", "The company has been created successfully.");
+        toast.success("Roots planted", "New roots have been established in your network.");
       }
 
       onSuccess?.();

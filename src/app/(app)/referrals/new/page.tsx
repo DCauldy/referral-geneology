@@ -19,7 +19,7 @@ export default function NewReferralPage() {
         Add Referral
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Record a new referral between contacts.
+        Record new growth between branches.
       </p>
 
       <div className="mt-6 max-w-2xl">

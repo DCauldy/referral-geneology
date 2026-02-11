@@ -95,32 +95,32 @@ export function KpiGrid() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       <KpiCard
-        title="Total Contacts"
+        title="Branches"
         value={formatNumber(stats.total_contacts)}
         icon={UsersIcon}
       />
       <KpiCard
-        title="Companies"
+        title="Roots"
         value={formatNumber(stats.total_companies)}
         icon={BuildingOffice2Icon}
       />
       <KpiCard
-        title="Active Referrals"
+        title="New Growth"
         value={formatNumber(stats.total_referrals)}
         icon={ArrowsRightLeftIcon}
       />
       <KpiCard
-        title="Pipeline Value"
+        title="Grove Value"
         value={formatCurrency(stats.pipeline_value)}
         icon={CurrencyDollarIcon}
       />
       <KpiCard
-        title="Won Revenue"
+        title="Harvest"
         value={formatCurrency(stats.won_deal_value)}
         icon={ArrowTrendingUpIcon}
       />
       <KpiCard
-        title="Conversion Rate"
+        title="Yield Rate"
         value={`${stats.conversion_rate}%`}
         icon={ChartBarIcon}
       />

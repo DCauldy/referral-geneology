@@ -122,7 +122,7 @@ export function TreeView() {
         {nodes.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm text-zinc-500">
-              No referral data to visualize. Create some contacts and referrals first.
+              Your tree is waiting to grow. Add contacts and referrals to see it take shape.
             </p>
           </div>
         ) : (

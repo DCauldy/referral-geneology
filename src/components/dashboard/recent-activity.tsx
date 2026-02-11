@@ -56,7 +56,7 @@ export function RecentActivity() {
   if (activities.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        No recent activity. Start by adding contacts and referrals.
+        No growth to report yet. Start by planting branches and watching them spread.
       </div>
     );
   }

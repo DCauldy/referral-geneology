@@ -19,7 +19,7 @@ export default function NetworkVisualizationPage() {
             Network View
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Visualize your referral network as an interconnected graph.
+            Explore the root system connecting every branch of your network.
           </p>
         </div>
         <ViewSwitcher />

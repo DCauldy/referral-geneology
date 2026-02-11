@@ -13,7 +13,7 @@ export default function DashboardPage() {
         Dashboard
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Overview of your referral network and pipeline.
+        A canopy view of your tree — branches, roots, fruit, and new growth at a glance.
       </p>
 
       <div className="mt-6">

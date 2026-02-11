@@ -20,7 +20,7 @@ export default function DealsPage() {
             Deals
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Track and manage your deals pipeline.
+            Track and manage the fruit growing across your grove.
           </p>
         </div>
         <Link
