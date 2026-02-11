@@ -23,6 +23,7 @@ const colorStyles = {
   green: "data-[checked]:bg-green-600 dark:data-[checked]:bg-green-500",
   red: "data-[checked]:bg-red-600 dark:data-[checked]:bg-red-500",
   blue: "data-[checked]:bg-blue-600 dark:data-[checked]:bg-blue-500",
+  amber: "data-[checked]:bg-amber-600 dark:data-[checked]:bg-amber-500",
 };
 
 export function Switch({

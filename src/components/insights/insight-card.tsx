@@ -5,7 +5,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import type { AiInsight } from "@/types/database";
 
 const typeColors: Record<string, string> = {
-  referral_pattern: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  referral_pattern: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
   top_referrers: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
   network_gap: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
   deal_prediction: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",

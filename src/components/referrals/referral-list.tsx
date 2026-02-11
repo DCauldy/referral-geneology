@@ -17,14 +17,14 @@ import type { ReferralStatus, ReferralType } from "@/types/database";
 
 const statusColors: Record<ReferralStatus, BadgeColor> = {
   pending: "yellow",
-  active: "blue",
+  active: "amber",
   converted: "green",
   inactive: "gray",
   declined: "red",
 };
 
 const typeColors: Record<ReferralType, BadgeColor> = {
-  direct: "blue",
+  direct: "amber",
   introduction: "purple",
   recommendation: "green",
   mutual: "pink",

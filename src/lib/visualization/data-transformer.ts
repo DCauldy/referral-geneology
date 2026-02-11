@@ -6,15 +6,15 @@ import type {
 // Color scales for different visualization attributes
 const RELATIONSHIP_COLORS: Record<string, string> = {
   contact: "#94a3b8",
-  client: "#3b82f6",
+  client: "#d97706",
   referral_partner: "#8b5cf6",
-  vendor: "#f59e0b",
+  vendor: "#ea580c",
   colleague: "#22c55e",
   friend: "#ec4899",
 };
 
 const INDUSTRY_COLORS: Record<string, string> = {
-  technology: "#3b82f6",
+  technology: "#d97706",
   healthcare: "#ef4444",
   finance: "#f59e0b",
   real_estate: "#22c55e",
@@ -27,8 +27,8 @@ const INDUSTRY_COLORS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "#f59e0b",
-  active: "#3b82f6",
+  pending: "#fbbf24",
+  active: "#d97706",
   converted: "#22c55e",
   inactive: "#94a3b8",
   declined: "#ef4444",
@@ -48,7 +48,7 @@ export function getNodeColor(
     case "value":
       return valueToColor(node.dealValue);
     default:
-      return "#3b82f6";
+      return "#d97706";
   }
 }
 
@@ -98,8 +98,8 @@ function scoreToColor(score: number): string {
 
 function valueToColor(value: number): string {
   if (value <= 0) return "#94a3b8";
-  if (value < 10000) return "#60a5fa";
-  if (value < 50000) return "#3b82f6";
+  if (value < 10000) return "#fbbf24";
+  if (value < 50000) return "#d97706";
   if (value < 100000) return "#8b5cf6";
   return "#6d28d9";
 }
@@ -187,8 +187,8 @@ export function getLegendItems(colorBy: string): Array<{ label: string; color: s
     case "value":
       return [
         { label: "None", color: "#94a3b8" },
-        { label: "<$10K", color: "#60a5fa" },
-        { label: "$10K-$50K", color: "#3b82f6" },
+        { label: "<$10K", color: "#fbbf24" },
+        { label: "$10K-$50K", color: "#d97706" },
         { label: "$50K-$100K", color: "#8b5cf6" },
         { label: ">$100K", color: "#6d28d9" },
       ];

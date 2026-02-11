@@ -87,7 +87,7 @@ export type PlanType = keyof typeof PLAN_LIMITS;
 
 export const DEFAULT_PIPELINE_STAGES = [
   { name: "Lead", display_order: 0, color: "#94a3b8", is_won: false, is_lost: false },
-  { name: "Contacted", display_order: 1, color: "#60a5fa", is_won: false, is_lost: false },
+  { name: "Contacted", display_order: 1, color: "#fbbf24", is_won: false, is_lost: false },
   { name: "Qualified", display_order: 2, color: "#a78bfa", is_won: false, is_lost: false },
   { name: "Proposal", display_order: 3, color: "#f59e0b", is_won: false, is_lost: false },
   { name: "Negotiation", display_order: 4, color: "#fb923c", is_won: false, is_lost: false },

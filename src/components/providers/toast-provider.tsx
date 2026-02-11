@@ -45,7 +45,7 @@ const colors: Record<ToastType, string> = {
   success: "text-green-500",
   error: "text-red-500",
   warning: "text-yellow-500",
-  info: "text-blue-500",
+  info: "text-amber-500",
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

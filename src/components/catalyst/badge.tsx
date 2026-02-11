@@ -8,6 +8,8 @@ const colorStyles = {
   green:
     "bg-green-50 text-green-700 ring-green-300/50 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-800/50",
   blue: "bg-blue-50 text-blue-700 ring-blue-300/50 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-800/50",
+  amber:
+    "bg-amber-50 text-amber-700 ring-amber-300/50 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-800/50",
   purple:
     "bg-purple-50 text-purple-700 ring-purple-300/50 dark:bg-purple-900/30 dark:text-purple-400 dark:ring-purple-800/50",
   pink: "bg-pink-50 text-pink-700 ring-pink-300/50 dark:bg-pink-900/30 dark:text-pink-400 dark:ring-pink-800/50",

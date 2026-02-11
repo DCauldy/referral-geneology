@@ -59,7 +59,7 @@ export function AppSidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Org switcher */}
-      <div className="flex h-16 items-center gap-3 border-b border-zinc-200 px-4 dark:border-zinc-800">
+      <div className="flex h-16 items-center gap-3 border-b border-amber-200/60 px-4 dark:border-stone-800">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-xs font-bold text-white">
           {org?.name?.charAt(0)?.toUpperCase() || "R"}
         </div>
@@ -179,7 +179,7 @@ export function AppSidebar({
             className="fixed inset-0 bg-black/30"
             onClick={onClose}
           />
-          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl dark:bg-zinc-900">
+          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-amber-50/80 shadow-xl backdrop-blur-sm dark:bg-stone-900">
             {sidebarContent}
           </div>
         </div>
@@ -187,7 +187,7 @@ export function AppSidebar({
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex grow flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex grow flex-col border-r border-amber-200/60 bg-amber-50/50 dark:border-stone-800 dark:bg-stone-900">
           {sidebarContent}
         </div>
       </div>

@@ -170,7 +170,7 @@ export function DealPicker({
   };
 
   const statusColors: Record<string, string> = {
-    open: "text-blue-600 dark:text-blue-400",
+    open: "text-amber-600 dark:text-amber-400",
     won: "text-green-600 dark:text-green-400",
     lost: "text-red-600 dark:text-red-400",
     abandoned: "text-zinc-500 dark:text-zinc-400",
