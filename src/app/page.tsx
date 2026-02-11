@@ -172,8 +172,6 @@ const tiers = [
       "Up to 25 team members",
       "Role-based access control",
       "Real-time collaboration",
-      "Team activity feed",
-      "Dedicated support",
     ],
     cta: "Contact sales",
     href: "/register",
@@ -422,6 +420,26 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+
+            {/* Logo cloud — replace these with your own logos */}
+            <div className="mx-auto grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
+              {[
+                { name: "Partner 1", cols: "col-span-2 lg:col-span-1" },
+                { name: "Partner 2", cols: "col-span-2 lg:col-span-1" },
+                { name: "Partner 3", cols: "col-span-2 lg:col-span-1" },
+                { name: "Partner 4", cols: "col-span-2 sm:col-start-2 lg:col-span-1" },
+                { name: "Partner 5", cols: "col-span-2 col-start-2 sm:col-start-auto lg:col-span-1" },
+              ].map((partner) => (
+                <div
+                  key={partner.name}
+                  className={`${partner.cols} flex max-h-12 items-center justify-center`}
+                >
+                  <div className="rounded-lg border border-gray-200 bg-white/60 px-6 py-2.5 text-sm font-medium text-gray-400 dark:border-white/10 dark:bg-white/5 dark:text-gray-500">
+                    {partner.name}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           <div
             aria-hidden="true"
@@ -601,11 +619,11 @@ export default function HomePage() {
                 key={tier.id}
                 className={
                   tier.featured
-                    ? "relative rounded-3xl bg-gray-900 p-8 shadow-2xl ring-1 ring-gray-900/10 dark:bg-white/5 dark:ring-white/10 sm:p-10"
+                    ? "relative z-10 rounded-3xl bg-gray-900 p-8 shadow-2xl ring-1 ring-gray-900/10 dark:bg-white/5 dark:ring-white/10 sm:p-10"
                     : `rounded-3xl bg-white/60 p-8 ring-1 ring-gray-900/10 dark:bg-stone-900/60 dark:ring-white/10 sm:p-10 ${
                         tierIdx === 0
-                          ? "sm:mx-4 sm:rounded-r-none lg:mx-0 lg:rounded-r-none"
-                          : "sm:mx-4 sm:rounded-l-none lg:mx-0 lg:rounded-l-none"
+                          ? "lg:rounded-r-none"
+                          : "lg:rounded-l-none"
                       }`
                 }
               >
@@ -698,97 +716,77 @@ export default function HomePage() {
       <footer className="mt-32 sm:mt-56">
         <div className="mx-auto max-w-7xl border-t border-gray-200 px-6 py-16 dark:border-white/10 sm:py-24 lg:px-8 lg:py-32">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-            <div className="flex items-center gap-2">
+            <div>
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold text-white shadow-sm">
                 RG
               </div>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                Referral Genealogy
-              </span>
+              <p className="mt-4 text-sm/6 text-gray-600 dark:text-gray-400">&copy; 2026 Referral Genealogy. All rights reserved.</p>
             </div>
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
                 <div>
-                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">
-                    Product
-                  </h3>
+                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Product</h3>
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
-                      <Link
-                        href="#features"
-                        className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                      >
-                        Features
-                      </Link>
+                      <Link href="#features" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Features</Link>
                     </li>
                     <li>
-                      <Link
-                        href="#pricing"
-                        className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                      >
-                        Pricing
-                      </Link>
+                      <Link href="#pricing" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Pricing</Link>
                     </li>
                     <li>
-                      <Link
-                        href="/register"
-                        className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                      >
-                        Get Started
-                      </Link>
+                      <Link href="/register" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Get Started</Link>
+                    </li>
+                    <li>
+                      <Link href="#faqs" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">FAQs</Link>
                     </li>
                   </ul>
                 </div>
                 <div className="mt-10 md:mt-0">
-                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">
-                    Support
-                  </h3>
+                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Support</h3>
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
-                      <Link
-                        href="/about"
-                        className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                      >
-                        About
-                      </Link>
+                      <Link href="/about" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">About</Link>
                     </li>
                     <li>
-                      <Link
-                        href="/login"
-                        className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                      >
-                        Sign In
-                      </Link>
+                      <Link href="/login" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Sign In</Link>
+                    </li>
+                    <li>
+                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">Documentation</span>
                     </li>
                   </ul>
                 </div>
               </div>
               <div className="md:grid md:grid-cols-2 md:gap-8">
                 <div>
-                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">
-                    Legal
-                  </h3>
+                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Company</h3>
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
-                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">
-                        Terms of service
-                      </span>
+                      <Link href="/about" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">About</Link>
                     </li>
                     <li>
-                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">
-                        Privacy policy
-                      </span>
+                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">Blog</span>
+                    </li>
+                    <li>
+                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">Careers</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-10 md:mt-0">
+                  <h3 className="text-sm/6 font-semibold text-gray-900 dark:text-white">Legal</h3>
+                  <ul role="list" className="mt-6 space-y-4">
+                    <li>
+                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">Terms of service</span>
+                    </li>
+                    <li>
+                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">Privacy policy</span>
+                    </li>
+                    <li>
+                      <span className="text-sm/6 text-gray-600 dark:text-gray-400">License</span>
                     </li>
                   </ul>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="mt-16 border-t border-gray-200 pt-8 dark:border-white/10">
-            <p className="text-sm text-gray-500 dark:text-gray-500">
-              &copy; {new Date().getFullYear()} Referral Genealogy. All
-              rights reserved.
-            </p>
           </div>
         </div>
       </footer>

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { cn } from "@/lib/utils/cn";
 import {
   HomeIcon,
@@ -9,15 +10,59 @@ import {
   BuildingOffice2Icon,
   CurrencyDollarIcon,
   ArrowsRightLeftIcon,
-  ShareIcon,
   ChartBarIcon,
   SparklesIcon,
   DocumentArrowDownIcon,
   Cog6ToothIcon,
-  ChevronDownIcon,
+  CreditCardIcon,
+  UserCircleIcon,
+  ArrowRightStartOnRectangleIcon,
+  ChevronUpIcon,
 } from "@heroicons/react/24/outline";
 import { useOrg } from "@/components/providers/org-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
+import { createClient } from "@/lib/supabase/client";
+import { getInitials } from "@/lib/utils/format";
+
+function TreeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" className={className}>
+      <circle cx="10" cy="3.5" r="2" strokeWidth="1.5" />
+      <circle cx="4.5" cy="13" r="2" strokeWidth="1.5" />
+      <circle cx="15.5" cy="13" r="2" strokeWidth="1.5" />
+      <path d="M10 5.5V8.5M10 8.5L4.5 11M10 8.5L15.5 11" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function NetworkIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" className={className}>
+      <circle cx="10" cy="10" r="2" strokeWidth="1.5" />
+      <circle cx="3.5" cy="5" r="1.5" strokeWidth="1.5" />
+      <circle cx="16.5" cy="5" r="1.5" strokeWidth="1.5" />
+      <circle cx="4" cy="16" r="1.5" strokeWidth="1.5" />
+      <circle cx="16" cy="15" r="1.5" strokeWidth="1.5" />
+      <path d="M8.2 8.8L4.7 6.2M11.8 8.8L15.3 6.2M8.5 11.5L5.2 14.8M11.5 11.5L14.8 13.8" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function GalaxyIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" stroke="none" className={className}>
+      <circle cx="10" cy="10" r="2.2" opacity="0.9" />
+      <circle cx="5" cy="7" r="1.2" opacity="0.7" />
+      <circle cx="15" cy="7" r="1" opacity="0.6" />
+      <circle cx="4" cy="13" r="0.9" opacity="0.5" />
+      <circle cx="14.5" cy="14" r="1.3" opacity="0.65" />
+      <circle cx="7.5" cy="15.5" r="0.7" opacity="0.4" />
+      <circle cx="12" cy="4.5" r="0.8" opacity="0.45" />
+      <circle cx="7" cy="4" r="0.6" opacity="0.35" />
+      <circle cx="16.5" cy="11" r="0.7" opacity="0.4" />
+    </svg>
+  );
+}
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
@@ -28,16 +73,15 @@ const navigation = [
 ];
 
 const visualizations = [
-  { name: "Tree View", href: "/visualize/tree", view: "tree" },
-  { name: "Network View", href: "/visualize/network", view: "network" },
-  { name: "Galaxy View", href: "/visualize/galaxy", view: "galaxy" },
+  { name: "Tree View", href: "/visualize/tree", view: "tree", icon: TreeIcon },
+  { name: "Network View", href: "/visualize/network", view: "network", icon: NetworkIcon },
+  { name: "Galaxy View", href: "/visualize/galaxy", view: "galaxy", icon: GalaxyIcon },
 ];
 
 const secondaryNav = [
   { name: "Insights", href: "/insights", icon: SparklesIcon, requiresAI: true },
   { name: "Reports", href: "/reports", icon: ChartBarIcon },
   { name: "Import", href: "/import", icon: DocumentArrowDownIcon, requiresImport: true },
-  { name: "Settings", href: "/settings/profile", icon: Cog6ToothIcon },
 ];
 
 export function AppSidebar({
@@ -48,7 +92,8 @@ export function AppSidebar({
   onClose?: () => void;
 }) {
   const pathname = usePathname();
-  const { org } = useOrg();
+  const router = useRouter();
+  const { org, profile } = useOrg();
   const { canAccessView, canAccessAI, canImportExport } = usePlanLimits();
 
   function isActive(href: string) {
@@ -56,116 +101,195 @@ export function AppSidebar({
     return pathname.startsWith(href);
   }
 
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
+  const initials = profile?.full_name
+    ? getInitials(
+        profile.full_name.split(" ")[0],
+        profile.full_name.split(" ").slice(1).join(" ")
+      )
+    : "?";
+
+  const linkClasses = (active: boolean, locked?: boolean) =>
+    cn(
+      "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
+      active
+        ? "bg-primary-900 text-white"
+        : locked
+          ? "text-primary-200/50"
+          : "text-primary-200 hover:bg-primary-900 hover:text-white"
+    );
+
+  const iconClasses = (active: boolean) =>
+    cn("size-6 shrink-0", active ? "text-white" : "text-primary-200 group-hover:text-white");
+
   const sidebarContent = (
-    <div className="flex h-full flex-col">
-      {/* Org switcher */}
-      <div className="flex h-16 items-center gap-3 border-b border-amber-200/60 px-4 dark:border-stone-800">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-xs font-bold text-white">
-          {org?.name?.charAt(0)?.toUpperCase() || "R"}
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-primary-800 px-6 pb-4">
+      {/* Logo + plan */}
+      <div className="shrink-0 pt-14 pb-4">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
+            RG
+          </div>
+          <span className="text-sm font-semibold text-white">
+            Referral Genealogy
+          </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-zinc-900 dark:text-white">
-            {org?.name || "My Workspace"}
-          </p>
-          <p className="text-xs capitalize text-zinc-500">
-            {org?.plan || "free"} plan
-          </p>
-        </div>
-        <ChevronDownIcon className="h-4 w-4 text-zinc-400" />
+        <p className="mt-2 text-xs capitalize text-primary-300">
+          {org?.plan || "free"} plan
+        </p>
       </div>
 
-      {/* Main navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-        <div className="space-y-0.5">
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive(item.href)
-                  ? "bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-400"
-                  : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              )}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {item.name}
-            </Link>
-          ))}
-        </div>
+      {/* Navigation */}
+      <nav className="flex flex-1 flex-col">
+        <ul role="list" className="flex flex-1 flex-col gap-y-7">
+          {/* Main nav */}
+          <li>
+            <ul role="list" className="-mx-2 space-y-1">
+              {navigation.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={onClose}
+                    className={linkClasses(isActive(item.href))}
+                  >
+                    <item.icon className={iconClasses(isActive(item.href))} />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
 
-        {/* Visualizations section */}
-        <div className="pt-4">
-          <p className="mb-2 px-3 text-xs font-semibold tracking-wider text-zinc-400 uppercase dark:text-zinc-500">
-            Visualize
-          </p>
-          <div className="space-y-0.5">
-            {visualizations.map((item) => {
-              const hasAccess = canAccessView(item.view);
-              return (
-                <Link
-                  key={item.href}
-                  href={hasAccess ? item.href : "/settings/billing"}
-                  onClick={onClose}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                    isActive(item.href)
-                      ? "bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-400"
-                      : hasAccess
-                        ? "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                        : "text-zinc-400 dark:text-zinc-600"
-                  )}
-                >
-                  <ShareIcon className="h-5 w-5 shrink-0" />
-                  {item.name}
-                  {!hasAccess && (
-                    <span className="ml-auto rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-800">
-                      PRO
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+          {/* Visualize section */}
+          <li>
+            <div className="text-xs/6 font-semibold text-primary-200">
+              Visualize
+            </div>
+            <ul role="list" className="-mx-2 mt-2 space-y-1">
+              {visualizations.map((item) => {
+                const hasAccess = canAccessView(item.view);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={hasAccess ? item.href : "/settings/billing"}
+                      onClick={onClose}
+                      className={linkClasses(isActive(item.href), !hasAccess)}
+                    >
+                      <item.icon className={iconClasses(isActive(item.href))} />
+                      {item.name}
+                      {!hasAccess && (
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                          PRO
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
 
-        {/* Secondary navigation */}
-        <div className="pt-4">
-          <p className="mb-2 px-3 text-xs font-semibold tracking-wider text-zinc-400 uppercase dark:text-zinc-500">
-            More
-          </p>
-          <div className="space-y-0.5">
-            {secondaryNav.map((item) => {
-              const locked =
-                (item.requiresAI && !canAccessAI) ||
-                (item.requiresImport && !canImportExport);
-              return (
-                <Link
-                  key={item.href}
-                  href={locked ? "/settings/billing" : item.href}
-                  onClick={onClose}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                    isActive(item.href)
-                      ? "bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-400"
-                      : locked
-                        ? "text-zinc-400 dark:text-zinc-600"
-                        : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                  )}
-                >
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  {item.name}
-                  {locked && (
-                    <span className="ml-auto rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-800">
-                      PRO
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+          {/* More section */}
+          <li>
+            <div className="text-xs/6 font-semibold text-primary-200">
+              More
+            </div>
+            <ul role="list" className="-mx-2 mt-2 space-y-1">
+              {secondaryNav.map((item) => {
+                const locked =
+                  (item.requiresAI && !canAccessAI) ||
+                  (item.requiresImport && !canImportExport);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={locked ? "/settings/billing" : item.href}
+                      onClick={onClose}
+                      className={linkClasses(isActive(item.href), locked)}
+                    >
+                      <item.icon className={iconClasses(isActive(item.href))} />
+                      {item.name}
+                      {locked && (
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                          PRO
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+
+          {/* User profile footer */}
+          <li className="-mx-6 mt-auto">
+            <Popover className="relative">
+              <PopoverButton className="flex w-full items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-primary-900 focus:outline-none">
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt=""
+                    className="size-8 rounded-full bg-primary-900"
+                  />
+                ) : (
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-900 text-xs font-medium text-primary-200">
+                    {initials}
+                  </div>
+                )}
+                <span className="truncate">
+                  {profile?.full_name || "User"}
+                </span>
+                <ChevronUpIcon className="ml-auto size-4 text-primary-300" />
+              </PopoverButton>
+              <PopoverPanel
+                anchor="top start"
+                className="z-50 mb-2 ml-4 w-52 rounded-xl border border-primary-700 bg-primary-900 py-1 shadow-lg"
+              >
+                {({ close }) => (
+                  <>
+                    <Link
+                      href="/settings/profile"
+                      onClick={() => { close(); onClose?.(); }}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary-100 hover:bg-primary-800"
+                    >
+                      <UserCircleIcon className="size-4" />
+                      Profile
+                    </Link>
+                    <Link
+                      href="/settings/billing"
+                      onClick={() => { close(); onClose?.(); }}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary-100 hover:bg-primary-800"
+                    >
+                      <CreditCardIcon className="size-4" />
+                      Billing
+                    </Link>
+                    <Link
+                      href="/settings/organization"
+                      onClick={() => { close(); onClose?.(); }}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary-100 hover:bg-primary-800"
+                    >
+                      <Cog6ToothIcon className="size-4" />
+                      Settings
+                    </Link>
+                    <div className="my-1 border-t border-primary-700" />
+                    <button
+                      onClick={() => { close(); handleSignOut(); }}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-primary-800"
+                    >
+                      <ArrowRightStartOnRectangleIcon className="size-4" />
+                      Sign out
+                    </button>
+                  </>
+                )}
+              </PopoverPanel>
+            </Popover>
+          </li>
+        </ul>
       </nav>
     </div>
   );
@@ -179,7 +303,7 @@ export function AppSidebar({
             className="fixed inset-0 bg-black/30"
             onClick={onClose}
           />
-          <div className="fixed inset-y-0 left-0 z-50 w-64 bg-amber-50/80 shadow-xl backdrop-blur-sm dark:bg-stone-900">
+          <div className="fixed inset-y-0 left-0 z-50 w-64 shadow-xl">
             {sidebarContent}
           </div>
         </div>
@@ -187,9 +311,7 @@ export function AppSidebar({
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex grow flex-col border-r border-amber-200/60 bg-amber-50/50 dark:border-stone-800 dark:bg-stone-900">
-          {sidebarContent}
-        </div>
+        {sidebarContent}
       </div>
     </>
   );
