@@ -257,7 +257,7 @@ export function AppSidebar({
           {/* More section */}
           <li>
             <div className="text-xs/6 font-semibold text-primary-200">
-              More
+              Grow
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
               {secondaryNav.map((item) => {
