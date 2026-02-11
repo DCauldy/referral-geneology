@@ -6,9 +6,11 @@ import { useOrg } from "@/components/providers/org-provider";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useToast } from "@/components/providers/toast-provider";
 import { useTheme } from "@/components/providers/theme-provider";
+import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
+import { useMyDirectoryProfile } from "@/lib/hooks/use-directory";
 import { getInitials } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
-import { CameraIcon } from "@heroicons/react/24/outline";
+import { CameraIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const inputClassName =
   "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
@@ -27,6 +29,8 @@ export default function ProfileSettingsPage() {
   const { profile, refreshOrg } = useOrg();
   const toast = useToast();
   const { theme, setTheme } = useTheme();
+  const { canExchangeReferrals } = usePlanLimits();
+  const { profile: dirProfile, isLoading: dirLoading, saveProfile: saveDirProfile } = useMyDirectoryProfile();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -35,6 +39,20 @@ export default function ProfileSettingsPage() {
   const [jobTitle, setJobTitle] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Directory profile state
+  const [dirVisible, setDirVisible] = useState(false);
+  const [dirDisplayName, setDirDisplayName] = useState("");
+  const [dirCompanyName, setDirCompanyName] = useState("");
+  const [dirIndustry, setDirIndustry] = useState("");
+  const [dirLocation, setDirLocation] = useState("");
+  const [dirBio, setDirBio] = useState("");
+  const [dirSpecialties, setDirSpecialties] = useState<string[]>([]);
+  const [dirCategories, setDirCategories] = useState<string[]>([]);
+  const [dirAcceptsReferrals, setDirAcceptsReferrals] = useState(true);
+  const [newSpecialty, setNewSpecialty] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [isSavingDir, setIsSavingDir] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -59,6 +77,24 @@ export default function ProfileSettingsPage() {
     }
     loadEmail();
   }, [profile, supabase]);
+
+  // Load directory profile data
+  useEffect(() => {
+    if (dirProfile) {
+      setDirVisible(dirProfile.is_visible);
+      setDirDisplayName(dirProfile.display_name);
+      setDirCompanyName(dirProfile.company_name || "");
+      setDirIndustry(dirProfile.industry || "");
+      setDirLocation(dirProfile.location || "");
+      setDirBio(dirProfile.bio || "");
+      setDirSpecialties(dirProfile.specialties || []);
+      setDirCategories(dirProfile.referral_categories || []);
+      setDirAcceptsReferrals(dirProfile.accepts_referrals);
+    } else if (!dirLoading && profile) {
+      // Pre-fill from user profile
+      setDirDisplayName(profile.full_name || "");
+    }
+  }, [dirProfile, dirLoading, profile]);
 
   function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -301,6 +337,267 @@ export default function ProfileSettingsPage() {
           </div>
         </fieldset>
       </SettingsSection>
+
+      {/* Directory Presence */}
+      {canExchangeReferrals && (
+        <SettingsSection
+          title="Directory Presence"
+          description="Control how you appear in the grower directory. Other paid members can find you and send seeds your way."
+        >
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setIsSavingDir(true);
+              try {
+                await saveDirProfile({
+                  display_name: dirDisplayName || profile?.full_name || "User",
+                  company_name: dirCompanyName,
+                  industry: dirIndustry,
+                  location: dirLocation,
+                  bio: dirBio,
+                  avatar_url: profile?.avatar_url,
+                  specialties: dirSpecialties,
+                  referral_categories: dirCategories,
+                  accepts_referrals: dirAcceptsReferrals,
+                  is_visible: dirVisible,
+                });
+                toast.success(
+                  "Directory profile saved",
+                  dirVisible
+                    ? "You are now visible in the grower directory."
+                    : "Your directory profile has been saved but is hidden."
+                );
+              } catch (err) {
+                toast.error(
+                  "Failed to save directory profile",
+                  err instanceof Error ? err.message : "An unexpected error occurred."
+                );
+              } finally {
+                setIsSavingDir(false);
+              }
+            }}
+            className="grid max-w-lg gap-6"
+          >
+            {/* Visibility toggle */}
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={dirVisible}
+                onChange={(e) => setDirVisible(e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300 text-primary-600 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800"
+              />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                List me in the directory
+              </span>
+            </label>
+
+            {/* Display Name */}
+            <div>
+              <label htmlFor="dir_display_name" className={labelClassName}>
+                Display Name
+              </label>
+              <input
+                id="dir_display_name"
+                type="text"
+                value={dirDisplayName}
+                onChange={(e) => setDirDisplayName(e.target.value)}
+                className={inputClassName}
+                placeholder="Your public name"
+              />
+            </div>
+
+            {/* Company + Industry row */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="dir_company" className={labelClassName}>
+                  Company
+                </label>
+                <input
+                  id="dir_company"
+                  type="text"
+                  value={dirCompanyName}
+                  onChange={(e) => setDirCompanyName(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Acme Inc."
+                />
+              </div>
+              <div>
+                <label htmlFor="dir_industry" className={labelClassName}>
+                  Industry
+                </label>
+                <input
+                  id="dir_industry"
+                  type="text"
+                  value={dirIndustry}
+                  onChange={(e) => setDirIndustry(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Technology"
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label htmlFor="dir_location" className={labelClassName}>
+                Location
+              </label>
+              <input
+                id="dir_location"
+                type="text"
+                value={dirLocation}
+                onChange={(e) => setDirLocation(e.target.value)}
+                className={inputClassName}
+                placeholder="San Francisco, CA"
+              />
+            </div>
+
+            {/* Bio */}
+            <div>
+              <label htmlFor="dir_bio" className={labelClassName}>
+                Bio
+              </label>
+              <textarea
+                id="dir_bio"
+                value={dirBio}
+                onChange={(e) => setDirBio(e.target.value)}
+                rows={3}
+                className={inputClassName}
+                placeholder="A brief intro for other growers..."
+              />
+            </div>
+
+            {/* Specialties */}
+            <div>
+              <label className={labelClassName}>Specialties</label>
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {dirSpecialties.map((s) => (
+                  <span
+                    key={s}
+                    className="inline-flex items-center gap-1 rounded-md bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+                  >
+                    {s}
+                    <button
+                      type="button"
+                      onClick={() => setDirSpecialties((prev) => prev.filter((x) => x !== s))}
+                      className="ml-0.5 text-primary-500 hover:text-primary-700"
+                    >
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSpecialty}
+                  onChange={(e) => setNewSpecialty(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newSpecialty.trim() && !dirSpecialties.includes(newSpecialty.trim())) {
+                        setDirSpecialties((prev) => [...prev, newSpecialty.trim()]);
+                        setNewSpecialty("");
+                      }
+                    }
+                  }}
+                  className={cn(inputClassName, "flex-1")}
+                  placeholder="Add a specialty..."
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newSpecialty.trim() && !dirSpecialties.includes(newSpecialty.trim())) {
+                      setDirSpecialties((prev) => [...prev, newSpecialty.trim()]);
+                      setNewSpecialty("");
+                    }
+                  }}
+                  className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Referral Categories */}
+            <div>
+              <label className={labelClassName}>Referral Categories</label>
+              <p className="mb-2 text-xs text-zinc-400 dark:text-zinc-500">
+                What types of referrals are you looking for?
+              </p>
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {dirCategories.map((c) => (
+                  <span
+                    key={c}
+                    className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
+                  >
+                    {c}
+                    <button
+                      type="button"
+                      onClick={() => setDirCategories((prev) => prev.filter((x) => x !== c))}
+                      className="ml-0.5 text-teal-500 hover:text-teal-700"
+                    >
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newCategory.trim() && !dirCategories.includes(newCategory.trim())) {
+                        setDirCategories((prev) => [...prev, newCategory.trim()]);
+                        setNewCategory("");
+                      }
+                    }
+                  }}
+                  className={cn(inputClassName, "flex-1")}
+                  placeholder="e.g., Web Development..."
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newCategory.trim() && !dirCategories.includes(newCategory.trim())) {
+                      setDirCategories((prev) => [...prev, newCategory.trim()]);
+                      setNewCategory("");
+                    }
+                  }}
+                  className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Accepts Referrals */}
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={dirAcceptsReferrals}
+                onChange={(e) => setDirAcceptsReferrals(e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-300 text-primary-600 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800"
+              />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                I am currently accepting referrals
+              </span>
+            </label>
+
+            <div>
+              <button
+                type="submit"
+                disabled={isSavingDir}
+                className="rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary-700 disabled:opacity-50"
+              >
+                {isSavingDir ? "Saving..." : "Save Directory Profile"}
+              </button>
+            </div>
+          </form>
+        </SettingsSection>
+      )}
 
       {/* Delete Account */}
       <SettingsSection

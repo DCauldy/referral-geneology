@@ -6,20 +6,20 @@ import type {
 // Color scales for different visualization attributes
 const RELATIONSHIP_COLORS: Record<string, string> = {
   contact: "#94a3b8",
-  client: "#d97706",
+  client: "#2f5435",
   referral_partner: "#8b5cf6",
-  vendor: "#ea580c",
+  vendor: "#5d8a5a",
   colleague: "#22c55e",
   friend: "#ec4899",
 };
 
 const INDUSTRY_COLORS: Record<string, string> = {
-  technology: "#d97706",
+  technology: "#2f5435",
   healthcare: "#ef4444",
-  finance: "#f59e0b",
+  finance: "#5d8a5a",
   real_estate: "#22c55e",
   education: "#8b5cf6",
-  manufacturing: "#f97316",
+  manufacturing: "#96b593",
   retail: "#ec4899",
   consulting: "#06b6d4",
   legal: "#6366f1",
@@ -27,17 +27,23 @@ const INDUSTRY_COLORS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "#fbbf24",
-  active: "#d97706",
+  pending: "#96b593",
+  active: "#2f5435",
   converted: "#22c55e",
   inactive: "#94a3b8",
   declined: "#ef4444",
 };
 
+// Inter-network exchange color
+const INTER_NETWORK_COLOR = "#06b6d4"; // teal-500
+const GHOST_NODE_COLOR = "#06b6d4";
+
 export function getNodeColor(
   node: VisualizationNode,
   colorBy: string
 ): string {
+  if (node.isGhost) return GHOST_NODE_COLOR;
+
   switch (colorBy) {
     case "relationship":
       return RELATIONSHIP_COLORS[node.relationshipType] || "#94a3b8";
@@ -48,7 +54,7 @@ export function getNodeColor(
     case "value":
       return valueToColor(node.dealValue);
     default:
-      return "#d97706";
+      return "#2f5435";
   }
 }
 
@@ -58,6 +64,9 @@ export function getNodeSize(
 ): number {
   const BASE_SIZE = 40;
   const MAX_SIZE = 80;
+  const GHOST_SIZE = 32;
+
+  if (node.isGhost) return GHOST_SIZE;
 
   switch (sizeBy) {
     case "referrals": {
@@ -79,10 +88,12 @@ export function getNodeSize(
 }
 
 export function getEdgeColor(edge: VisualizationEdge): string {
+  if (edge.isInterNetwork) return INTER_NETWORK_COLOR;
   return STATUS_COLORS[edge.referralStatus] || "#94a3b8";
 }
 
 export function getEdgeThickness(edge: VisualizationEdge): number {
+  if (edge.isInterNetwork) return 2;
   if (!edge.referralValue) return 1;
   return Math.max(1, Math.min(5, edge.referralValue / 10000));
 }
@@ -90,16 +101,16 @@ export function getEdgeThickness(edge: VisualizationEdge): number {
 function scoreToColor(score: number): string {
   // Gradient from gray (0) to green (100+)
   if (score <= 0) return "#94a3b8";
-  if (score < 25) return "#f59e0b";
-  if (score < 50) return "#f97316";
+  if (score < 25) return "#96b593";
+  if (score < 50) return "#5d8a5a";
   if (score < 75) return "#22c55e";
   return "#16a34a";
 }
 
 function valueToColor(value: number): string {
   if (value <= 0) return "#94a3b8";
-  if (value < 10000) return "#fbbf24";
-  if (value < 50000) return "#d97706";
+  if (value < 10000) return "#96b593";
+  if (value < 50000) return "#5d8a5a";
   if (value < 100000) return "#8b5cf6";
   return "#6d28d9";
 }
@@ -112,7 +123,7 @@ export function toReactFlowNodes(
 ) {
   return nodes.map((node) => ({
     id: node.id,
-    type: "custom",
+    type: node.isGhost ? "ghost" : "custom",
     position: { x: node.x || 0, y: node.y || 0 },
     data: {
       ...node,
@@ -136,8 +147,13 @@ export function toReactFlowEdges(edges: VisualizationEdge[]) {
     style: {
       stroke: getEdgeColor(edge),
       strokeWidth: getEdgeThickness(edge),
+      ...(edge.isInterNetwork
+        ? { strokeDasharray: "6 3" }
+        : {}),
     },
-    animated: edge.referralStatus === "active",
+    animated: edge.isInterNetwork
+      ? edge.exchangeStatus === "pending"
+      : edge.referralStatus === "active",
   }));
 }
 
@@ -164,35 +180,47 @@ export function findRootNodes(
 }
 
 // Get legend items for current color scheme
-export function getLegendItems(colorBy: string): Array<{ label: string; color: string }> {
+export function getLegendItems(colorBy: string, showInterNetwork?: boolean): Array<{ label: string; color: string }> {
+  let items: Array<{ label: string; color: string }>;
+
   switch (colorBy) {
     case "relationship":
-      return Object.entries(RELATIONSHIP_COLORS).map(([key, color]) => ({
+      items = Object.entries(RELATIONSHIP_COLORS).map(([key, color]) => ({
         label: key.replace("_", " "),
         color,
       }));
+      break;
     case "industry":
-      return Object.entries(INDUSTRY_COLORS).map(([key, color]) => ({
+      items = Object.entries(INDUSTRY_COLORS).map(([key, color]) => ({
         label: key.replace("_", " "),
         color,
       }));
+      break;
     case "score":
-      return [
+      items = [
         { label: "Low (0)", color: "#94a3b8" },
-        { label: "Medium (25)", color: "#f59e0b" },
-        { label: "Good (50)", color: "#f97316" },
+        { label: "Medium (25)", color: "#96b593" },
+        { label: "Good (50)", color: "#5d8a5a" },
         { label: "High (75)", color: "#22c55e" },
         { label: "Excellent (100+)", color: "#16a34a" },
       ];
+      break;
     case "value":
-      return [
+      items = [
         { label: "None", color: "#94a3b8" },
-        { label: "<$10K", color: "#fbbf24" },
-        { label: "$10K-$50K", color: "#d97706" },
+        { label: "<$10K", color: "#96b593" },
+        { label: "$10K-$50K", color: "#5d8a5a" },
         { label: "$50K-$100K", color: "#8b5cf6" },
         { label: ">$100K", color: "#6d28d9" },
       ];
+      break;
     default:
-      return [];
+      items = [];
   }
+
+  if (showInterNetwork) {
+    items.push({ label: "Inter-network", color: INTER_NETWORK_COLOR });
+  }
+
+  return items;
 }

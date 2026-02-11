@@ -99,6 +99,7 @@ export const PLAN_LIMITS = {
     dealTracking: "basic" as const,
     realtimeCollab: false,
     automations: false,
+    referralExchange: false,
   },
   pro: {
     maxContacts: Infinity,
@@ -109,6 +110,7 @@ export const PLAN_LIMITS = {
     dealTracking: "full" as const,
     realtimeCollab: false,
     automations: true,
+    referralExchange: true,
   },
   team: {
     maxContacts: Infinity,
@@ -119,6 +121,7 @@ export const PLAN_LIMITS = {
     dealTracking: "full" as const,
     realtimeCollab: true,
     automations: true,
+    referralExchange: true,
   },
 } as const;
 
@@ -126,10 +129,10 @@ export type PlanType = keyof typeof PLAN_LIMITS;
 
 export const DEFAULT_PIPELINE_STAGES = [
   { name: "Lead", display_order: 0, color: "#94a3b8", is_won: false, is_lost: false },
-  { name: "Contacted", display_order: 1, color: "#fbbf24", is_won: false, is_lost: false },
+  { name: "Contacted", display_order: 1, color: "#5d8a5a", is_won: false, is_lost: false },
   { name: "Qualified", display_order: 2, color: "#a78bfa", is_won: false, is_lost: false },
-  { name: "Proposal", display_order: 3, color: "#f59e0b", is_won: false, is_lost: false },
-  { name: "Negotiation", display_order: 4, color: "#fb923c", is_won: false, is_lost: false },
+  { name: "Proposal", display_order: 3, color: "#2f5435", is_won: false, is_lost: false },
+  { name: "Negotiation", display_order: 4, color: "#96b593", is_won: false, is_lost: false },
   { name: "Won", display_order: 5, color: "#22c55e", is_won: true, is_lost: false },
   { name: "Lost", display_order: 6, color: "#ef4444", is_won: false, is_lost: true },
 ];

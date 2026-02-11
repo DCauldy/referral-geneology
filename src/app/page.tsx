@@ -245,7 +245,7 @@ export default function HomePage() {
         >
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold text-white shadow-sm">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white shadow-sm">
                 RG
               </div>
               <span className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -268,7 +268,7 @@ export default function HomePage() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm/6 font-semibold text-gray-900 hover:text-amber-700 dark:text-gray-200 dark:hover:text-amber-400"
+                className="text-sm/6 font-semibold text-gray-900 hover:text-primary-700 dark:text-gray-200 dark:hover:text-primary-400"
               >
                 {link.name}
               </Link>
@@ -285,7 +285,7 @@ export default function HomePage() {
             </button>
             <Link
               href="/login"
-              className="text-sm/6 font-semibold text-gray-900 hover:text-amber-700 dark:text-white dark:hover:text-amber-400"
+              className="text-sm/6 font-semibold text-gray-900 hover:text-primary-700 dark:text-white dark:hover:text-primary-400"
             >
               Log in <span aria-hidden="true">&rarr;</span>
             </Link>
@@ -305,7 +305,7 @@ export default function HomePage() {
                   href="/"
                   className="-m-1.5 flex items-center gap-2 p-1.5"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold text-white">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
                     RG
                   </div>
                 </Link>
@@ -376,7 +376,7 @@ export default function HomePage() {
                 clipPath:
                   "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
               }}
-              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-amber-300 to-orange-500 opacity-20 dark:opacity-15 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary-300 to-primary-500 opacity-20 dark:opacity-15 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
             />
           </div>
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -386,7 +386,7 @@ export default function HomePage() {
                   Now with AI-powered referral insights.{" "}
                   <Link
                     href="#features"
-                    className="font-semibold text-amber-600 dark:text-amber-400"
+                    className="font-semibold text-primary-600 dark:text-primary-400"
                   >
                     <span aria-hidden="true" className="absolute inset-0" />
                     See what&apos;s new{" "}
@@ -397,7 +397,7 @@ export default function HomePage() {
               <div className="text-center">
                 <h1 className="text-5xl font-semibold tracking-tight text-balance text-gray-900 dark:text-white sm:text-7xl">
                   See your referral network{" "}
-                  <span className="text-amber-600 dark:text-amber-400">come alive</span>
+                  <span className="text-primary-600 dark:text-primary-400">come alive</span>
                 </h1>
                 <p className="mt-8 text-lg font-medium text-pretty text-gray-600 dark:text-gray-400 sm:text-xl/8">
                   Track who referred whom, visualize referral chains like a
@@ -407,13 +407,13 @@ export default function HomePage() {
                 <div className="mt-10 flex items-center justify-center gap-x-6">
                   <Link
                     href="/register"
-                    className="rounded-md bg-amber-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-amber-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+                    className="rounded-md bg-primary-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-primary-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
                   >
                     Start free
                   </Link>
                   <Link
                     href="#features"
-                    className="text-sm/6 font-semibold text-gray-900 hover:text-amber-700 dark:text-gray-200 dark:hover:text-amber-400"
+                    className="text-sm/6 font-semibold text-gray-900 hover:text-primary-700 dark:text-gray-200 dark:hover:text-primary-400"
                   >
                     Learn more <span aria-hidden="true">&rarr;</span>
                   </Link>
@@ -450,7 +450,7 @@ export default function HomePage() {
                 clipPath:
                   "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
               }}
-              className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-orange-400 to-amber-300 opacity-20 dark:opacity-15 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+              className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-primary-400 to-primary-300 opacity-20 dark:opacity-15 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
             />
           </div>
         </div>
@@ -459,7 +459,7 @@ export default function HomePage() {
         <div id="features" className="mt-32 sm:mt-56">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl sm:text-center">
-              <h2 className="text-base/7 font-semibold text-amber-600 dark:text-amber-400">
+              <h2 className="text-base/7 font-semibold text-primary-600 dark:text-primary-400">
                 Everything you need
               </h2>
               <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 dark:text-white sm:text-5xl sm:text-balance">
@@ -493,7 +493,7 @@ export default function HomePage() {
                 <div key={feature.name} className="relative pl-9">
                   <dt className="inline font-semibold text-gray-900 dark:text-white">
                     <svg
-                      className="absolute top-1 left-1 size-5 text-amber-600 dark:text-amber-400"
+                      className="absolute top-1 left-1 size-5 text-primary-600 dark:text-primary-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
@@ -519,7 +519,7 @@ export default function HomePage() {
                   clipPath:
                     "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
                 }}
-                className="aspect-[1097/1023] w-[68.5625rem] bg-gradient-to-r from-amber-400 to-orange-600 opacity-25"
+                className="aspect-[1097/1023] w-[68.5625rem] bg-gradient-to-r from-primary-400 to-primary-600 opacity-25"
               />
             </div>
           </div>
@@ -527,11 +527,11 @@ export default function HomePage() {
             <div className="mx-auto flex max-w-7xl flex-col items-center gap-x-8 gap-y-10 px-6 sm:gap-y-8 lg:px-8 xl:flex-row xl:items-stretch">
               <div className="-mt-8 w-full max-w-2xl xl:-mb-8 xl:w-96 xl:flex-none">
                 <div className="relative aspect-[2/1] h-full md:-mx-8 xl:mx-0 xl:aspect-auto">
-                  <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-amber-600/20 to-orange-700/20">
+                  <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600/20 to-primary-700/20">
                     <div className="text-center">
-                      <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/20 ring-1 ring-amber-500/40">
+                      <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary-500/20 ring-1 ring-primary-500/40">
                         <svg
-                          className="h-10 w-10 text-amber-400"
+                          className="h-10 w-10 text-primary-400"
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
@@ -544,7 +544,7 @@ export default function HomePage() {
                           />
                         </svg>
                       </div>
-                      <p className="text-sm text-amber-300/60">
+                      <p className="text-sm text-primary-300/60">
                         Customer spotlight
                       </p>
                     </div>
@@ -598,11 +598,11 @@ export default function HomePage() {
                 clipPath:
                   "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
               }}
-              className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-amber-300 to-orange-500 opacity-30"
+              className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-primary-300 to-primary-500 opacity-30"
             />
           </div>
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-base/7 font-semibold text-amber-600 dark:text-amber-400">
+            <h2 className="text-base/7 font-semibold text-primary-600 dark:text-primary-400">
               Pricing
             </h2>
             <p className="mt-2 text-4xl font-semibold tracking-tight text-balance text-gray-900 dark:text-white sm:text-5xl">
@@ -630,7 +630,7 @@ export default function HomePage() {
                 <h3
                   id={tier.id}
                   className={`text-base/7 font-semibold ${
-                    tier.featured ? "text-amber-400" : "text-amber-600 dark:text-amber-400"
+                    tier.featured ? "text-primary-400" : "text-primary-600 dark:text-primary-400"
                   }`}
                 >
                   {tier.name}
@@ -669,8 +669,8 @@ export default function HomePage() {
                       <CheckIcon
                         className={`h-6 w-5 flex-none ${
                           tier.featured
-                            ? "text-amber-400"
-                            : "text-amber-600 dark:text-amber-400"
+                            ? "text-primary-400"
+                            : "text-primary-600 dark:text-primary-400"
                         }`}
                       />
                       {feature}
@@ -682,8 +682,8 @@ export default function HomePage() {
                   aria-describedby={tier.id}
                   className={`mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold shadow-xs sm:mt-10 ${
                     tier.featured
-                      ? "bg-amber-500 text-white hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
-                      : "text-amber-600 ring-1 ring-inset ring-amber-200 hover:ring-amber-300 dark:text-amber-400 dark:ring-amber-400/30 dark:hover:ring-amber-400/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+                      ? "bg-primary-500 text-white hover:bg-primary-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+                      : "text-primary-600 ring-1 ring-inset ring-primary-200 hover:ring-primary-300 dark:text-primary-400 dark:ring-primary-400/30 dark:hover:ring-primary-400/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
                   }`}
                 >
                   {tier.cta}
@@ -717,7 +717,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl border-t border-gray-200 px-6 py-16 dark:border-white/10 sm:py-24 lg:px-8 lg:py-32">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
             <div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold text-white shadow-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white shadow-sm">
                 RG
               </div>
               <p className="mt-4 text-sm/6 text-gray-600 dark:text-gray-400">&copy; 2026 Referral Genealogy. All rights reserved.</p>

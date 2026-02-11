@@ -5,12 +5,12 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import type { AiInsight } from "@/types/database";
 
 const typeColors: Record<string, string> = {
-  referral_pattern: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+  referral_pattern: "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300",
   top_referrers: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
-  network_gap: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
+  network_gap: "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300",
   deal_prediction: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
   cluster_analysis: "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300",
-  growth_opportunity: "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300",
+  growth_opportunity: "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300",
 };
 
 interface InsightCardProps {

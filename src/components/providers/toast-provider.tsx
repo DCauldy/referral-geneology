@@ -13,9 +13,10 @@ import {
   InformationCircleIcon,
   XCircleIcon,
   XMarkIcon,
+  TrophyIcon,
 } from "@heroicons/react/24/outline";
 
-type ToastType = "success" | "error" | "warning" | "info";
+type ToastType = "success" | "error" | "warning" | "info" | "achievement";
 
 interface Toast {
   id: string;
@@ -30,6 +31,7 @@ interface ToastContextValue {
   error: (title: string, description?: string) => void;
   warning: (title: string, description?: string) => void;
   info: (title: string, description?: string) => void;
+  achievement: (title: string, description?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
@@ -39,14 +41,22 @@ const icons: Record<ToastType, React.ComponentType<{ className?: string }>> = {
   error: XCircleIcon,
   warning: ExclamationTriangleIcon,
   info: InformationCircleIcon,
+  achievement: TrophyIcon,
 };
 
 const colors: Record<ToastType, string> = {
   success: "text-green-500",
   error: "text-red-500",
   warning: "text-yellow-500",
-  info: "text-amber-500",
+  info: "text-primary-500",
+  achievement: "text-yellow-500",
 };
+
+const TOAST_DURATIONS: Partial<Record<ToastType, number>> = {
+  achievement: 8000,
+};
+
+const DEFAULT_TOAST_DURATION = 5000;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -59,7 +69,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     (params: Omit<Toast, "id">) => {
       const id = Math.random().toString(36).slice(2);
       setToasts((prev) => [...prev, { ...params, id }]);
-      setTimeout(() => removeToast(id), 5000);
+      const duration = TOAST_DURATIONS[params.type] || DEFAULT_TOAST_DURATION;
+      setTimeout(() => removeToast(id), duration);
     },
     [removeToast]
   );
@@ -74,6 +85,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       addToast({ type: "warning", title, description }),
     info: (title, description) =>
       addToast({ type: "info", title, description }),
+    achievement: (title, description) =>
+      addToast({ type: "achievement", title, description }),
   };
 
   return (
@@ -84,21 +97,34 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         <AnimatePresence>
           {toasts.map((t) => {
             const Icon = icons[t.type];
+            const isAchievement = t.type === "achievement";
             return (
               <motion.div
                 key={t.id}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className="pointer-events-auto flex w-80 items-start gap-3 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+                className={`pointer-events-auto flex w-80 items-start gap-3 rounded-lg border p-4 shadow-lg ${
+                  isAchievement
+                    ? "border-yellow-300 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-950/30"
+                    : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+                }`}
               >
                 <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${colors[t.type]}`} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                  <p className={`text-sm font-medium ${
+                    isAchievement
+                      ? "text-yellow-800 dark:text-yellow-200"
+                      : "text-zinc-900 dark:text-white"
+                  }`}>
                     {t.title}
                   </p>
                   {t.description && (
-                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    <p className={`mt-1 text-sm ${
+                      isAchievement
+                        ? "text-yellow-700 dark:text-yellow-300"
+                        : "text-zinc-500 dark:text-zinc-400"
+                    }`}>
                       {t.description}
                     </p>
                   )}

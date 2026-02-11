@@ -6,7 +6,9 @@ import {
   FunnelIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
+  ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
+import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import type { ViewConfig } from "@/types/visualizations";
 
 interface ViewToolbarProps {
@@ -26,6 +28,8 @@ export function ViewToolbar({
   onFitView,
   className,
 }: ViewToolbarProps) {
+  const { canExchangeReferrals } = usePlanLimits();
+
   return (
     <div
       className={cn(
@@ -105,6 +109,27 @@ export function ViewToolbar({
         />
         Labels
       </label>
+
+      {/* Inter-network toggle (paid plans only) */}
+      {canExchangeReferrals && (
+        <>
+          <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
+          <label className="flex items-center gap-1.5 text-xs text-cyan-600 dark:text-cyan-400">
+            <input
+              type="checkbox"
+              checked={config.filters.showInterNetwork}
+              onChange={(e) =>
+                onConfigChange({
+                  filters: { ...config.filters, showInterNetwork: e.target.checked },
+                })
+              }
+              className="h-3 w-3 rounded border-cyan-300 text-cyan-600"
+            />
+            <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />
+            Exchange
+          </label>
+        </>
+      )}
 
       <div className="flex-1" />
 

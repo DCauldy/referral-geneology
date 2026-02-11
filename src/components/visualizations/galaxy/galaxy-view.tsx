@@ -164,11 +164,19 @@ export function GalaxyView() {
         if (source.x == null || target.x == null) return;
 
         ctx.beginPath();
+        if (link.isInterNetwork) {
+          ctx.setLineDash([6, 3]);
+          ctx.strokeStyle = "rgba(6, 182, 212, 0.6)"; // teal
+          ctx.lineWidth = 2;
+        } else {
+          ctx.setLineDash([]);
+          ctx.strokeStyle = "rgba(148, 163, 184, 0.3)";
+          ctx.lineWidth = 1;
+        }
         ctx.moveTo(source.x, source.y!);
         ctx.lineTo(target.x, target.y!);
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.3)";
-        ctx.lineWidth = 1;
         ctx.stroke();
+        ctx.setLineDash([]);
       });
 
       // Draw nodes
@@ -176,33 +184,72 @@ export function GalaxyView() {
         if (node.x == null || node.y == null) return;
         const r = node.size / 2;
 
-        // Node circle
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
-        ctx.fillStyle = node.color;
-        ctx.fill();
-        ctx.strokeStyle = "rgba(255,255,255,0.8)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        if (node.isGhost) {
+          // Ghost node: diamond shape, dashed border, semi-transparent
+          ctx.save();
+          ctx.translate(node.x, node.y);
+          ctx.rotate(Math.PI / 4);
 
-        // Initials
-        ctx.font = `bold ${Math.max(10, r * 0.6)}px Inter, system-ui, sans-serif`;
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(
-          getInitials(node.firstName, node.lastName || undefined),
-          node.x,
-          node.y
-        );
+          ctx.beginPath();
+          ctx.rect(-r, -r, r * 2, r * 2);
+          ctx.fillStyle = `${node.color}30`;
+          ctx.fill();
+          ctx.setLineDash([3, 2]);
+          ctx.strokeStyle = node.color;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.setLineDash([]);
 
-        // Label below
-        if (config.display.showLabels && r > 15) {
-          ctx.font = "10px Inter, system-ui, sans-serif";
-          ctx.fillStyle = "rgba(113, 113, 122, 0.8)";
+          ctx.restore();
+
+          // Initials (not rotated)
+          ctx.font = `bold ${Math.max(9, r * 0.5)}px Inter, system-ui, sans-serif`;
+          ctx.fillStyle = "rgba(6, 182, 212, 0.9)";
           ctx.textAlign = "center";
-          ctx.textBaseline = "top";
-          ctx.fillText(node.label, node.x, node.y + r + 4);
+          ctx.textBaseline = "middle";
+          ctx.fillText(
+            getInitials(node.firstName, node.lastName || undefined),
+            node.x,
+            node.y
+          );
+
+          // Label
+          if (config.display.showLabels) {
+            ctx.font = "9px Inter, system-ui, sans-serif";
+            ctx.fillStyle = "rgba(6, 182, 212, 0.6)";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.fillText(node.label, node.x, node.y + r + 6);
+          }
+        } else {
+          // Normal node: circle
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+          ctx.fillStyle = node.color;
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.8)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Initials
+          ctx.font = `bold ${Math.max(10, r * 0.6)}px Inter, system-ui, sans-serif`;
+          ctx.fillStyle = "white";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(
+            getInitials(node.firstName, node.lastName || undefined),
+            node.x,
+            node.y
+          );
+
+          // Label below
+          if (config.display.showLabels && r > 15) {
+            ctx.font = "10px Inter, system-ui, sans-serif";
+            ctx.fillStyle = "rgba(113, 113, 122, 0.8)";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.fillText(node.label, node.x, node.y + r + 4);
+          }
         }
       });
     }
@@ -294,7 +341,7 @@ export function GalaxyView() {
           </div>
         )}
 
-        <ViewLegend colorBy={config.display.colorBy} />
+        <ViewLegend colorBy={config.display.colorBy} showInterNetwork={config.filters.showInterNetwork} />
       </div>
     </div>
   );

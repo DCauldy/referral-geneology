@@ -80,7 +80,7 @@ export default function RegisterPage() {
               </svg>
               Back Home
             </Link>
-            <div className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-sm font-bold text-white shadow-sm">
+            <div className="mt-6 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white shadow-sm">
               RG
             </div>
             <h2 className="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">

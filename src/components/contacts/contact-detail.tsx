@@ -18,7 +18,10 @@ import {
   GlobeAltIcon,
   MapPinIcon,
   StarIcon,
+  PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
+import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
+import { SendReferralModal } from "@/components/referrals/send-referral-modal";
 
 type TabKey = "overview" | "referrals" | "deals" | "activity" | "documents";
 
@@ -48,6 +51,8 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
   const { contact, isLoading, error } = useContact(contactId);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const { canExchangeReferrals } = usePlanLimits();
 
   async function handleDelete() {
     if (!contact) return;
@@ -165,6 +170,15 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {canExchangeReferrals && (
+            <button
+              onClick={() => setShowSendModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+            >
+              <PaperAirplaneIcon className="h-4 w-4" />
+              Send Referral
+            </button>
+          )}
           <Link
             href={`/contacts/${contact.id}/edit`}
             className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
@@ -278,7 +292,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
                       className={cn(
                         "h-4 w-4",
                         star <= (contact.rating ?? 0)
-                          ? "fill-yellow-400 text-yellow-400"
+                          ? "fill-primary-400 text-primary-400"
                           : "text-zinc-300 dark:text-zinc-600"
                       )}
                     />
@@ -361,6 +375,13 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
             Documents attached to this branch will appear here.
           </p>
         </div>
+      )}
+
+      {showSendModal && (
+        <SendReferralModal
+          contact={contact}
+          onClose={() => setShowSendModal(false)}
+        />
       )}
     </div>
   );

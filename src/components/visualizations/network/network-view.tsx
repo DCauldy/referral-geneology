@@ -22,9 +22,10 @@ import { ViewToolbar } from "../shared/view-toolbar";
 import { ViewLegend } from "../shared/view-legend";
 import { ViewSwitcher } from "../shared/view-switcher";
 import { NetworkNode } from "./network-node";
+import { GhostNode } from "../shared/ghost-node";
 import { DEFAULT_VIEW_CONFIG, type ViewConfig } from "@/types/visualizations";
 
-const nodeTypes = { custom: NetworkNode };
+const nodeTypes = { custom: NetworkNode, ghost: GhostNode };
 
 function computeForceLayout(
   rfNodes: { id: string; position: { x: number; y: number }; [key: string]: unknown }[],
@@ -147,7 +148,7 @@ export function NetworkView() {
             <Background color="#e4e4e7" gap={20} />
           </ReactFlow>
         )}
-        <ViewLegend colorBy={config.display.colorBy} />
+        <ViewLegend colorBy={config.display.colorBy} showInterNetwork={config.filters.showInterNetwork} />
       </div>
     </div>
   );

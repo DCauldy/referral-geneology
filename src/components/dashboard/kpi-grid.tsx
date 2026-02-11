@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
+import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { KpiCard } from "./kpi-card";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
 import {
@@ -12,6 +13,8 @@ import {
   ArrowTrendingUpIcon,
   BuildingOffice2Icon,
   ChartBarIcon,
+  PaperAirplaneIcon,
+  InboxIcon,
 } from "@heroicons/react/24/outline";
 
 interface OrgStats {
@@ -25,10 +28,18 @@ interface OrgStats {
   conversion_rate: number;
 }
 
+interface ExchangeStats {
+  seeds_shared: number;
+  seeds_received: number;
+  cross_network_yield: number;
+}
+
 export function KpiGrid() {
   const supabase = useSupabase();
   const { org } = useOrg();
+  const { canExchangeReferrals } = usePlanLimits();
   const [stats, setStats] = useState<OrgStats | null>(null);
+  const [exchangeStats, setExchangeStats] = useState<ExchangeStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -74,11 +85,45 @@ export function KpiGrid() {
               )
             : 0,
       });
+      // Fetch exchange stats if on paid plan
+      if (canExchangeReferrals) {
+        try {
+          const { data: user } = await supabase.auth.getUser();
+          if (user.user) {
+            const [sentRes, receivedRes] = await Promise.all([
+              supabase
+                .from("referral_exchanges")
+                .select("id, status", { count: "exact" })
+                .eq("sender_org_id", org.id),
+              supabase
+                .from("referral_exchanges")
+                .select("id, status", { count: "exact" })
+                .eq("receiver_user_id", user.user.id),
+            ]);
+
+            const sent = sentRes.data || [];
+            const received = receivedRes.data || [];
+            const acceptedReceived = received.filter((r) => r.status === "accepted").length;
+
+            setExchangeStats({
+              seeds_shared: sent.length,
+              seeds_received: received.length,
+              cross_network_yield:
+                received.length > 0
+                  ? Math.round((acceptedReceived / received.length) * 100)
+                  : 0,
+            });
+          }
+        } catch {
+          // Exchange stats are non-critical
+        }
+      }
+
       setIsLoading(false);
     }
 
     fetchStats();
-  }, [supabase, org]);
+  }, [supabase, org, canExchangeReferrals]);
 
   if (isLoading) {
     return (
@@ -93,37 +138,59 @@ export function KpiGrid() {
   if (!stats) return null;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      <KpiCard
-        title="Branches"
-        value={formatNumber(stats.total_contacts)}
-        icon={UsersIcon}
-      />
-      <KpiCard
-        title="Roots"
-        value={formatNumber(stats.total_companies)}
-        icon={BuildingOffice2Icon}
-      />
-      <KpiCard
-        title="New Growth"
-        value={formatNumber(stats.total_referrals)}
-        icon={ArrowsRightLeftIcon}
-      />
-      <KpiCard
-        title="Grove Value"
-        value={formatCurrency(stats.pipeline_value)}
-        icon={CurrencyDollarIcon}
-      />
-      <KpiCard
-        title="Harvest"
-        value={formatCurrency(stats.won_deal_value)}
-        icon={ArrowTrendingUpIcon}
-      />
-      <KpiCard
-        title="Yield Rate"
-        value={`${stats.conversion_rate}%`}
-        icon={ChartBarIcon}
-      />
+    <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <KpiCard
+          title="Branches"
+          value={formatNumber(stats.total_contacts)}
+          icon={UsersIcon}
+        />
+        <KpiCard
+          title="Roots"
+          value={formatNumber(stats.total_companies)}
+          icon={BuildingOffice2Icon}
+        />
+        <KpiCard
+          title="New Growth"
+          value={formatNumber(stats.total_referrals)}
+          icon={ArrowsRightLeftIcon}
+        />
+        <KpiCard
+          title="Grove Value"
+          value={formatCurrency(stats.pipeline_value)}
+          icon={CurrencyDollarIcon}
+        />
+        <KpiCard
+          title="Harvest"
+          value={formatCurrency(stats.won_deal_value)}
+          icon={ArrowTrendingUpIcon}
+        />
+        <KpiCard
+          title="Yield Rate"
+          value={`${stats.conversion_rate}%`}
+          icon={ChartBarIcon}
+        />
+      </div>
+
+      {canExchangeReferrals && exchangeStats && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KpiCard
+            title="Seeds Shared"
+            value={formatNumber(exchangeStats.seeds_shared)}
+            icon={PaperAirplaneIcon}
+          />
+          <KpiCard
+            title="Seeds Received"
+            value={formatNumber(exchangeStats.seeds_received)}
+            icon={InboxIcon}
+          />
+          <KpiCard
+            title="Cross-Network Yield"
+            value={`${exchangeStats.cross_network_yield}%`}
+            icon={ArrowsRightLeftIcon}
+          />
+        </div>
+      )}
     </div>
   );
 }

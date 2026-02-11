@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-amber-50/40 px-4 dark:bg-stone-950">
+    <div className="flex min-h-screen items-center justify-center bg-primary-50/50 px-4 dark:bg-primary-950">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
             Referral Genealogy
           </h1>
         </div>
-        <div className="rounded-xl border border-amber-200/60 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+        <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
           <h2 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-white">
             Set new password
           </h2>

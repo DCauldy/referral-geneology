@@ -23,7 +23,7 @@ const STATUS_COLORS: Record<AutomationStatus, string> = {
   draft: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
   active: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
   paused:
-    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
+    "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300",
   archived: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
 };
 
@@ -162,7 +162,7 @@ export function AutomationDetail({ automationId }: AutomationDetailProps) {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium",
                 automation.status === "active"
-                  ? "border-yellow-300 text-yellow-600 hover:bg-yellow-50 dark:border-yellow-800 dark:text-yellow-400 dark:hover:bg-yellow-950"
+                  ? "border-primary-300 text-primary-600 hover:bg-primary-50 dark:border-primary-800 dark:text-primary-400 dark:hover:bg-primary-950"
                   : "border-green-300 text-green-600 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950"
               )}
             >

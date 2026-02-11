@@ -637,10 +637,10 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                   onClick={() =>
                     setValue("rating", currentRating === star ? 0 : star)
                   }
-                  className="text-zinc-300 transition-colors hover:text-yellow-400 dark:text-zinc-600"
+                  className="text-zinc-300 transition-colors hover:text-primary-400 dark:text-zinc-600"
                 >
                   {star <= (currentRating ?? 0) ? (
-                    <StarIcon className="h-6 w-6 text-yellow-400" />
+                    <StarIcon className="h-6 w-6 text-primary-400" />
                   ) : (
                     <StarOutlineIcon className="h-6 w-6" />
                   )}

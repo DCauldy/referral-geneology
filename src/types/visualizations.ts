@@ -15,6 +15,11 @@ export interface VisualizationNode {
   rating: number | null;
   city: string | null;
   country: string | null;
+  // Inter-network exchange properties
+  isGhost?: boolean;
+  ghostOrgName?: string | null;
+  exchangeId?: string;
+  exchangeDirection?: "sent" | "received";
   // Layout positions (set by layout algorithm)
   x?: number;
   y?: number;
@@ -34,6 +39,9 @@ export interface VisualizationEdge {
   referralDate: string;
   dealId: string | null;
   dealValue: number | null;
+  // Inter-network exchange properties
+  isInterNetwork?: boolean;
+  exchangeStatus?: string;
   // Visual properties
   thickness?: number;
   color?: string;
@@ -52,6 +60,7 @@ export interface VisualizationFilters {
     end: string | null;
   };
   tags: string[];
+  showInterNetwork: boolean;
 }
 
 export interface ViewConfig {
@@ -81,6 +90,7 @@ export const DEFAULT_FILTERS: VisualizationFilters = {
   minDealValue: 0,
   dateRange: { start: null, end: null },
   tags: [],
+  showInterNetwork: false,
 };
 
 export const DEFAULT_VIEW_CONFIG: ViewConfig = {

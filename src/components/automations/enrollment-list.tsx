@@ -16,7 +16,7 @@ const STATUS_COLORS: Record<EnrollmentStatus, string> = {
   completed:
     "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
   paused:
-    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
+    "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300",
   canceled: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
   failed: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
 };
@@ -170,7 +170,7 @@ export function EnrollmentList({ automationId }: EnrollmentListProps) {
                     ev.stopPropagation();
                     updateEnrollmentStatus(e.id, "paused");
                   }}
-                  className="rounded px-2 py-1 text-xs font-medium text-yellow-600 hover:bg-yellow-50 dark:text-yellow-400 dark:hover:bg-yellow-950"
+                  className="rounded px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-950"
                 >
                   Pause
                 </button>

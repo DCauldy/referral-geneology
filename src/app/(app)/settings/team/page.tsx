@@ -22,7 +22,7 @@ interface TeamMember {
 
 const roleBadgeClassName: Record<OrgRole, string> = {
   owner:
-    "bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-900/20 dark:text-amber-300",
+    "bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-900/20 dark:text-primary-300",
   admin:
     "bg-purple-50 text-purple-700 ring-purple-600/20 dark:bg-purple-900/20 dark:text-purple-300",
   member:
@@ -42,27 +42,43 @@ export default function TeamSettingsPage() {
     async function loadMembers() {
       if (!org) return;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("org_members")
         .select(
-          "id, role, user_id, invited_email, user_profiles(full_name, avatar_url)"
+          "id, role, user_id, invited_email"
         )
         .eq("org_id", org.id)
         .order("created_at");
 
-      const mapped: TeamMember[] = (data ?? []).map((m) => {
-        const profile = m.user_profiles as unknown as {
-          full_name: string | null;
-          avatar_url: string | null;
-        } | null;
-        return {
-          id: m.id,
-          role: m.role as OrgRole,
-          user_id: m.user_id,
-          user_profiles: profile,
-          email: m.invited_email ?? null,
-        };
-      });
+      if (error) {
+        console.error("Failed to load team members:", error);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch profiles separately to avoid join issues
+      const memberRows = data ?? [];
+      const userIds = memberRows.map((m) => m.user_id);
+
+      let profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("user_profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", userIds);
+
+        for (const p of profiles ?? []) {
+          profileMap[p.id] = { full_name: p.full_name, avatar_url: p.avatar_url };
+        }
+      }
+
+      const mapped: TeamMember[] = memberRows.map((m) => ({
+        id: m.id,
+        role: m.role as OrgRole,
+        user_id: m.user_id,
+        user_profiles: profileMap[m.user_id] ?? null,
+        email: m.invited_email ?? null,
+      }));
 
       setMembers(mapped);
       setIsLoading(false);
@@ -96,11 +112,20 @@ export default function TeamSettingsPage() {
           <div>
             <div className="flex items-center justify-between">
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {members.length} of {maxUsers} seats used
+                {isLoading ? (
+                  <span className="inline-block h-4 w-24 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+                ) : (
+                  `${Math.max(members.length, 1)} of ${maxUsers} seat${maxUsers === 1 ? "" : "s"} used`
+                )}
               </p>
               <button
                 type="button"
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+                disabled={!isLoading && Math.max(members.length, 1) >= maxUsers}
+                className={
+                  !isLoading && Math.max(members.length, 1) >= maxUsers
+                    ? "cursor-not-allowed rounded-lg bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
+                    : "rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+                }
               >
                 Invite Member
               </button>

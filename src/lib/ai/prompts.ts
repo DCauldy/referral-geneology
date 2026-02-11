@@ -48,6 +48,42 @@ Respond with JSON:
 }`;
 }
 
+export function networkRecommendationPrompt(data: {
+  userProfile: { name: string; industry: string; specialties: string[]; categories: string[] };
+  exchangeHistory: Array<{ partner_name: string; industry: string; status: string; converted: boolean }>;
+  directoryProfiles: Array<{ user_id: string; name: string; company: string; industry: string; specialties: string[]; categories: string[]; trust_rating: number }>;
+}) {
+  return `You are analyzing a referral network directory to recommend the best potential exchange partners for a user.
+
+USER PROFILE:
+${JSON.stringify(data.userProfile, null, 2)}
+
+EXCHANGE HISTORY (${data.exchangeHistory.length} past exchanges):
+${JSON.stringify(data.exchangeHistory.slice(0, 30), null, 2)}
+
+DIRECTORY PROFILES (${data.directoryProfiles.length} available):
+${JSON.stringify(data.directoryProfiles.slice(0, 50), null, 2)}
+
+Based on the user's profile, specialties, referral categories they seek, and past exchange patterns, recommend the top 5 best-matched directory profiles to connect with. Consider:
+1. Complementary industries/specialties (they offer what the user needs)
+2. Past exchange success patterns (similar profiles that led to conversions)
+3. Trust rating (higher is better)
+4. Category alignment (their specialties match user's referral categories and vice versa)
+
+Respond with JSON:
+{
+  "recommendations": [
+    {
+      "user_id": string,
+      "name": string,
+      "match_score": number (0-100),
+      "reasons": [string (2-3 short reasons why this is a good match)]
+    }
+  ],
+  "network_insight": string (one short sentence about the user's network pattern)
+}`;
+}
+
 export function clusterAnalysisPrompt(data: {
   contacts: Array<{ name: string; industry: string; city: string; referralScore: number; dealValue: number }>;
 }) {

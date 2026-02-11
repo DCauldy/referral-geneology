@@ -23,9 +23,10 @@ import { ViewToolbar } from "../shared/view-toolbar";
 import { ViewLegend } from "../shared/view-legend";
 import { ViewSwitcher } from "../shared/view-switcher";
 import { TreeNode } from "./tree-node";
+import { GhostNode } from "../shared/ghost-node";
 import { DEFAULT_VIEW_CONFIG, type ViewConfig } from "@/types/visualizations";
 
-const nodeTypes = { custom: TreeNode };
+const nodeTypes = { custom: TreeNode, ghost: GhostNode };
 
 function computeDagreLayout(
   rfNodes: Node[],
@@ -149,7 +150,7 @@ export function TreeView() {
             <Background color="#e4e4e7" gap={20} />
           </ReactFlow>
         )}
-        <ViewLegend colorBy={config.display.colorBy} />
+        <ViewLegend colorBy={config.display.colorBy} showInterNetwork={config.filters.showInterNetwork} />
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${nunito.variable} ${libreBaskerville.variable}`}>
-      <body className="min-h-screen bg-amber-50/30 font-sans antialiased dark:bg-stone-950">
+      <body className="min-h-screen bg-primary-50/50 font-sans antialiased dark:bg-primary-950">
         {children}
       </body>
     </html>

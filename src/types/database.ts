@@ -427,6 +427,120 @@ export interface EmailLog {
   template?: EmailTemplate;
 }
 
+// Referral Exchange types
+export type ExchangeStatus =
+  | "pending"
+  | "accepted"
+  | "declined"
+  | "expired"
+  | "undeliverable";
+export type ReceiverStatus = "none" | "in_progress" | "converted" | "lost";
+
+export interface ContactSnapshot {
+  first_name: string;
+  last_name?: string | null;
+  company_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  industry?: string | null;
+}
+
+export interface ReferralExchange {
+  id: string;
+  token: string;
+  sender_user_id: string;
+  sender_org_id: string;
+  receiver_user_id: string | null;
+  receiver_email: string;
+  contact_snapshot: ContactSnapshot;
+  context_note: string | null;
+  source_contact_id: string | null;
+  status: ExchangeStatus;
+  receiver_status: ReceiverStatus;
+  receiver_status_visible: boolean;
+  imported_contact_id: string | null;
+  accepted_at: string | null;
+  declined_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined fields (for display)
+  sender_profile?: UserProfile;
+  sender_org?: Pick<Organization, "id" | "name">;
+}
+
+// Directory Profile types
+export interface DirectoryProfile {
+  id: string;
+  user_id: string;
+  display_name: string;
+  company_name: string | null;
+  industry: string | null;
+  location: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  specialties: string[];
+  referral_categories: string[];
+  accepts_referrals: boolean;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Trust Score types
+export interface ExchangeTrustScore {
+  id: string;
+  user_id: string;
+  total_sent: number;
+  sent_accepted: number;
+  sent_declined: number;
+  sent_converted: number;
+  total_received: number;
+  received_accepted: number;
+  received_declined: number;
+  received_converted: number;
+  acceptance_rate: number;
+  conversion_rate: number;
+  responsiveness: number;
+  trust_rating: number;
+  avg_response_hours: number;
+  last_computed_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Achievement types
+export type AchievementTier = "bronze" | "silver" | "gold";
+
+export interface UserAchievement {
+  id: string;
+  user_id: string;
+  achievement_key: string;
+  tier: AchievementTier;
+  points: number;
+  unlocked_at: string;
+  notified: boolean;
+}
+
+export interface UserStreak {
+  id: string;
+  user_id: string;
+  org_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_active_date: string | null;
+}
+
+export interface LeaderboardEntry {
+  user_id: string;
+  full_name?: string;
+  display_name?: string;
+  avatar_url: string | null;
+  company_name?: string | null;
+  total_points: number;
+  achievement_count: number;
+}
+
 // Database function return types
 export interface ReferralChainNode {
   contact_id: string;

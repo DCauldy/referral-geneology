@@ -6,6 +6,7 @@ import { useOrg } from "@/components/providers/org-provider";
 import type { VisualizationNode, VisualizationEdge, VisualizationFilters } from "@/types/visualizations";
 import { DEFAULT_FILTERS } from "@/types/visualizations";
 import { getFullName } from "@/lib/utils/format";
+import type { ContactSnapshot } from "@/types/database";
 
 export function useVisualizationData(filters: VisualizationFilters = DEFAULT_FILTERS) {
   const supabase = useSupabase();
@@ -137,6 +138,128 @@ export function useVisualizationData(filters: VisualizationFilters = DEFAULT_FIL
           dealId: r.deal_id,
           dealValue: (r.deal as { value: number } | null)?.value || null,
         }));
+
+      // Fetch inter-network exchanges if enabled
+      if (filters.showInterNetwork) {
+        const { data: user } = await supabase.auth.getUser();
+        if (user.user) {
+          // Fetch exchanges where this org sent or received
+          const [sentRes, receivedRes] = await Promise.all([
+            supabase
+              .from("referral_exchanges")
+              .select("*")
+              .eq("sender_org_id", org.id)
+              .in("status", ["pending", "accepted"]),
+            supabase
+              .from("referral_exchanges")
+              .select("*")
+              .eq("receiver_user_id", user.user.id)
+              .in("status", ["pending", "accepted"]),
+          ]);
+
+          const sentExchanges = sentRes.data || [];
+          const receivedExchanges = receivedRes.data || [];
+
+          // Create ghost nodes and inter-network edges for SENT exchanges
+          for (const ex of sentExchanges) {
+            const snapshot = ex.contact_snapshot as ContactSnapshot;
+            const ghostId = `ghost-sent-${ex.id}`;
+            const contactName = [snapshot.first_name, snapshot.last_name].filter(Boolean).join(" ");
+
+            // Ghost node representing the shared contact on the receiver's side
+            vizNodes.push({
+              id: ghostId,
+              label: contactName || "Shared Contact",
+              firstName: snapshot.first_name || "?",
+              lastName: snapshot.last_name || null,
+              email: snapshot.email || null,
+              company: snapshot.company_name || null,
+              industry: snapshot.industry || null,
+              relationshipType: "contact",
+              referralScore: 0,
+              lifetimeReferralValue: 0,
+              dealValue: 0,
+              referralCount: 0,
+              profilePhotoUrl: null,
+              rating: null,
+              city: null,
+              country: null,
+              isGhost: true,
+              ghostOrgName: ex.receiver_email,
+              exchangeId: ex.id,
+              exchangeDirection: "sent",
+            });
+
+            // Edge from source contact to ghost (if source contact exists in graph)
+            if (ex.source_contact_id && nodeIds.has(ex.source_contact_id)) {
+              vizEdges.push({
+                id: `exchange-${ex.id}`,
+                source: ex.source_contact_id,
+                target: ghostId,
+                referralType: "direct",
+                referralStatus: ex.status,
+                referralValue: null,
+                referralDate: ex.created_at,
+                dealId: null,
+                dealValue: null,
+                isInterNetwork: true,
+                exchangeStatus: ex.status,
+              });
+            }
+          }
+
+          // Create ghost nodes and inter-network edges for RECEIVED exchanges
+          for (const ex of receivedExchanges) {
+            // Skip if already handled as sent (same org sender)
+            if (ex.sender_org_id === org.id) continue;
+
+            const snapshot = ex.contact_snapshot as ContactSnapshot;
+            const ghostId = `ghost-recv-${ex.id}`;
+            const contactName = [snapshot.first_name, snapshot.last_name].filter(Boolean).join(" ");
+
+            // Ghost node representing the sender
+            vizNodes.push({
+              id: ghostId,
+              label: contactName || "External Referral",
+              firstName: snapshot.first_name || "?",
+              lastName: snapshot.last_name || null,
+              email: snapshot.email || null,
+              company: snapshot.company_name || null,
+              industry: snapshot.industry || null,
+              relationshipType: "contact",
+              referralScore: 0,
+              lifetimeReferralValue: 0,
+              dealValue: 0,
+              referralCount: 0,
+              profilePhotoUrl: null,
+              rating: null,
+              city: null,
+              country: null,
+              isGhost: true,
+              ghostOrgName: "External Network",
+              exchangeId: ex.id,
+              exchangeDirection: "received",
+            });
+
+            // Edge from ghost to imported contact (if accepted and imported)
+            if (ex.imported_contact_id && nodeIds.has(ex.imported_contact_id)) {
+              vizEdges.push({
+                id: `exchange-${ex.id}`,
+                source: ghostId,
+                target: ex.imported_contact_id,
+                referralType: "direct",
+                referralStatus: ex.status,
+                referralValue: null,
+                referralDate: ex.created_at,
+                dealId: null,
+                dealValue: null,
+                isInterNetwork: true,
+                exchangeStatus: ex.status,
+              });
+            }
+          }
+        }
+      }
 
       setNodes(vizNodes);
       setEdges(vizEdges);

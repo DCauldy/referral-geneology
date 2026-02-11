@@ -182,7 +182,7 @@ export function StepBuilder({
                   {step.step_type === "email" ? (
                     <EnvelopeIcon className="h-5 w-5 text-blue-500" />
                   ) : (
-                    <ClockIcon className="h-5 w-5 text-amber-500" />
+                    <ClockIcon className="h-5 w-5 text-primary-500" />
                   )}
                 </div>
 
@@ -318,7 +318,7 @@ export function StepBuilder({
               onClick={() => addStep("delay")}
               className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
-              <ClockIcon className="h-4 w-4 text-amber-500" />
+              <ClockIcon className="h-4 w-4 text-primary-500" />
               Wait
             </button>
           </div>

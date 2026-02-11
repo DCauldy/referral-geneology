@@ -2,8 +2,8 @@
 
 import { getLegendItems } from "@/lib/visualization/data-transformer";
 
-export function ViewLegend({ colorBy }: { colorBy: string }) {
-  const items = getLegendItems(colorBy);
+export function ViewLegend({ colorBy, showInterNetwork }: { colorBy: string; showInterNetwork?: boolean }) {
+  const items = getLegendItems(colorBy, showInterNetwork);
 
   if (items.length === 0) return null;
 

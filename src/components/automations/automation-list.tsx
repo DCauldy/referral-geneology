@@ -18,7 +18,7 @@ const STATUS_COLORS: Record<AutomationStatus, string> = {
   draft: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
   active: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
   paused:
-    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300",
+    "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300",
   archived: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
 };
 

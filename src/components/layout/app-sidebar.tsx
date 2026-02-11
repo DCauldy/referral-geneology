@@ -20,6 +20,10 @@ import {
   ChevronUpIcon,
   BoltIcon,
   EnvelopeIcon,
+  ArrowTopRightOnSquareIcon,
+  GlobeAltIcon,
+  TrophyIcon,
+  ChartBarSquareIcon,
 } from "@heroicons/react/24/outline";
 import { useOrg } from "@/components/providers/org-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
@@ -72,6 +76,8 @@ const navigation = [
   { name: "Companies", href: "/companies", icon: BuildingOffice2Icon },
   { name: "Deals", href: "/deals", icon: CurrencyDollarIcon },
   { name: "Referrals", href: "/referrals", icon: ArrowsRightLeftIcon },
+  { name: "Exchange", href: "/referrals/exchange", icon: ArrowTopRightOnSquareIcon, requiresExchange: true },
+  { name: "Directory", href: "/directory", icon: GlobeAltIcon, requiresExchange: true },
 ];
 
 const visualizations = [
@@ -85,9 +91,18 @@ const automateNav = [
   { name: "Templates", href: "/automations/templates", icon: EnvelopeIcon },
 ];
 
-const secondaryNav = [
+const secondaryNav: {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  requiresAI?: boolean;
+  requiresImport?: boolean;
+  requiresPaid?: boolean;
+}[] = [
   { name: "Insights", href: "/insights", icon: SparklesIcon, requiresAI: true },
   { name: "Reports", href: "/reports", icon: ChartBarIcon },
+  { name: "Achievements", href: "/achievements", icon: TrophyIcon },
+  { name: "Leaderboard", href: "/leaderboard", icon: ChartBarSquareIcon, requiresPaid: true },
 ];
 
 export function AppSidebar({
@@ -100,10 +115,11 @@ export function AppSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { org, profile } = useOrg();
-  const { canAccessView, canAccessAI, canImportExport, canAccessAutomations } = usePlanLimits();
+  const { canAccessView, canAccessAI, canImportExport, canAccessAutomations, canExchangeReferrals } = usePlanLimits();
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/automations") return pathname === "/automations" || (pathname.startsWith("/automations/") && !pathname.startsWith("/automations/templates"));
     return pathname.startsWith(href);
   }
 
@@ -157,18 +173,26 @@ export function AppSidebar({
           {/* Main nav */}
           <li>
             <ul role="list" className="-mx-2 space-y-1">
-              {navigation.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={onClose}
-                    className={linkClasses(isActive(item.href))}
-                  >
-                    <item.icon className={iconClasses(isActive(item.href))} />
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
+              {navigation.map((item) => {
+                const locked = item.requiresExchange && !canExchangeReferrals;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={locked ? "/settings/billing" : item.href}
+                      onClick={onClose}
+                      className={linkClasses(isActive(item.href), locked)}
+                    >
+                      <item.icon className={iconClasses(isActive(item.href))} />
+                      {item.name}
+                      {locked && (
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                          PRO
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </li>
 
@@ -239,7 +263,8 @@ export function AppSidebar({
               {secondaryNav.map((item) => {
                 const locked =
                   (item.requiresAI && !canAccessAI) ||
-                  (item.requiresImport && !canImportExport);
+                  (item.requiresImport && !canImportExport) ||
+                  (item.requiresPaid && org?.plan === "free");
                 return (
                   <li key={item.href}>
                     <Link
