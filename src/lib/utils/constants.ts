@@ -53,6 +53,42 @@ export const ACTIVITY_TYPES = [
   "import_completed",
 ] as const;
 
+export const AUTOMATION_STATUSES = [
+  "draft",
+  "active",
+  "paused",
+  "archived",
+] as const;
+
+export const AUTOMATION_TRIGGER_TYPES = [
+  "manual",
+  "on_contact_create",
+  "on_tag_added",
+] as const;
+
+export const STEP_TYPES = ["email", "delay", "condition"] as const;
+
+export const DELAY_UNITS = ["minutes", "hours", "days", "weeks"] as const;
+
+export const ENROLLMENT_STATUSES = [
+  "active",
+  "completed",
+  "paused",
+  "canceled",
+  "failed",
+] as const;
+
+export const EMAIL_LOG_STATUSES = [
+  "queued",
+  "sent",
+  "delivered",
+  "opened",
+  "clicked",
+  "bounced",
+  "complained",
+  "failed",
+] as const;
+
 export const PLAN_LIMITS = {
   free: {
     maxContacts: 50,
@@ -62,6 +98,7 @@ export const PLAN_LIMITS = {
     importExport: false,
     dealTracking: "basic" as const,
     realtimeCollab: false,
+    automations: false,
   },
   pro: {
     maxContacts: Infinity,
@@ -71,6 +108,7 @@ export const PLAN_LIMITS = {
     importExport: true,
     dealTracking: "full" as const,
     realtimeCollab: false,
+    automations: true,
   },
   team: {
     maxContacts: Infinity,
@@ -80,6 +118,7 @@ export const PLAN_LIMITS = {
     importExport: true,
     dealTracking: "full" as const,
     realtimeCollab: true,
+    automations: true,
   },
 } as const;
 

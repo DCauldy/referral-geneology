@@ -33,6 +33,7 @@ export const PLAN_DISPLAY = {
       "AI-powered insights",
       "CSV import/export",
       "Full deal tracking",
+      "Email automations",
     ],
   },
   team: {
@@ -48,6 +49,7 @@ export const PLAN_DISPLAY = {
       "CSV import/export",
       "Full deal tracking",
       "Real-time collaboration",
+      "Email automations",
     ],
   },
 } as const;

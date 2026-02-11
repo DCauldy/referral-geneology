@@ -18,6 +18,8 @@ import {
   UserCircleIcon,
   ArrowRightStartOnRectangleIcon,
   ChevronUpIcon,
+  BoltIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { useOrg } from "@/components/providers/org-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
@@ -78,6 +80,11 @@ const visualizations = [
   { name: "Galaxy View", href: "/visualize/galaxy", view: "galaxy", icon: GalaxyIcon },
 ];
 
+const automateNav = [
+  { name: "Automations", href: "/automations", icon: BoltIcon },
+  { name: "Templates", href: "/automations/templates", icon: EnvelopeIcon },
+];
+
 const secondaryNav = [
   { name: "Insights", href: "/insights", icon: SparklesIcon, requiresAI: true },
   { name: "Reports", href: "/reports", icon: ChartBarIcon },
@@ -93,7 +100,7 @@ export function AppSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const { org, profile } = useOrg();
-  const { canAccessView, canAccessAI, canImportExport } = usePlanLimits();
+  const { canAccessView, canAccessAI, canImportExport, canAccessAutomations } = usePlanLimits();
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -173,6 +180,35 @@ export function AppSidebar({
             <ul role="list" className="-mx-2 mt-2 space-y-1">
               {visualizations.map((item) => {
                 const hasAccess = canAccessView(item.view);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={hasAccess ? item.href : "/settings/billing"}
+                      onClick={onClose}
+                      className={linkClasses(isActive(item.href), !hasAccess)}
+                    >
+                      <item.icon className={iconClasses(isActive(item.href))} />
+                      {item.name}
+                      {!hasAccess && (
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                          PRO
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+
+          {/* Automate section */}
+          <li>
+            <div className="text-xs/6 font-semibold text-primary-200">
+              Automate
+            </div>
+            <ul role="list" className="-mx-2 mt-2 space-y-1">
+              {automateNav.map((item) => {
+                const hasAccess = canAccessAutomations;
                 return (
                   <li key={item.href}>
                     <Link

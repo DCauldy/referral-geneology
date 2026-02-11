@@ -16,6 +16,7 @@ export function usePlanLimits() {
     canImportExport: limits.importExport,
     hasFullDealTracking: limits.dealTracking === "full",
     hasRealtimeCollab: limits.realtimeCollab,
+    canAccessAutomations: limits.automations,
     maxContacts: limits.maxContacts,
     maxUsers: limits.maxUsers,
     isFreePlan: plan === "free",

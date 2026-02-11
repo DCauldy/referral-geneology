@@ -316,6 +316,117 @@ export interface ImportJob {
   updated_at: string;
 }
 
+// Automation types
+export type AutomationStatus = "draft" | "active" | "paused" | "archived";
+export type AutomationTriggerType =
+  | "manual"
+  | "on_contact_create"
+  | "on_tag_added";
+export type StepType = "email" | "delay" | "condition";
+export type DelayUnit = "minutes" | "hours" | "days" | "weeks";
+export type EnrollmentStatus =
+  | "active"
+  | "completed"
+  | "paused"
+  | "canceled"
+  | "failed";
+export type EmailLogStatus =
+  | "queued"
+  | "sent"
+  | "delivered"
+  | "opened"
+  | "clicked"
+  | "bounced"
+  | "complained"
+  | "failed";
+
+export interface EmailTemplate {
+  id: string;
+  org_id: string;
+  name: string;
+  subject: string;
+  html_content: string;
+  text_content: string;
+  variables: Json;
+  is_archived: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Automation {
+  id: string;
+  org_id: string;
+  name: string;
+  description: string | null;
+  status: AutomationStatus;
+  trigger_type: AutomationTriggerType;
+  trigger_config: Json;
+  stats: Json;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  steps?: AutomationStep[];
+  _enrollment_count?: number;
+}
+
+export interface AutomationStep {
+  id: string;
+  automation_id: string;
+  step_order: number;
+  step_type: StepType;
+  template_id: string | null;
+  subject_override: string | null;
+  delay_amount: number;
+  delay_unit: DelayUnit;
+  config: Json;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  template?: EmailTemplate;
+}
+
+export interface AutomationEnrollment {
+  id: string;
+  automation_id: string;
+  contact_id: string;
+  status: EnrollmentStatus;
+  current_step_order: number;
+  next_action_at: string | null;
+  started_at: string;
+  completed_at: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  contact?: Contact;
+  automation?: Automation;
+}
+
+export interface EmailLog {
+  id: string;
+  org_id: string;
+  enrollment_id: string | null;
+  automation_id: string | null;
+  step_id: string | null;
+  template_id: string | null;
+  contact_id: string | null;
+  resend_id: string | null;
+  to_email: string;
+  subject: string;
+  status: EmailLogStatus;
+  error_message: string | null;
+  opened_at: string | null;
+  clicked_at: string | null;
+  bounced_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  contact?: Contact;
+  template?: EmailTemplate;
+}
+
 // Database function return types
 export interface ReferralChainNode {
   contact_id: string;
