@@ -14,6 +14,19 @@
   --color-primary-900: #142617;
   --color-primary-950: #0a130c;
 
+  /* Warm Tan accent scale */
+  --color-tan-50:  #faf8f3;
+  --color-tan-100: #f3efe4;
+  --color-tan-200: #e6ddc8;
+  --color-tan-300: #d4c49f;
+  --color-tan-400: #c4a96a;
+  --color-tan-500: #b09352;
+  --color-tan-600: #96793e;
+  --color-tan-700: #7a6133;
+  --color-tan-800: #614d2a;
+  --color-tan-900: #4a3a20;
+  --color-tan-950: #2b2113;
+
   /* Typography: Nunito (body) + Libre Baskerville (headings) */
   --font-sans: var(--font-nunito), "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-libre-baskerville), "Libre Baskerville", ui-serif, Georgia, serif;

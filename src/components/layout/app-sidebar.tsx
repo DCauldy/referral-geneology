@@ -141,7 +141,7 @@ export function AppSidebar({
     cn(
       "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
       active
-        ? "bg-primary-900 text-white"
+        ? "bg-tan-800/40 text-white"
         : locked
           ? "text-primary-200/50"
           : "text-primary-200 hover:bg-primary-900 hover:text-white"
@@ -155,14 +155,14 @@ export function AppSidebar({
       {/* Logo + plan */}
       <div className="shrink-0 pt-14 pb-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-tan-600 text-sm font-bold text-white">
             RG
           </div>
           <span className="text-sm font-semibold text-white">
             Referral Genealogy
           </span>
         </div>
-        <p className="mt-2 text-xs capitalize text-primary-300">
+        <p className="mt-2 text-xs capitalize text-tan-400">
           {org?.plan || "free"} plan
         </p>
       </div>
@@ -185,7 +185,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {locked && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
                           PRO
                         </span>
                       )}
@@ -198,7 +198,7 @@ export function AppSidebar({
 
           {/* Visualize section */}
           <li>
-            <div className="text-xs/6 font-semibold text-primary-200">
+            <div className="text-xs/6 font-semibold text-tan-400">
               Visualize
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -214,7 +214,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {!hasAccess && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
                           PRO
                         </span>
                       )}
@@ -227,7 +227,7 @@ export function AppSidebar({
 
           {/* Automate section */}
           <li>
-            <div className="text-xs/6 font-semibold text-primary-200">
+            <div className="text-xs/6 font-semibold text-tan-400">
               Automate
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -243,7 +243,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {!hasAccess && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
                           PRO
                         </span>
                       )}
@@ -256,7 +256,7 @@ export function AppSidebar({
 
           {/* More section */}
           <li>
-            <div className="text-xs/6 font-semibold text-primary-200">
+            <div className="text-xs/6 font-semibold text-tan-400">
               Grow
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -275,7 +275,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {locked && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-primary-700 px-2.5 py-0.5 text-center text-xs/5 font-medium text-primary-200">
+                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
                           PRO
                         </span>
                       )}
@@ -297,7 +297,7 @@ export function AppSidebar({
                     className="size-8 rounded-full bg-primary-900"
                   />
                 ) : (
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-900 text-xs font-medium text-primary-200">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-tan-800 text-xs font-medium text-tan-200">
                     {initials}
                   </div>
                 )}
@@ -308,7 +308,7 @@ export function AppSidebar({
               </PopoverButton>
               <PopoverPanel
                 anchor="top start"
-                className="z-50 mb-2 ml-4 w-52 rounded-xl border border-primary-700 bg-primary-900 py-1 shadow-lg"
+                className="z-50 mb-2 ml-4 w-52 rounded-xl border border-tan-800 bg-primary-900 py-1 shadow-lg"
               >
                 {({ close }) => (
                   <>
@@ -347,12 +347,12 @@ export function AppSidebar({
                       <DocumentArrowDownIcon className="size-4" />
                       Import
                       {!canImportExport && (
-                        <span className="ml-auto rounded-full bg-primary-700 px-2 py-0.5 text-[10px] font-medium text-primary-200">
+                        <span className="ml-auto rounded-full bg-tan-700/50 px-2 py-0.5 text-[10px] font-medium text-tan-200">
                           PRO
                         </span>
                       )}
                     </Link>
-                    <div className="my-1 border-t border-primary-700" />
+                    <div className="my-1 border-t border-tan-800" />
                     <button
                       onClick={() => { close(); handleSignOut(); }}
                       className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-primary-800"
