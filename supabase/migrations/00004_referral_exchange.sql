@@ -9,6 +9,8 @@
 --   - Trigger for updated_at
 -- =============================================================================
 
+-- Required for gen_random_bytes() — already in `extensions` schema on Supabase
+
 -- ---------------------------------------------------------------------------
 -- 1. HELPER: Check if a user is on a paid plan
 -- ---------------------------------------------------------------------------
@@ -37,7 +39,7 @@ $$;
 
 create table referral_exchanges (
     id                  uuid        primary key default gen_random_uuid(),
-    token               text        unique not null default encode(gen_random_bytes(16), 'hex'),
+    token               text        unique not null default encode(extensions.gen_random_bytes(16), 'hex'),
 
     -- Sender side
     sender_user_id      uuid        not null references auth.users(id) on delete cascade,
