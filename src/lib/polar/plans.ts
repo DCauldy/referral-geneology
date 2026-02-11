@@ -1,11 +1,11 @@
 import { PLAN_LIMITS, type PlanType } from "@/lib/utils/constants";
 
-// Polar product price IDs - configure in .env or Polar dashboard
-export const POLAR_PRICES = {
-  pro_monthly: process.env.NEXT_PUBLIC_POLAR_PRO_MONTHLY_PRICE_ID || "",
-  pro_annual: process.env.NEXT_PUBLIC_POLAR_PRO_ANNUAL_PRICE_ID || "",
-  team_monthly: process.env.NEXT_PUBLIC_POLAR_TEAM_MONTHLY_PRICE_ID || "",
-  team_annual: process.env.NEXT_PUBLIC_POLAR_TEAM_ANNUAL_PRICE_ID || "",
+// Polar product IDs - configure in .env or Polar dashboard
+export const POLAR_PRODUCTS = {
+  pro_monthly: process.env.NEXT_PUBLIC_POLAR_PRO_MONTHLY_PRODUCT_ID || "",
+  pro_annual: process.env.NEXT_PUBLIC_POLAR_PRO_ANNUAL_PRODUCT_ID || "",
+  team_monthly: process.env.NEXT_PUBLIC_POLAR_TEAM_MONTHLY_PRODUCT_ID || "",
+  team_annual: process.env.NEXT_PUBLIC_POLAR_TEAM_ANNUAL_PRODUCT_ID || "",
 } as const;
 
 export const PLAN_DISPLAY = {

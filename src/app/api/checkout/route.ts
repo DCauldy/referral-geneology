@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { priceId } = body;
+    const { productId } = body;
 
-    if (!priceId) {
+    if (!productId) {
       return NextResponse.json(
-        { error: "priceId is required" },
+        { error: "productId is required" },
         { status: 400 }
       );
     }
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Create checkout session with Polar
     const session = await createCheckoutSession({
-      productPriceId: priceId,
+      productId,
       successUrl,
       customerEmail: user.email,
       customerExternalId: user.id,

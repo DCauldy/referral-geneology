@@ -1,32 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  verifyPolarWebhook,
-  type PolarWebhookEvent,
+  validateEvent,
+  WebhookVerificationError,
 } from "@/lib/polar/webhooks";
 import { mapPolarProductToPlan, getContactLimit, getUserLimit } from "@/lib/polar/plans";
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = await request.text();
-    const signature = request.headers.get("x-polar-signature");
+    const body = await request.text();
 
-    // Verify webhook signature
-    if (!verifyPolarWebhook(payload, signature)) {
-      return NextResponse.json(
-        { error: "Invalid webhook signature" },
-        { status: 401 }
-      );
+    // Convert Web API Headers to plain object for SDK
+    const headers: Record<string, string> = {};
+    request.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+
+    let event;
+    try {
+      event = validateEvent(body, headers, process.env.POLAR_WEBHOOK_SECRET!);
+    } catch (err) {
+      if (err instanceof WebhookVerificationError) {
+        return NextResponse.json(
+          { error: "Invalid webhook signature" },
+          { status: 401 }
+        );
+      }
+      throw err;
     }
 
-    const event: PolarWebhookEvent = JSON.parse(payload);
     const supabase = createAdminClient();
 
     switch (event.type) {
       case "subscription.created":
-      case "subscription.updated": {
-        const { id: subscriptionId, customer_id, product, metadata, status } = event.data;
-        const orgId = metadata?.org_id;
+      case "subscription.updated":
+      case "subscription.active": {
+        const { id: subscriptionId, customerId, product, metadata, status } = event.data;
+        const orgId = metadata?.org_id as string | undefined;
 
         if (!orgId) {
           console.error("Polar webhook: missing org_id in metadata");
@@ -45,7 +55,7 @@ export async function POST(request: NextRequest) {
           .update({
             plan,
             polar_subscription_id: subscriptionId,
-            polar_customer_id: customer_id,
+            polar_customer_id: customerId,
             subscription_status: status === "active" ? "active" : status,
             max_contacts: maxContacts === Infinity ? 999999 : maxContacts,
             max_users: maxUsers,
@@ -66,7 +76,7 @@ export async function POST(request: NextRequest) {
 
       case "subscription.canceled": {
         const { metadata, id: subscriptionId } = event.data;
-        const orgId = metadata?.org_id;
+        const orgId = metadata?.org_id as string | undefined;
 
         if (!orgId) {
           // Try to find org by subscription ID
@@ -121,7 +131,7 @@ export async function POST(request: NextRequest) {
 
       case "subscription.revoked": {
         const { metadata, id: subscriptionId } = event.data;
-        let orgId = metadata?.org_id;
+        let orgId = metadata?.org_id as string | undefined;
 
         if (!orgId) {
           // Try to find org by subscription ID

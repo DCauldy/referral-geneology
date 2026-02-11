@@ -66,7 +66,7 @@ export default function BillingSettingsPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: planKey }),
+        body: JSON.stringify({ productId: planKey }),
       });
 
       if (!res.ok) throw new Error("Failed to create checkout");
