@@ -1,71 +1,67 @@
 "use client";
 
 import { useState } from "react";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { SettingsSection } from "@/components/settings/settings-section";
 import { CsvUpload } from "@/components/import-export/csv-upload";
 import { ExportDialog } from "@/components/import-export/export-dialog";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
+const inputClassName =
+  "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
+
+const labelClassName =
+  "mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300";
+
 export default function ImportExportSettingsPage() {
   const [showExport, setShowExport] = useState(false);
-  const [entityType, setEntityType] = useState<"contact" | "company" | "deal">("contact");
+  const [entityType, setEntityType] = useState<
+    "contact" | "company" | "deal"
+  >("contact");
 
   return (
-    <div>
-      <Breadcrumbs
-        items={[
-          { label: "Settings", href: "/settings/profile" },
-          { label: "Import / Export" },
-        ]}
-      />
-      <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-        Import / Export
-      </h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Import data from CSV files or export your data.
-      </p>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            Import
-          </h2>
-          <p className="mt-1 text-sm text-zinc-500">
-            Upload a CSV file to import data.
-          </p>
-          <div className="mt-4">
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+    <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+      <SettingsSection
+        title="Import Data"
+        description="Upload a CSV file to transplant data into your network."
+      >
+        <div className="grid max-w-lg gap-4">
+          <div>
+            <label htmlFor="entity_type" className={labelClassName}>
               Entity type
             </label>
             <select
+              id="entity_type"
               value={entityType}
-              onChange={(e) => setEntityType(e.target.value as "contact" | "company" | "deal")}
-              className="mb-4 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+              onChange={(e) =>
+                setEntityType(
+                  e.target.value as "contact" | "company" | "deal"
+                )
+              }
+              className={inputClassName}
             >
               <option value="contact">Contacts</option>
               <option value="company">Companies</option>
               <option value="deal">Deals</option>
             </select>
-            <CsvUpload entityType={entityType} />
           </div>
+          <CsvUpload entityType={entityType} />
         </div>
+      </SettingsSection>
 
+      <SettingsSection
+        title="Export Data"
+        description="Download your data as CSV files for backup or analysis."
+      >
         <div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            Export
-          </h2>
-          <p className="mt-1 text-sm text-zinc-500">
-            Download your data as CSV files.
-          </p>
           <button
             onClick={() => setShowExport(true)}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
           >
             <ArrowDownTrayIcon className="h-4 w-4" />
             Export Data
           </button>
         </div>
-      </div>
+      </SettingsSection>
 
       <ExportDialog open={showExport} onClose={() => setShowExport(false)} />
     </div>

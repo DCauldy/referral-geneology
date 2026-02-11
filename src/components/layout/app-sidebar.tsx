@@ -81,7 +81,6 @@ const visualizations = [
 const secondaryNav = [
   { name: "Insights", href: "/insights", icon: SparklesIcon, requiresAI: true },
   { name: "Reports", href: "/reports", icon: ChartBarIcon },
-  { name: "Import", href: "/import", icon: DocumentArrowDownIcon, requiresImport: true },
 ];
 
 export function AppSidebar({
@@ -275,6 +274,22 @@ export function AppSidebar({
                     >
                       <Cog6ToothIcon className="size-4" />
                       Settings
+                    </Link>
+                    <Link
+                      href={canImportExport ? "/import" : "/settings/billing"}
+                      onClick={() => { close(); onClose?.(); }}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 text-sm hover:bg-primary-800",
+                        canImportExport ? "text-primary-100" : "text-primary-100/50"
+                      )}
+                    >
+                      <DocumentArrowDownIcon className="size-4" />
+                      Import
+                      {!canImportExport && (
+                        <span className="ml-auto rounded-full bg-primary-700 px-2 py-0.5 text-[10px] font-medium text-primary-200">
+                          PRO
+                        </span>
+                      )}
                     </Link>
                     <div className="my-1 border-t border-primary-700" />
                     <button
