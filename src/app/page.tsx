@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   Bars3Icon,
@@ -208,6 +208,106 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
+function ScreenshotCrossfade() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const windowH = window.innerHeight;
+    // Start transition when container top reaches mid-screen,
+    // complete when container bottom reaches mid-screen
+    const scrollRange = rect.height - windowH;
+    if (scrollRange <= 0) return;
+    const rawProgress = (-rect.top) / scrollRange;
+    setProgress(Math.max(0, Math.min(1, rawProgress)));
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  // Map progress to crossfade: 0-0.3 = dashboard, 0.3-0.7 = transition, 0.7-1 = galaxy
+  const fadeStart = 0.3;
+  const fadeEnd = 0.7;
+  const galaxyOpacity = progress <= fadeStart ? 0 : progress >= fadeEnd ? 1 : (progress - fadeStart) / (fadeEnd - fadeStart);
+  const dashboardOpacity = 1 - galaxyOpacity;
+  // Subtle scale: dashboard scales down slightly, galaxy scales up
+  const dashboardScale = 1 - galaxyOpacity * 0.03;
+  const galaxyScale = 0.97 + galaxyOpacity * 0.03;
+
+  return (
+    <div ref={containerRef} className="relative pt-16" style={{ height: "180vh" }}>
+      <div className="sticky top-16 overflow-hidden sm:top-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="relative">
+            {/* Dashboard screenshot */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              width={2432}
+              height={1442}
+              src="/hero-screenshot.svg"
+              alt="Trellis dashboard view"
+              className="w-full rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:ring-white/10"
+              style={{
+                opacity: dashboardOpacity,
+                transform: `scale(${dashboardScale})`,
+                transition: "opacity 0.1s, transform 0.1s",
+              }}
+            />
+            {/* Galaxy screenshot (overlaid) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              width={2432}
+              height={1442}
+              src="/galaxy-screenshot.svg"
+              alt="Trellis galaxy visualization view"
+              className="absolute inset-0 w-full rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:ring-white/10"
+              style={{
+                opacity: galaxyOpacity,
+                transform: `scale(${galaxyScale})`,
+                transition: "opacity 0.1s, transform 0.1s",
+              }}
+            />
+          </div>
+          {/* Label indicating current view */}
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <span
+              className="text-sm font-medium transition-colors duration-300"
+              style={{ color: dashboardOpacity > 0.5 ? "#2f5435" : "#96b593" }}
+            >
+              Dashboard
+            </span>
+            <div className="flex gap-1.5">
+              <div
+                className="h-1.5 w-1.5 rounded-full transition-colors duration-300"
+                style={{ backgroundColor: progress < 0.5 ? "#2f5435" : "#c1d4bf" }}
+              />
+              <div
+                className="h-1.5 w-1.5 rounded-full transition-colors duration-300"
+                style={{ backgroundColor: progress >= 0.5 ? "#2f5435" : "#c1d4bf" }}
+              />
+            </div>
+            <span
+              className="text-sm font-medium transition-colors duration-300"
+              style={{ color: galaxyOpacity > 0.5 ? "#2f5435" : "#96b593" }}
+            >
+              Galaxy View
+            </span>
+          </div>
+          <div aria-hidden="true" className="relative">
+            <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%] dark:from-stone-950" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dark, setDark] = useState(false);
@@ -245,11 +345,30 @@ export default function HomePage() {
         >
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white shadow-sm">
-                RG
-              </div>
-              <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                Referral Genealogy
+              <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                <line x1="24" y1="6" x2="12" y2="18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="24" y1="6" x2="36" y2="18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="12" y1="18" x2="8" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="12" y1="18" x2="24" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="36" y1="18" x2="24" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="36" y1="18" x2="40" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="8" y1="32" x2="16" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="24" y1="32" x2="16" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="24" y1="32" x2="32" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="40" y1="32" x2="32" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="12" y1="18" x2="36" y2="18" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+                <line x1="8" y1="32" x2="40" y2="32" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+                <circle cx="24" cy="6" r="3.5" fill="#5d8a5a" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="12" cy="18" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="36" cy="18" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="8" cy="32" r="2.5" fill="#c4a96a" stroke="currentColor" strokeWidth="1.2" />
+                <circle cx="24" cy="32" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="40" cy="32" r="2.5" fill="#c4a96a" stroke="currentColor" strokeWidth="1.2" />
+                <circle cx="16" cy="42" r="2.5" fill="#b09352" stroke="currentColor" strokeWidth="1.2" />
+                <circle cx="32" cy="42" r="2.5" fill="#b09352" stroke="currentColor" strokeWidth="1.2" />
+              </svg>
+              <span className="font-serif text-lg font-bold text-gray-900 dark:text-white">
+                Trellis
               </span>
             </Link>
           </div>
@@ -305,9 +424,31 @@ export default function HomePage() {
                   href="/"
                   className="-m-1.5 flex items-center gap-2 p-1.5"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
-                    RG
-                  </div>
+                  <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary-600">
+                    <line x1="24" y1="6" x2="12" y2="18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="24" y1="6" x2="36" y2="18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="12" y1="18" x2="8" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="12" y1="18" x2="24" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="36" y1="18" x2="24" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="36" y1="18" x2="40" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="8" y1="32" x2="16" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="24" y1="32" x2="16" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="24" y1="32" x2="32" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="40" y1="32" x2="32" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <line x1="12" y1="18" x2="36" y2="18" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+                    <line x1="8" y1="32" x2="40" y2="32" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+                    <circle cx="24" cy="6" r="3.5" fill="#5d8a5a" stroke="currentColor" strokeWidth="1.5" />
+                    <circle cx="12" cy="18" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                    <circle cx="36" cy="18" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                    <circle cx="8" cy="32" r="2.5" fill="#c4a96a" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="24" cy="32" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                    <circle cx="40" cy="32" r="2.5" fill="#c4a96a" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="16" cy="42" r="2.5" fill="#b09352" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="32" cy="42" r="2.5" fill="#b09352" stroke="currentColor" strokeWidth="1.2" />
+                  </svg>
+                  <span className="font-serif text-lg font-bold text-gray-900 dark:text-white">
+                    Trellis
+                  </span>
                 </Link>
                 <div className="flex items-center gap-2">
                   <button
@@ -472,21 +613,7 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-          <div className="relative overflow-hidden pt-16">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                width={2432}
-                height={1442}
-                src="/hero-screenshot.svg"
-                alt="App screenshot"
-                className="mb-[-12%] rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:ring-white/10"
-              />
-              <div aria-hidden="true" className="relative">
-                <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%] dark:from-stone-950" />
-              </div>
-            </div>
-          </div>
+          <ScreenshotCrossfade />
           <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
             <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base/7 text-gray-600 dark:text-gray-400 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
               {features.map((feature) => (
@@ -717,10 +844,32 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl border-t border-gray-200 px-6 py-16 dark:border-white/10 sm:py-24 lg:px-8 lg:py-32">
           <div className="xl:grid xl:grid-cols-3 xl:gap-8">
             <div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white shadow-sm">
-                RG
+              <div className="flex items-center gap-2">
+                <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary-600 dark:text-primary-400">
+                  <line x1="24" y1="6" x2="12" y2="18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="24" y1="6" x2="36" y2="18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="12" y1="18" x2="8" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="12" y1="18" x2="24" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="36" y1="18" x2="24" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="36" y1="18" x2="40" y2="32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="8" y1="32" x2="16" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="24" y1="32" x2="16" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="24" y1="32" x2="32" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="40" y1="32" x2="32" y2="42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <line x1="12" y1="18" x2="36" y2="18" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+                  <line x1="8" y1="32" x2="40" y2="32" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+                  <circle cx="24" cy="6" r="3.5" fill="#5d8a5a" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="12" cy="18" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="36" cy="18" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="8" cy="32" r="2.5" fill="#c4a96a" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="24" cy="32" r="3" fill="#96b593" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="40" cy="32" r="2.5" fill="#c4a96a" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="16" cy="42" r="2.5" fill="#b09352" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="32" cy="42" r="2.5" fill="#b09352" stroke="currentColor" strokeWidth="1.2" />
+                </svg>
+                <span className="font-serif text-xl font-bold text-gray-900 dark:text-white">Trellis</span>
               </div>
-              <p className="mt-4 text-sm/6 text-gray-600 dark:text-gray-400">&copy; 2026 Referral Genealogy. All rights reserved.</p>
+              <p className="mt-4 text-sm/6 text-gray-600 dark:text-gray-400">&copy; 2026 Trellis. All rights reserved.</p>
             </div>
             <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
               <div className="md:grid md:grid-cols-2 md:gap-8">
@@ -762,6 +911,9 @@ export default function HomePage() {
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
                       <Link href="/about" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">About</Link>
+                    </li>
+                    <li>
+                      <Link href="/brand" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Brand</Link>
                     </li>
                     <li>
                       <span className="text-sm/6 text-gray-600 dark:text-gray-400">Blog</span>

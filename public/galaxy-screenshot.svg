@@ -1,0 +1,405 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2432 1442" width="2432" height="1442">
+  <defs>
+    <linearGradient id="sidebar-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a311e"/>
+      <stop offset="100%" stop-color="#142617"/>
+    </linearGradient>
+    <linearGradient id="main-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6f8f5"/>
+      <stop offset="100%" stop-color="#f0f3ef"/>
+    </linearGradient>
+    <linearGradient id="viz-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a130c"/>
+      <stop offset="100%" stop-color="#142617"/>
+    </linearGradient>
+    <!-- Glow filters for galaxy nodes -->
+    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-tan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-teal" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="cluster-green" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2f5435" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#2f5435" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cluster-tan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#b09352" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#b09352" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cluster-teal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0d9488" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════
+       BACKGROUND
+       ═══════════════════════════════════════════ -->
+  <rect width="2432" height="1442" rx="12" fill="url(#main-bg)"/>
+
+  <!-- ═══════════════════════════════════════════
+       SIDEBAR  (same as dashboard, Galaxy View active)
+       ═══════════════════════════════════════════ -->
+  <rect x="0" y="0" width="260" height="1442" rx="12" fill="url(#sidebar-bg)"/>
+  <rect x="12" y="0" width="248" height="1442" fill="url(#sidebar-bg)"/>
+  <rect x="260" y="0" width="1" height="1442" fill="#213d26"/>
+
+  <!-- Logo -->
+  <g transform="translate(24,24)">
+    <line x1="16" y1="4" x2="8" y2="12" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="16" y1="4" x2="24" y2="12" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="8" y1="12" x2="5" y2="21" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="8" y1="12" x2="16" y2="21" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="24" y1="12" x2="16" y2="21" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="24" y1="12" x2="27" y2="21" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="5" y1="21" x2="11" y2="28" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="16" y1="21" x2="11" y2="28" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="16" y1="21" x2="21" y2="28" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="27" y1="21" x2="21" y2="28" stroke="#96b593" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="16" cy="4" r="2.5" fill="#5d8a5a" stroke="#96b593" stroke-width="1"/>
+    <circle cx="8" cy="12" r="2" fill="#96b593" stroke="#96b593" stroke-width="0.8"/>
+    <circle cx="24" cy="12" r="2" fill="#96b593" stroke="#96b593" stroke-width="0.8"/>
+    <circle cx="5" cy="21" r="1.8" fill="#c4a96a" stroke="#96b593" stroke-width="0.8"/>
+    <circle cx="16" cy="21" r="2" fill="#96b593" stroke="#96b593" stroke-width="0.8"/>
+    <circle cx="27" cy="21" r="1.8" fill="#c4a96a" stroke="#96b593" stroke-width="0.8"/>
+    <circle cx="11" cy="28" r="1.8" fill="#b09352" stroke="#96b593" stroke-width="0.8"/>
+    <circle cx="21" cy="28" r="1.8" fill="#b09352" stroke="#96b593" stroke-width="0.8"/>
+  </g>
+  <rect x="62" y="30" width="70" height="14" rx="4" fill="#c1d4bf"/>
+  <rect x="62" y="50" width="50" height="8" rx="3" fill="#284a2e"/>
+
+  <!-- Nav: Dashboard (inactive) -->
+  <rect x="30" y="100" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="103" width="80" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Contacts -->
+  <rect x="30" y="146" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="149" width="68" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Companies -->
+  <rect x="30" y="182" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="185" width="82" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Deals -->
+  <rect x="30" y="218" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="221" width="48" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Referrals -->
+  <rect x="30" y="254" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="257" width="72" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Exchange -->
+  <rect x="30" y="290" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="293" width="76" height="10" rx="3" fill="#5d8a5a"/>
+  <rect x="196" y="291" width="36" height="18" rx="9" fill="#7a6133" opacity="0.5"/>
+  <rect x="203" y="297" width="22" height="6" rx="2" fill="#e6ddc8"/>
+
+  <!-- Section: Visualize -->
+  <rect x="30" y="340" width="64" height="8" rx="3" fill="#b09352"/>
+
+  <!-- Tree View -->
+  <rect x="30" y="364" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="367" width="72" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Network View -->
+  <rect x="30" y="400" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="403" width="96" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Galaxy View (ACTIVE) -->
+  <rect x="14" y="428" width="232" height="40" rx="8" fill="#96793e" opacity="0.25"/>
+  <rect x="30" y="442" width="16" height="16" rx="3" fill="#ffffff"/>
+  <rect x="58" y="445" width="84" height="10" rx="3" fill="#ffffff"/>
+
+  <!-- Section: Automate -->
+  <rect x="30" y="490" width="72" height="8" rx="3" fill="#b09352"/>
+  <rect x="30" y="514" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="517" width="90" height="10" rx="3" fill="#5d8a5a"/>
+  <rect x="30" y="550" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="553" width="76" height="10" rx="3" fill="#5d8a5a"/>
+
+  <!-- Section: Grow -->
+  <rect x="30" y="592" width="44" height="8" rx="3" fill="#b09352"/>
+  <rect x="30" y="616" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="619" width="60" height="10" rx="3" fill="#5d8a5a"/>
+  <rect x="196" y="617" width="36" height="18" rx="9" fill="#7a6133" opacity="0.5"/>
+  <rect x="203" y="623" width="22" height="6" rx="2" fill="#e6ddc8"/>
+  <rect x="30" y="652" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="655" width="62" height="10" rx="3" fill="#5d8a5a"/>
+  <rect x="30" y="688" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="691" width="98" height="10" rx="3" fill="#5d8a5a"/>
+  <rect x="30" y="724" width="16" height="16" rx="3" fill="#5d8a5a"/>
+  <rect x="58" y="727" width="88" height="10" rx="3" fill="#5d8a5a"/>
+  <rect x="196" y="725" width="36" height="18" rx="9" fill="#7a6133" opacity="0.5"/>
+  <rect x="203" y="731" width="22" height="6" rx="2" fill="#e6ddc8"/>
+
+  <!-- User profile -->
+  <rect x="14" y="1370" width="232" height="52" rx="8" fill="#213d26"/>
+  <circle cx="44" cy="1396" r="16" fill="#7a6133"/>
+  <rect x="68" y="1388" width="100" height="10" rx="3" fill="#c1d4bf"/>
+  <rect x="68" y="1404" width="70" height="8" rx="3" fill="#5d8a5a"/>
+  <rect x="218" y="1392" width="12" height="8" rx="2" fill="#5d8a5a"/>
+
+  <!-- ═══════════════════════════════════════════
+       TOPBAR
+       ═══════════════════════════════════════════ -->
+  <rect x="261" y="0" width="2171" height="56" fill="#ffffff"/>
+  <rect x="261" y="56" width="2171" height="1" fill="#e0e9df"/>
+  <rect x="300" y="12" width="320" height="32" rx="8" fill="#ffffff" stroke="#c1d4bf" stroke-width="1"/>
+  <circle cx="318" cy="28" r="6" fill="none" stroke="#96b593" stroke-width="1.5"/>
+  <line x1="323" y1="33" x2="326" y2="36" stroke="#96b593" stroke-width="1.5" stroke-linecap="round"/>
+  <rect x="336" y="23" width="120" height="8" rx="3" fill="#c1d4bf"/>
+  <rect x="564" y="18" width="36" height="20" rx="4" fill="#f2f5f1" stroke="#c1d4bf" stroke-width="0.5"/>
+  <rect x="572" y="25" width="20" height="6" rx="2" fill="#96b593"/>
+  <circle cx="2360" cy="28" r="14" fill="#f2f5f1" stroke="#c1d4bf" stroke-width="0.5"/>
+  <circle cx="2360" cy="28" r="6" fill="none" stroke="#5d8a5a" stroke-width="1.5"/>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT — Galaxy Visualization
+       ═══════════════════════════════════════════ -->
+
+  <!-- Breadcrumb -->
+  <rect x="300" y="80" width="120" height="8" rx="3" fill="#96b593"/>
+
+  <!-- Page title: "Galaxy View" -->
+  <rect x="300" y="104" width="180" height="22" rx="4" fill="#1a311e"/>
+
+  <!-- Description -->
+  <rect x="300" y="138" width="380" height="10" rx="3" fill="#96b593"/>
+
+  <!-- View mode tabs -->
+  <rect x="300" y="170" width="80" height="30" rx="6" fill="#e0e9df"/>
+  <rect x="316" y="181" width="48" height="8" rx="3" fill="#5d8a5a"/>
+  <rect x="392" y="170" width="80" height="30" rx="6" fill="#e0e9df"/>
+  <rect x="408" y="181" width="48" height="8" rx="3" fill="#5d8a5a"/>
+  <rect x="484" y="170" width="80" height="30" rx="6" fill="#2f5435"/>
+  <rect x="500" y="181" width="48" height="8" rx="3" fill="#ffffff"/>
+
+  <!-- Cluster-by dropdown -->
+  <rect x="2200" y="170" width="160" height="30" rx="6" fill="#ffffff" stroke="#c1d4bf" stroke-width="1"/>
+  <rect x="2216" y="181" width="80" height="8" rx="3" fill="#96b593"/>
+  <rect x="2336" y="181" width="8" height="8" rx="1" fill="#96b593"/>
+
+  <!-- ═══════════════════════════════════════════
+       GALAXY VISUALIZATION CARD
+       ═══════════════════════════════════════════ -->
+  <rect x="300" y="220" width="2080" height="1200" rx="16" fill="url(#viz-bg)" stroke="#213d26" stroke-width="1"/>
+
+  <!-- Faint star dust background dots -->
+  <circle cx="450" cy="350" r="0.8" fill="#5d8a5a" opacity="0.3"/>
+  <circle cx="620" cy="290" r="0.6" fill="#5d8a5a" opacity="0.2"/>
+  <circle cx="780" cy="420" r="0.7" fill="#5d8a5a" opacity="0.25"/>
+  <circle cx="1900" cy="380" r="0.8" fill="#5d8a5a" opacity="0.2"/>
+  <circle cx="2100" cy="500" r="0.6" fill="#5d8a5a" opacity="0.3"/>
+  <circle cx="1600" cy="1200" r="0.7" fill="#5d8a5a" opacity="0.2"/>
+  <circle cx="500" cy="1100" r="0.8" fill="#5d8a5a" opacity="0.25"/>
+  <circle cx="1200" cy="300" r="0.6" fill="#5d8a5a" opacity="0.2"/>
+  <circle cx="1800" cy="1300" r="0.7" fill="#5d8a5a" opacity="0.3"/>
+  <circle cx="700" cy="800" r="0.6" fill="#96b593" opacity="0.15"/>
+  <circle cx="1100" cy="1100" r="0.5" fill="#96b593" opacity="0.2"/>
+  <circle cx="2000" cy="900" r="0.7" fill="#96b593" opacity="0.15"/>
+  <circle cx="400" cy="700" r="0.5" fill="#c4a96a" opacity="0.15"/>
+  <circle cx="1500" cy="500" r="0.6" fill="#c4a96a" opacity="0.1"/>
+
+  <!-- ── CLUSTER 1: "Real Estate" (Hunter Green, upper-left) ── -->
+  <ellipse cx="680" cy="520" rx="220" ry="180" fill="url(#cluster-green)"/>
+
+  <!-- Cluster label -->
+  <rect x="620" y="350" width="110" height="16" rx="4" fill="#2f5435" opacity="0.6"/>
+  <rect x="632" y="354" width="86" height="8" rx="2" fill="#96b593"/>
+
+  <!-- Inter-cluster connections (faint) -->
+  <line x1="680" y1="520" x2="600" y2="460" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="680" y1="520" x2="760" y2="440" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="680" y1="520" x2="580" y2="600" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="680" y1="520" x2="800" y2="580" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="680" y1="520" x2="700" y2="650" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="600" y1="460" x2="520" y2="410" stroke="#2f5435" stroke-width="0.5" opacity="0.2"/>
+  <line x1="760" y1="440" x2="840" y2="400" stroke="#2f5435" stroke-width="0.5" opacity="0.2"/>
+  <line x1="600" y1="460" x2="540" y2="530" stroke="#2f5435" stroke-width="0.5" opacity="0.2"/>
+  <line x1="800" y1="580" x2="860" y2="540" stroke="#2f5435" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Primary node -->
+  <circle cx="680" cy="520" r="18" fill="#2f5435" opacity="0.4" filter="url(#glow-green)"/>
+  <circle cx="680" cy="520" r="10" fill="#5d8a5a" stroke="#96b593" stroke-width="1.5"/>
+  <!-- Secondary nodes -->
+  <circle cx="600" cy="460" r="8" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.9"/>
+  <circle cx="760" cy="440" r="9" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.9"/>
+  <circle cx="580" cy="600" r="7" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.85"/>
+  <circle cx="800" cy="580" r="8" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.85"/>
+  <circle cx="700" cy="650" r="6" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.8"/>
+  <!-- Tertiary nodes -->
+  <circle cx="520" cy="410" r="5" fill="#96b593" opacity="0.5"/>
+  <circle cx="840" cy="400" r="4.5" fill="#96b593" opacity="0.5"/>
+  <circle cx="540" cy="530" r="4" fill="#96b593" opacity="0.45"/>
+  <circle cx="860" cy="540" r="4.5" fill="#96b593" opacity="0.45"/>
+  <circle cx="650" cy="380" r="3.5" fill="#96b593" opacity="0.4"/>
+  <circle cx="750" cy="620" r="3.5" fill="#96b593" opacity="0.4"/>
+
+  <!-- ── CLUSTER 2: "Financial Services" (Warm Tan, center) ── -->
+  <ellipse cx="1340" cy="750" rx="260" ry="220" fill="url(#cluster-tan)"/>
+
+  <!-- Cluster label -->
+  <rect x="1260" y="540" width="150" height="16" rx="4" fill="#7a6133" opacity="0.6"/>
+  <rect x="1272" y="544" width="126" height="8" rx="2" fill="#c4a96a"/>
+
+  <!-- Connections -->
+  <line x1="1340" y1="750" x2="1220" y2="660" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1340" y1="750" x2="1480" y2="680" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1340" y1="750" x2="1200" y2="840" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1340" y1="750" x2="1500" y2="830" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1340" y1="750" x2="1340" y2="900" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1340" y1="750" x2="1420" y2="620" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1220" y1="660" x2="1130" y2="600" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+  <line x1="1480" y1="680" x2="1560" y2="620" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+  <line x1="1200" y1="840" x2="1120" y2="900" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+  <line x1="1500" y1="830" x2="1580" y2="880" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+  <line x1="1340" y1="900" x2="1280" y2="960" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+  <line x1="1340" y1="900" x2="1400" y2="970" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Primary node -->
+  <circle cx="1340" cy="750" r="22" fill="#7a6133" opacity="0.35" filter="url(#glow-tan)"/>
+  <circle cx="1340" cy="750" r="12" fill="#b09352" stroke="#c4a96a" stroke-width="1.5"/>
+  <!-- Secondary nodes -->
+  <circle cx="1220" cy="660" r="9" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.9"/>
+  <circle cx="1480" cy="680" r="10" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.9"/>
+  <circle cx="1200" cy="840" r="8" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.85"/>
+  <circle cx="1500" cy="830" r="9" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.85"/>
+  <circle cx="1340" cy="900" r="7" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.8"/>
+  <circle cx="1420" cy="620" r="7" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.85"/>
+  <!-- Tertiary nodes -->
+  <circle cx="1130" cy="600" r="5" fill="#c4a96a" opacity="0.5"/>
+  <circle cx="1560" cy="620" r="4.5" fill="#c4a96a" opacity="0.5"/>
+  <circle cx="1120" cy="900" r="4" fill="#c4a96a" opacity="0.45"/>
+  <circle cx="1580" cy="880" r="5" fill="#c4a96a" opacity="0.45"/>
+  <circle cx="1280" cy="960" r="4" fill="#c4a96a" opacity="0.4"/>
+  <circle cx="1400" cy="970" r="3.5" fill="#c4a96a" opacity="0.4"/>
+  <circle cx="1380" cy="580" r="3.5" fill="#c4a96a" opacity="0.4"/>
+  <circle cx="1260" cy="780" r="3" fill="#c4a96a" opacity="0.35"/>
+
+  <!-- ── CLUSTER 3: "Technology" (Teal, upper-right) ── -->
+  <ellipse cx="1920" cy="540" rx="200" ry="170" fill="url(#cluster-teal)"/>
+
+  <!-- Cluster label -->
+  <rect x="1870" y="380" width="100" height="16" rx="4" fill="#134e4a" opacity="0.6"/>
+  <rect x="1882" y="384" width="76" height="8" rx="2" fill="#5eead4"/>
+
+  <!-- Connections -->
+  <line x1="1920" y1="540" x2="1820" y2="470" stroke="#134e4a" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1920" y1="540" x2="2040" y2="480" stroke="#134e4a" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1920" y1="540" x2="1840" y2="630" stroke="#134e4a" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1920" y1="540" x2="2020" y2="620" stroke="#134e4a" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1920" y1="540" x2="1960" y2="420" stroke="#134e4a" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1820" y1="470" x2="1740" y2="420" stroke="#134e4a" stroke-width="0.5" opacity="0.2"/>
+  <line x1="2040" y1="480" x2="2120" y2="440" stroke="#134e4a" stroke-width="0.5" opacity="0.2"/>
+  <line x1="1840" y1="630" x2="1780" y2="680" stroke="#134e4a" stroke-width="0.5" opacity="0.2"/>
+  <line x1="2020" y1="620" x2="2100" y2="660" stroke="#134e4a" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Primary node -->
+  <circle cx="1920" cy="540" r="16" fill="#134e4a" opacity="0.4" filter="url(#glow-teal)"/>
+  <circle cx="1920" cy="540" r="10" fill="#0d9488" stroke="#5eead4" stroke-width="1.5"/>
+  <!-- Secondary nodes -->
+  <circle cx="1820" cy="470" r="8" fill="#0d9488" stroke="#5eead4" stroke-width="1" opacity="0.9"/>
+  <circle cx="2040" cy="480" r="9" fill="#0d9488" stroke="#5eead4" stroke-width="1" opacity="0.9"/>
+  <circle cx="1840" cy="630" r="7" fill="#0d9488" stroke="#5eead4" stroke-width="1" opacity="0.85"/>
+  <circle cx="2020" cy="620" r="8" fill="#0d9488" stroke="#5eead4" stroke-width="1" opacity="0.85"/>
+  <circle cx="1960" cy="420" r="6" fill="#0d9488" stroke="#5eead4" stroke-width="1" opacity="0.8"/>
+  <!-- Tertiary nodes -->
+  <circle cx="1740" cy="420" r="4.5" fill="#5eead4" opacity="0.5"/>
+  <circle cx="2120" cy="440" r="4" fill="#5eead4" opacity="0.5"/>
+  <circle cx="1780" cy="680" r="4" fill="#5eead4" opacity="0.45"/>
+  <circle cx="2100" cy="660" r="4.5" fill="#5eead4" opacity="0.45"/>
+  <circle cx="1880" cy="450" r="3" fill="#5eead4" opacity="0.4"/>
+
+  <!-- ── CLUSTER 4: "Consulting" (muted green, lower-left) ── -->
+  <ellipse cx="620" cy="1020" rx="180" ry="150" fill="url(#cluster-green)"/>
+
+  <!-- Cluster label -->
+  <rect x="565" y="870" width="100" height="16" rx="4" fill="#2f5435" opacity="0.6"/>
+  <rect x="577" y="874" width="76" height="8" rx="2" fill="#96b593"/>
+
+  <!-- Connections -->
+  <line x1="620" y1="1020" x2="530" y2="950" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="620" y1="1020" x2="720" y2="940" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="620" y1="1020" x2="520" y2="1090" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="620" y1="1020" x2="740" y2="1080" stroke="#2f5435" stroke-width="0.8" opacity="0.3"/>
+  <line x1="530" y1="950" x2="460" y2="910" stroke="#2f5435" stroke-width="0.5" opacity="0.2"/>
+  <line x1="720" y1="940" x2="790" y2="900" stroke="#2f5435" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Primary node -->
+  <circle cx="620" cy="1020" r="14" fill="#2f5435" opacity="0.35" filter="url(#glow-green)"/>
+  <circle cx="620" cy="1020" r="9" fill="#5d8a5a" stroke="#96b593" stroke-width="1.5"/>
+  <!-- Secondary nodes -->
+  <circle cx="530" cy="950" r="7" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.9"/>
+  <circle cx="720" cy="940" r="8" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.9"/>
+  <circle cx="520" cy="1090" r="6" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.85"/>
+  <circle cx="740" cy="1080" r="7" fill="#5d8a5a" stroke="#96b593" stroke-width="1" opacity="0.85"/>
+  <!-- Tertiary -->
+  <circle cx="460" cy="910" r="4" fill="#96b593" opacity="0.5"/>
+  <circle cx="790" cy="900" r="4.5" fill="#96b593" opacity="0.5"/>
+  <circle cx="580" cy="1140" r="3.5" fill="#96b593" opacity="0.4"/>
+
+  <!-- ── CLUSTER 5: "Insurance" (Tan, lower-right) ── -->
+  <ellipse cx="1900" cy="1050" rx="190" ry="160" fill="url(#cluster-tan)"/>
+
+  <!-- Cluster label -->
+  <rect x="1852" y="890" width="90" height="16" rx="4" fill="#7a6133" opacity="0.6"/>
+  <rect x="1864" y="894" width="66" height="8" rx="2" fill="#c4a96a"/>
+
+  <!-- Connections -->
+  <line x1="1900" y1="1050" x2="1800" y2="980" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1900" y1="1050" x2="2010" y2="980" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1900" y1="1050" x2="1810" y2="1130" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1900" y1="1050" x2="2000" y2="1140" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1900" y1="1050" x2="1950" y2="930" stroke="#7a6133" stroke-width="0.8" opacity="0.3"/>
+  <line x1="1800" y1="980" x2="1730" y2="940" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+  <line x1="2010" y1="980" x2="2080" y2="940" stroke="#7a6133" stroke-width="0.5" opacity="0.2"/>
+
+  <!-- Primary node -->
+  <circle cx="1900" cy="1050" r="16" fill="#7a6133" opacity="0.35" filter="url(#glow-tan)"/>
+  <circle cx="1900" cy="1050" r="10" fill="#b09352" stroke="#c4a96a" stroke-width="1.5"/>
+  <!-- Secondary nodes -->
+  <circle cx="1800" cy="980" r="8" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.9"/>
+  <circle cx="2010" cy="980" r="7" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.9"/>
+  <circle cx="1810" cy="1130" r="7" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.85"/>
+  <circle cx="2000" cy="1140" r="8" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.85"/>
+  <circle cx="1950" cy="930" r="6" fill="#b09352" stroke="#c4a96a" stroke-width="1" opacity="0.8"/>
+  <!-- Tertiary -->
+  <circle cx="1730" cy="940" r="4" fill="#c4a96a" opacity="0.5"/>
+  <circle cx="2080" cy="940" r="4.5" fill="#c4a96a" opacity="0.5"/>
+  <circle cx="1860" cy="1190" r="3.5" fill="#c4a96a" opacity="0.4"/>
+  <circle cx="2050" cy="1180" r="3" fill="#c4a96a" opacity="0.35"/>
+
+  <!-- ══ Cross-cluster connections (very faint) ══ -->
+  <line x1="800" y1="580" x2="1130" y2="600" stroke="#96b593" stroke-width="0.6" opacity="0.12" stroke-dasharray="4 6"/>
+  <line x1="1560" y1="620" x2="1740" y2="420" stroke="#96b593" stroke-width="0.6" opacity="0.12" stroke-dasharray="4 6"/>
+  <line x1="740" y1="1080" x2="1120" y2="900" stroke="#96b593" stroke-width="0.6" opacity="0.12" stroke-dasharray="4 6"/>
+  <line x1="1580" y1="880" x2="1730" y2="940" stroke="#96b593" stroke-width="0.6" opacity="0.12" stroke-dasharray="4 6"/>
+  <line x1="860" y1="540" x2="1130" y2="600" stroke="#96b593" stroke-width="0.6" opacity="0.1" stroke-dasharray="4 6"/>
+  <line x1="790" y1="900" x2="1120" y2="900" stroke="#96b593" stroke-width="0.6" opacity="0.1" stroke-dasharray="4 6"/>
+
+  <!-- ══ Legend (bottom-right of viz card) ══ -->
+  <rect x="2060" y="1310" width="280" height="80" rx="8" fill="#142617" opacity="0.7"/>
+  <circle cx="2088" cy="1336" r="5" fill="#5d8a5a" stroke="#96b593" stroke-width="0.8"/>
+  <rect x="2100" y="1332" width="70" height="7" rx="2" fill="#96b593" opacity="0.7"/>
+  <circle cx="2088" cy="1356" r="5" fill="#b09352" stroke="#c4a96a" stroke-width="0.8"/>
+  <rect x="2100" y="1352" width="100" height="7" rx="2" fill="#c4a96a" opacity="0.7"/>
+  <circle cx="2088" cy="1376" r="5" fill="#0d9488" stroke="#5eead4" stroke-width="0.8"/>
+  <rect x="2100" y="1372" width="80" height="7" rx="2" fill="#5eead4" opacity="0.7"/>
+
+  <!-- ══ Node count + cluster count badges (top-right of viz card) ══ -->
+  <rect x="2080" y="240" width="120" height="28" rx="6" fill="#213d26" opacity="0.8"/>
+  <rect x="2096" y="249" width="44" height="8" rx="3" fill="#96b593" opacity="0.7"/>
+  <rect x="2148" y="249" width="36" height="8" rx="3" fill="#5d8a5a"/>
+
+  <rect x="2210" y="240" width="140" height="28" rx="6" fill="#213d26" opacity="0.8"/>
+  <rect x="2226" y="249" width="54" height="8" rx="3" fill="#96b593" opacity="0.7"/>
+  <rect x="2288" y="249" width="46" height="8" rx="3" fill="#5d8a5a"/>
+
+</svg>
