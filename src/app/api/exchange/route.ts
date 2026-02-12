@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
               <h2 style="color: #1e293b;">New referral from your network</h2>
               <p><strong>${senderName}</strong> from <strong>${org.name}</strong> sent you a referral for <strong>${contactName}</strong>.</p>
               ${context_note ? `<p style="color: #64748b; font-style: italic;">"${context_note}"</p>` : ""}
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/referrals/exchange"
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/exchange"
                  style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                 View in Your Inbox
               </a>

@@ -108,7 +108,6 @@ export default function ReferralExchangePage() {
       <div>
         <Breadcrumbs
           items={[
-            { label: "Referrals", href: "/referrals" },
             { label: "Exchange" },
           ]}
         />

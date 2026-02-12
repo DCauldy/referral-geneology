@@ -76,7 +76,7 @@ const navigation = [
   { name: "Companies", href: "/companies", icon: BuildingOffice2Icon },
   { name: "Deals", href: "/deals", icon: CurrencyDollarIcon },
   { name: "Referrals", href: "/referrals", icon: ArrowsRightLeftIcon },
-  { name: "Exchange", href: "/referrals/exchange", icon: ArrowTopRightOnSquareIcon, requiresExchange: true },
+  { name: "Exchange", href: "/exchange", icon: ArrowTopRightOnSquareIcon, requiresExchange: true },
   { name: "Directory", href: "/directory", icon: GlobeAltIcon, requiresExchange: true },
 ];
 

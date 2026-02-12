@@ -29,7 +29,7 @@ export function useReferralExchange(options: UseReferralExchangeOptions) {
       });
       if (status) params.set("status", status);
 
-      const res = await fetch(`/api/referrals/exchange?${params}`);
+      const res = await fetch(`/api/exchange?${params}`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -74,7 +74,7 @@ export function useExchangeActions() {
     }) => {
       setIsSubmitting(true);
       try {
-        const res = await fetch("/api/referrals/exchange", {
+        const res = await fetch("/api/exchange", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -92,7 +92,7 @@ export function useExchangeActions() {
   const acceptExchange = useCallback(async (exchangeId: string) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/referrals/exchange/${exchangeId}`, {
+      const res = await fetch(`/api/exchange/${exchangeId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "accept" }),
@@ -108,7 +108,7 @@ export function useExchangeActions() {
   const declineExchange = useCallback(async (exchangeId: string) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/referrals/exchange/${exchangeId}`, {
+      const res = await fetch(`/api/exchange/${exchangeId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "decline" }),
@@ -129,7 +129,7 @@ export function useExchangeActions() {
     ) => {
       setIsSubmitting(true);
       try {
-        const res = await fetch(`/api/referrals/exchange/${exchangeId}`, {
+        const res = await fetch(`/api/exchange/${exchangeId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

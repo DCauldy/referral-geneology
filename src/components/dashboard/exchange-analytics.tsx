@@ -8,11 +8,7 @@ import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { useTrustScore } from "@/lib/hooks/use-trust-score";
 import { cn } from "@/lib/utils/cn";
 import { getInitials } from "@/lib/utils/format";
-import {
-  ArrowsRightLeftIcon,
-  GlobeAltIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline";
+import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 
 interface ExchangePartner {
   user_id: string;
@@ -37,38 +33,38 @@ function PartnerRow({ partner, rank }: { partner: ExchangePartner; rank: number 
   const { score } = useTrustScore(partner.user_id);
 
   return (
-    <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+    <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-primary-50 dark:hover:bg-primary-800/50">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-800 dark:text-primary-300">
         {rank}
       </span>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-600 dark:bg-primary-800 dark:text-primary-300">
         {getInitials(partner.name.split(" ")[0], partner.name.split(" ").slice(1).join(" ") || undefined)}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <p className="truncate text-sm font-medium text-zinc-900 dark:text-white">
+          <p className="truncate text-sm font-medium text-primary-800 dark:text-primary-100">
             {partner.name}
           </p>
           {score && score.trust_rating > 0 && (
             <span className={cn(
               "inline-flex items-center gap-0.5 text-[10px] font-medium",
               score.trust_rating >= 70 ? "text-emerald-600 dark:text-emerald-400" :
-                score.trust_rating >= 40 ? "text-yellow-600 dark:text-yellow-400" : "text-zinc-400"
+                score.trust_rating >= 40 ? "text-tan-600 dark:text-tan-400" : "text-primary-400"
             )}>
-              <ShieldCheckIcon className="h-3 w-3" />
+              <span className="flex h-3 w-3 items-center justify-center">{DUOTONE_ICONS.ShieldCheckIcon}</span>
               {Math.round(score.trust_rating)}
             </span>
           )}
         </div>
         {partner.org_name && (
-          <p className="truncate text-xs text-zinc-500">{partner.org_name}</p>
+          <p className="truncate text-xs text-primary-400">{partner.org_name}</p>
         )}
       </div>
       <div className="text-right">
-        <p className="text-sm font-medium text-zinc-900 dark:text-white">
+        <p className="text-sm font-medium text-primary-800 dark:text-primary-100">
           {partner.exchange_count}
         </p>
-        <p className="text-xs text-zinc-500">exchanges</p>
+        <p className="text-xs text-primary-400">exchanges</p>
       </div>
     </div>
   );
@@ -189,11 +185,11 @@ export function ExchangeAnalytics() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="h-6 w-40 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+      <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+        <div className="h-6 w-40 animate-pulse rounded bg-primary-100 dark:bg-primary-800" />
         <div className="mt-4 space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+            <div key={i} className="h-12 animate-pulse rounded-lg bg-primary-100 dark:bg-primary-800" />
           ))}
         </div>
       </div>
@@ -202,12 +198,14 @@ export function ExchangeAnalytics() {
 
   if (!stats || (stats.total_sent === 0 && stats.total_received === 0)) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-          <ArrowsRightLeftIcon className="h-4 w-4 text-teal-500" />
+      <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
+          <div className="flex h-6 w-6 items-center justify-center">
+            {DUOTONE_ICONS.ArrowsRightLeftIcon}
+          </div>
           Network Exchange
         </h3>
-        <p className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-3 text-center text-sm text-primary-400 dark:text-primary-500">
           No exchange activity yet. Share referrals with other users to see your network analytics.
         </p>
         <div className="mt-3 text-center">
@@ -223,14 +221,16 @@ export function ExchangeAnalytics() {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-          <ArrowsRightLeftIcon className="h-4 w-4 text-teal-500" />
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
+          <div className="flex h-6 w-6 items-center justify-center">
+            {DUOTONE_ICONS.ArrowsRightLeftIcon}
+          </div>
           Network Exchange
         </h3>
         <Link
-          href="/referrals/exchange"
+          href="/exchange"
           className="text-xs font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
         >
           View all
@@ -246,25 +246,27 @@ export function ExchangeAnalytics() {
           { label: "Converted", value: stats.total_converted },
         ].map((s) => (
           <div key={s.label} className="text-center">
-            <p className="text-lg font-bold text-zinc-900 dark:text-white">{s.value}</p>
-            <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{s.label}</p>
+            <p className="font-serif text-lg font-bold text-primary-800 dark:text-primary-100">{s.value}</p>
+            <p className="text-[10px] uppercase tracking-wider text-tan-500">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Network reach */}
-      <div className="mt-4 flex items-center gap-4 rounded-lg bg-teal-50 px-3 py-2 dark:bg-teal-950/30">
-        <GlobeAltIcon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+      <div className="mt-4 flex items-center gap-4 rounded-lg bg-primary-50 px-3 py-2 dark:bg-primary-800/50">
+        <div className="flex h-5 w-5 items-center justify-center">
+          {DUOTONE_ICONS.GlobeAltIcon}
+        </div>
         <div className="flex-1">
-          <p className="text-xs font-medium text-teal-800 dark:text-teal-300">
+          <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
             Network Reach
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-teal-700 dark:text-teal-400">
+          <span className="text-primary-600 dark:text-primary-400">
             <strong>{stats.unique_partners}</strong> partners
           </span>
-          <span className="text-teal-700 dark:text-teal-400">
+          <span className="text-primary-600 dark:text-primary-400">
             <strong>{stats.unique_orgs}</strong> organizations
           </span>
         </div>
@@ -273,7 +275,7 @@ export function ExchangeAnalytics() {
       {/* Top exchange partners */}
       {stats.partners.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-tan-500">
             Top Exchange Partners
           </p>
           <div className="space-y-1">
