@@ -252,7 +252,7 @@ function ScreenshotCrossfade() {
               height={1442}
               src="/hero-screenshot.svg"
               alt="Trellis dashboard view"
-              className="w-full rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:ring-white/10"
+              className="w-full rounded-xl shadow-lg ring-1 ring-gray-900/10 dark:ring-white/10"
               style={{
                 opacity: dashboardOpacity,
                 transform: `scale(${dashboardScale})`,
@@ -266,7 +266,7 @@ function ScreenshotCrossfade() {
               height={1442}
               src="/galaxy-screenshot.svg"
               alt="Trellis galaxy visualization view"
-              className="absolute inset-0 w-full rounded-xl shadow-2xl ring-1 ring-gray-900/10 dark:ring-white/10"
+              className="absolute inset-0 w-full rounded-xl shadow-lg ring-1 ring-gray-900/10 dark:ring-white/10"
               style={{
                 opacity: galaxyOpacity,
                 transform: `scale(${galaxyScale})`,
@@ -300,7 +300,14 @@ function ScreenshotCrossfade() {
             </span>
           </div>
           <div aria-hidden="true" className="relative">
-            <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white from-40% pt-[18%] dark:from-stone-950" />
+            {/* <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white from-40% pt-[18%] dark:from-stone-950" /> */}
+            {/* Lattice overlay on gradient — uncomment to enable:
+            <div
+              className="absolute -inset-x-20 bottom-0 pt-[18%]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(45deg, rgba(47,84,53,0.07) 0px, rgba(47,84,53,0.07) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(-45deg, rgba(47,84,53,0.07) 0px, rgba(47,84,53,0.07) 1px, transparent 1px, transparent 16px), linear-gradient(to top, white 40%, transparent)`,
+              }}
+            /> */}
           </div>
         </div>
       </div>
@@ -601,7 +608,7 @@ export default function HomePage() {
           id="features"
           className="relative pt-32 pb-32 sm:pt-56 sm:pb-56"
           style={{
-            backgroundImage: `repeating-linear-gradient(45deg, rgba(47,84,53,0.04) 0px, rgba(47,84,53,0.04) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(-45deg, rgba(47,84,53,0.04) 0px, rgba(47,84,53,0.04) 1px, transparent 1px, transparent 16px)`,
+            backgroundImage: `repeating-linear-gradient(45deg, rgba(47,84,53,0.07) 0px, rgba(47,84,53,0.07) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(-45deg, rgba(47,84,53,0.07) 0px, rgba(47,84,53,0.07) 1px, transparent 1px, transparent 16px)`,
           }}
         >
           <div className="mx-auto max-w-7xl px-6 lg:px-8">

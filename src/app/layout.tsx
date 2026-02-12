@@ -17,9 +17,28 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  title: "Trellis",
+  metadataBase: new URL("https://growyourtrellis.com"),
+  title: {
+    default: "Trellis",
+    template: "%s | Trellis",
+  },
   description:
     "Visualize and grow your referral network like never before. Track who referred whom, link referrals to deals, and get AI-powered insights.",
+  openGraph: {
+    title: "Trellis — Grow Your Referral Network",
+    description:
+      "Track, visualize, and grow your business referral network with AI-powered insights.",
+    siteName: "Trellis",
+    type: "website",
+    locale: "en_US",
+    url: "https://growyourtrellis.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trellis — Grow Your Referral Network",
+    description:
+      "Track, visualize, and grow your business referral network.",
+  },
 };
 
 export default function RootLayout({

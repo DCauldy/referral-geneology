@@ -666,6 +666,22 @@ export default function BrandPage() {
               </div>
             </div>
           </div>
+
+          {/* Generated OG image links */}
+          <div className="mt-6 rounded-lg border border-primary-200 bg-primary-50/50 p-4 dark:border-primary-700 dark:bg-primary-800/30">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary-400">Generated OG Images</p>
+            <p className="mt-1 text-xs text-primary-500">These images are dynamically generated and served as <code className="rounded bg-primary-100 px-1 py-0.5 text-[11px] dark:bg-primary-800">og:image</code> and <code className="rounded bg-primary-100 px-1 py-0.5 text-[11px] dark:bg-primary-800">twitter:image</code> meta tags.</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a href="/opengraph-image" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-primary-200 bg-white px-3 py-1.5 text-xs font-medium text-primary-700 shadow-sm transition hover:bg-primary-50 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-200 dark:hover:bg-primary-700">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                OpenGraph (1200 &times; 630)
+              </a>
+              <a href="/twitter-image" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md border border-primary-200 bg-white px-3 py-1.5 text-xs font-medium text-primary-700 shadow-sm transition hover:bg-primary-50 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-200 dark:hover:bg-primary-700">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Twitter Card (1200 &times; 630)
+              </a>
+            </div>
+          </div>
         </Section>
 
         {/* ── 10. DOMAIN ── */}
