@@ -609,6 +609,7 @@ export default function HomePage() {
           className="relative pt-32 pb-32 sm:pt-56 sm:pb-56"
           style={{
             backgroundImage: `repeating-linear-gradient(45deg, rgba(47,84,53,0.07) 0px, rgba(47,84,53,0.07) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(-45deg, rgba(47,84,53,0.07) 0px, rgba(47,84,53,0.07) 1px, transparent 1px, transparent 16px)`,
+            backgroundAttachment: "fixed",
           }}
         >
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
