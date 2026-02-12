@@ -300,7 +300,7 @@ function ScreenshotCrossfade() {
             </span>
           </div>
           <div aria-hidden="true" className="relative">
-            <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%] dark:from-stone-950" />
+            <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white from-40% pt-[18%] dark:from-stone-950" />
           </div>
         </div>
       </div>
