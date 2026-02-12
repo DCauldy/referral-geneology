@@ -11,6 +11,7 @@ interface TopReferrer {
   id: string;
   first_name: string;
   last_name: string | null;
+  profile_photo_url: string | null;
   referral_score: number;
   lifetime_referral_value: number;
   referral_count: number;
@@ -29,7 +30,7 @@ export function TopReferrers() {
       // Get contacts with highest referral scores
       const { data: contacts } = await supabase
         .from("contacts")
-        .select("id, first_name, last_name, referral_score, lifetime_referral_value")
+        .select("id, first_name, last_name, profile_photo_url, referral_score, lifetime_referral_value")
         .eq("org_id", org.id)
         .gt("referral_score", 0)
         .order("referral_score", { ascending: false })
@@ -105,8 +106,16 @@ export function TopReferrers() {
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-800 dark:text-primary-300">
                 {index + 1}
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-600 dark:bg-primary-800 dark:text-primary-300">
-                {getInitials(referrer.first_name, referrer.last_name || undefined)}
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-600 dark:bg-primary-800 dark:text-primary-300">
+                {referrer.profile_photo_url ? (
+                  <img
+                    src={referrer.profile_photo_url}
+                    alt=""
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  getInitials(referrer.first_name, referrer.last_name || undefined)
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-primary-800 dark:text-primary-100">
