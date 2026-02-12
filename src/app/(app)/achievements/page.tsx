@@ -15,53 +15,19 @@ import {
 } from "@/lib/utils/achievements";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { cn } from "@/lib/utils/cn";
-import {
-  TrophyIcon,
-  FireIcon,
-  LockClosedIcon,
-  UserPlusIcon,
-  BuildingOffice2Icon,
-  CurrencyDollarIcon,
-  ArrowsRightLeftIcon,
-  SparklesIcon,
-  UsersIcon,
-  CheckCircleIcon,
-  ChartBarIcon,
-  ArrowUpTrayIcon,
-  ArrowDownTrayIcon,
-  ShieldCheckIcon,
-  DocumentTextIcon,
-  BoltIcon,
-  StarIcon,
-} from "@heroicons/react/24/outline";
+import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 import type { UserAchievement } from "@/types/database";
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  UserPlusIcon,
-  BuildingOffice2Icon,
-  CurrencyDollarIcon,
-  ArrowsRightLeftIcon,
-  SparklesIcon,
-  UsersIcon,
-  CheckCircleIcon,
-  ChartBarIcon,
-  ArrowUpTrayIcon,
-  ArrowDownTrayIcon,
-  ShieldCheckIcon,
-  DocumentTextIcon,
-  BoltIcon,
-  TrophyIcon,
-  FireIcon,
-  StarIcon,
-};
 
 const TIER_ORDER: AchievementTier[] = ["bronze", "silver", "gold"];
 
-const TIER_COLORS: Record<AchievementTier, { filled: string; empty: string; ring: string }> = {
+const TIER_COLORS: Record<
+  AchievementTier,
+  { filled: string; empty: string; ring: string }
+> = {
   bronze: {
-    filled: "bg-amber-500",
-    empty: "bg-amber-200 dark:bg-amber-900/40",
-    ring: "ring-amber-400",
+    filled: "bg-tan-600",
+    empty: "bg-tan-200 dark:bg-tan-900/40",
+    ring: "ring-tan-500",
   },
   silver: {
     filled: "bg-zinc-400 dark:bg-zinc-300",
@@ -69,9 +35,9 @@ const TIER_COLORS: Record<AchievementTier, { filled: string; empty: string; ring
     ring: "ring-zinc-400",
   },
   gold: {
-    filled: "bg-yellow-400",
-    empty: "bg-yellow-200 dark:bg-yellow-900/40",
-    ring: "ring-yellow-400",
+    filled: "bg-tan-400",
+    empty: "bg-tan-100 dark:bg-tan-900/40",
+    ring: "ring-tan-400",
   },
 };
 
@@ -121,7 +87,6 @@ function TierDots({
       .map((e) => e.tier as AchievementTier)
   );
 
-  // For single-tier achievements, show a single dot
   if (def.tiers.length === 1) {
     const tier = def.tiers[0].tier;
     const isEarned = earnedTiers.has(tier);
@@ -131,7 +96,12 @@ function TierDots({
           className={cn(
             "h-2.5 w-2.5 rounded-full transition-all",
             isEarned
-              ? cn(TIER_COLORS[tier].filled, "ring-2", TIER_COLORS[tier].ring, "ring-offset-1 ring-offset-white dark:ring-offset-zinc-900")
+              ? cn(
+                  TIER_COLORS[tier].filled,
+                  "ring-2",
+                  TIER_COLORS[tier].ring,
+                  "ring-offset-1 ring-offset-white dark:ring-offset-primary-900"
+                )
               : TIER_COLORS[tier].empty
           )}
         />
@@ -152,7 +122,12 @@ function TierDots({
             className={cn(
               "h-2.5 w-2.5 rounded-full transition-all",
               isEarned
-                ? cn(TIER_COLORS[tier].filled, "ring-2", TIER_COLORS[tier].ring, "ring-offset-1 ring-offset-white dark:ring-offset-zinc-900")
+                ? cn(
+                    TIER_COLORS[tier].filled,
+                    "ring-2",
+                    TIER_COLORS[tier].ring,
+                    "ring-offset-1 ring-offset-white dark:ring-offset-primary-900"
+                  )
                 : TIER_COLORS[tier].empty
             )}
           />
@@ -179,67 +154,44 @@ function AchievementCard({
   );
   const isUnlocked = highestTier !== null;
   const locked = def.requiresPaid && isExchangeLocked;
-  const Icon = ICON_MAP[def.icon] || TrophyIcon;
   const currentValue = getProgressValue(def, progress);
   const pct = getProgressPercent(def, currentValue, highestTier);
   const next = getNextTier(def, highestTier);
   const isFullyComplete = isUnlocked && !next;
 
-  // Calculate earned tier count for this achievement
   const earnedTierCount = earned.filter(
     (e) => e.achievement_key === def.key
   ).length;
   const totalTierCount = def.tiers.length;
 
-  // Icon background color based on highest tier
-  const iconBg = isUnlocked && highestTier
-    ? TIER_STYLES[highestTier].bg
-    : "bg-zinc-100 dark:bg-zinc-800";
-  const iconColor = isUnlocked && highestTier
-    ? TIER_STYLES[highestTier].text
-    : "text-zinc-400 dark:text-zinc-500";
-
-  // Card border based on completion
-  const cardBorder = locked
-    ? "border-zinc-200 dark:border-zinc-800"
-    : isFullyComplete
-      ? "border-yellow-300 dark:border-yellow-700/50"
-      : isUnlocked && highestTier
-        ? TIER_STYLES[highestTier].border
-        : "border-zinc-200 dark:border-zinc-800";
+  const icon = locked
+    ? DUOTONE_ICONS.LockClosedIcon
+    : DUOTONE_ICONS[def.icon] || DUOTONE_ICONS.TrophyIcon;
 
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-xl border p-4 transition-all",
+        "relative flex flex-col rounded-xl border p-5 transition-all",
         locked
-          ? "bg-zinc-50 opacity-60 dark:bg-zinc-900/50"
+          ? "border-primary-100 bg-primary-50/30 opacity-60 dark:border-primary-800/50 dark:bg-primary-950/30"
           : isFullyComplete
-            ? "bg-gradient-to-br from-yellow-50/80 to-white shadow-sm dark:from-yellow-950/10 dark:to-zinc-900"
+            ? "border-tan-300 bg-white shadow-sm dark:border-tan-700/50 dark:bg-primary-900"
             : isUnlocked
-              ? "bg-white shadow-sm dark:bg-zinc-900"
-              : "bg-white opacity-75 dark:bg-zinc-900",
-        cardBorder
+              ? "border-primary-200 bg-white shadow-sm dark:border-primary-800 dark:bg-primary-900"
+              : "border-primary-100 bg-white dark:border-primary-800/50 dark:bg-primary-900/80"
       )}
     >
-      {/* Completion glow for fully maxed achievements */}
-      {isFullyComplete && (
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-yellow-400/5 to-transparent" />
-      )}
-
-      {/* Top row: icon + tier dots + badges */}
+      {/* Top row: icon + tier dots */}
       <div className="flex items-start justify-between">
         <div
           className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-lg",
-            iconBg
+            "flex h-12 w-12 items-center justify-center rounded-xl shadow-sm",
+            locked
+              ? "bg-primary-100/50 dark:bg-primary-800/30"
+              : "bg-primary-50 dark:bg-primary-800"
           )}
         >
-          {locked ? (
-            <LockClosedIcon className="h-5 w-5 text-zinc-400" />
-          ) : (
-            <Icon className={cn("h-5 w-5", iconColor)} />
-          )}
+          {icon}
         </div>
         <div className="flex items-center gap-2">
           {locked && (
@@ -252,24 +204,24 @@ function AchievementCard({
       </div>
 
       {/* Name + description */}
-      <h3 className="mt-3 text-sm font-semibold text-zinc-900 dark:text-white">
+      <h3 className="mt-3 text-sm font-semibold text-primary-800 dark:text-primary-100">
         {def.name}
       </h3>
-      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mt-1 text-xs text-primary-400 dark:text-primary-500">
         {def.description}
       </p>
 
       {/* Tier progress summary */}
       {!locked && totalTierCount > 1 && (
-        <p className="mt-2 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+        <p className="mt-2 text-[10px] font-medium text-primary-300 dark:text-primary-600">
           {earnedTierCount} / {totalTierCount} tiers
         </p>
       )}
 
-      {/* Progress bar (only if there's a next tier to reach) */}
+      {/* Progress bar */}
       {!locked && next && (
         <div className="mt-auto pt-3">
-          <div className="flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
+          <div className="flex items-center justify-between text-[10px] text-primary-400 dark:text-primary-500">
             <span>
               {typeof currentValue === "number" && currentValue >= 1000
                 ? `${(currentValue / 1000).toFixed(1)}K`
@@ -283,15 +235,15 @@ function AchievementCard({
               {TIER_STYLES[next.tier].label}
             </span>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-primary-100 dark:bg-primary-800">
             <div
               className={cn(
                 "h-full rounded-full transition-all",
                 next.tier === "gold"
-                  ? "bg-yellow-500"
+                  ? "bg-tan-400"
                   : next.tier === "silver"
                     ? "bg-zinc-400"
-                    : "bg-amber-500"
+                    : "bg-tan-600"
               )}
               style={{ width: `${Math.min(pct, 100)}%` }}
             />
@@ -302,9 +254,9 @@ function AchievementCard({
       {/* All tiers complete */}
       {!locked && isFullyComplete && (
         <div className="mt-auto pt-3">
-          <div className="flex items-center gap-1">
-            <StarIcon className="h-3.5 w-3.5 text-yellow-500" />
-            <p className="text-[10px] font-semibold text-yellow-600 dark:text-yellow-400">
+          <div className="flex items-center gap-1.5">
+            <div className="h-1.5 w-1.5 rounded-full bg-tan-400" />
+            <p className="text-[10px] font-semibold text-tan-600 dark:text-tan-400">
               Fully cultivated
             </p>
           </div>
@@ -326,7 +278,6 @@ export default function AchievementsPage() {
     0
   );
 
-  // Count fully completed achievements (all tiers earned)
   const fullyCompleted = ACHIEVEMENT_DEFINITIONS.filter((def) => {
     const earnedTiers = achievements.filter(
       (a) => a.achievement_key === def.key
@@ -339,12 +290,12 @@ export default function AchievementsPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+        <div className="h-8 w-48 animate-pulse rounded bg-primary-100 dark:bg-primary-800" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="h-[200px] animate-pulse rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900"
+              className="h-[200px] animate-pulse rounded-xl border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900"
             />
           ))}
         </div>
@@ -356,10 +307,10 @@ export default function AchievementsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+        <h1 className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
           Achievements
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-primary-400 dark:text-primary-500">
           Earn bronze, silver, and gold as your trellis grows.
         </p>
       </div>
@@ -367,95 +318,85 @@ export default function AchievementsPage() {
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Points */}
-        <div className="flex items-center gap-3 rounded-xl border border-yellow-200 bg-yellow-50 px-5 py-4 dark:border-yellow-800/50 dark:bg-yellow-950/20">
-          <TrophyIcon className="h-8 w-8 text-yellow-500" />
+        <div className="flex items-center gap-3 rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 shadow-sm dark:bg-primary-800">
+            {DUOTONE_ICONS.TrophyIcon}
+          </div>
           <div>
-            <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
+            <p className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
               {totalPoints}
             </p>
-            <p className="text-xs text-yellow-600 dark:text-yellow-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-tan-500">
               Total Points
             </p>
           </div>
         </div>
 
         {/* Tiers Unlocked */}
-        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
-            <CheckCircleIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+        <div className="flex items-center gap-3 rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 shadow-sm dark:bg-primary-800">
+            {DUOTONE_ICONS.CheckCircleIcon}
           </div>
           <div>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+            <p className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
               {totalUnlocked}
-              <span className="text-sm font-normal text-zinc-400">
+              <span className="text-sm font-normal text-primary-300">
                 {" "}
                 / {totalPossible}
               </span>
             </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs font-semibold uppercase tracking-wider text-tan-500">
               Tiers Unlocked
             </p>
           </div>
         </div>
 
         {/* Fully Completed */}
-        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-            <StarIcon className="h-5 w-5 text-yellow-500" />
+        <div className="flex items-center gap-3 rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 shadow-sm dark:bg-primary-800">
+            {DUOTONE_ICONS.StarIcon}
           </div>
           <div>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+            <p className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
               {fullyCompleted}
-              <span className="text-sm font-normal text-zinc-400">
+              <span className="text-sm font-normal text-primary-300">
                 {" "}
                 / {ACHIEVEMENT_DEFINITIONS.length}
               </span>
             </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs font-semibold uppercase tracking-wider text-tan-500">
               Fully Cultivated
             </p>
           </div>
         </div>
 
         {/* Day Streak */}
-        {streak && streak.current_streak > 0 ? (
-          <div className="flex items-center gap-3 rounded-xl border border-orange-200 bg-orange-50 px-5 py-4 dark:border-orange-800/50 dark:bg-orange-950/20">
-            <FireIcon className="h-8 w-8 text-orange-500" />
-            <div>
-              <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">
-                {streak.current_streak}
-              </p>
-              <p className="text-xs text-orange-600 dark:text-orange-500">
-                Day Streak
-              </p>
-            </div>
+        <div className="flex items-center gap-3 rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 shadow-sm dark:bg-primary-800">
+            {DUOTONE_ICONS.FireIcon}
           </div>
-        ) : (
-          <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <FireIcon className="h-8 w-8 text-zinc-300 dark:text-zinc-600" />
-            <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">
-                0
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Day Streak
-              </p>
-            </div>
+          <div>
+            <p className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
+              {streak?.current_streak || 0}
+            </p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-tan-500">
+              Day Streak
+            </p>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Overall progress bar */}
       <div>
-        <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center justify-between text-xs text-primary-400 dark:text-primary-500">
           <span>Overall Progress</span>
           <span>
             {totalPoints} / {maxPoints} points
           </span>
         </div>
-        <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+        <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-primary-100 dark:bg-primary-800">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-500 via-zinc-400 to-yellow-400 transition-all"
+            className="h-full rounded-full bg-primary-500 transition-all"
             style={{
               width: `${maxPoints > 0 ? Math.min((totalPoints / maxPoints) * 100, 100) : 0}%`,
             }}
@@ -470,7 +411,6 @@ export default function AchievementsPage() {
         );
         if (defs.length === 0) return null;
 
-        // Count earned tiers in this category
         const categoryEarned = defs.reduce((sum, def) => {
           return (
             sum +
@@ -485,10 +425,10 @@ export default function AchievementsPage() {
         return (
           <div key={category}>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+              <h2 className="font-serif text-lg font-semibold text-primary-800 dark:text-primary-100">
                 {CATEGORY_LABELS[category]}
               </h2>
-              <span className="text-xs text-zinc-400 dark:text-zinc-500">
+              <span className="text-xs text-primary-300 dark:text-primary-600">
                 {categoryEarned} / {categoryTotal} tiers
               </span>
             </div>
@@ -510,11 +450,13 @@ export default function AchievementsPage() {
       {/* Empty state */}
       {totalUnlocked === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <TrophyIcon className="h-12 w-12 text-zinc-300 dark:text-zinc-600" />
-          <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 shadow-sm dark:bg-primary-800">
+            {DUOTONE_ICONS.TrophyIcon}
+          </div>
+          <p className="mt-4 text-sm text-primary-500 dark:text-primary-400">
             No achievements unlocked yet.
           </p>
-          <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+          <p className="mt-1 text-xs text-primary-300 dark:text-primary-600">
             Start adding contacts, companies, and deals to unlock your first
             bronze tier.
           </p>
@@ -522,7 +464,7 @@ export default function AchievementsPage() {
       )}
 
       {/* Tier legend */}
-      <div className="flex items-center justify-center gap-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+      <div className="flex items-center justify-center gap-6 border-t border-primary-100 pt-6 dark:border-primary-800">
         {TIER_ORDER.map((tier) => (
           <div key={tier} className="flex items-center gap-1.5">
             <div
@@ -531,7 +473,7 @@ export default function AchievementsPage() {
                 TIER_COLORS[tier].filled
               )}
             />
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs text-primary-400 dark:text-primary-500">
               {TIER_STYLES[tier].label}
             </span>
           </div>

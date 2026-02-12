@@ -7,16 +7,13 @@ import {
   TIER_STYLES,
   type AchievementTier,
 } from "@/lib/utils/achievements";
-import {
-  TrophyIcon,
-  FireIcon,
-} from "@heroicons/react/24/outline";
+import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 import { cn } from "@/lib/utils/cn";
 
 const TIER_DOT_COLORS: Record<AchievementTier, string> = {
-  bronze: "bg-amber-500",
+  bronze: "bg-tan-600",
   silver: "bg-zinc-400 dark:bg-zinc-300",
-  gold: "bg-yellow-400",
+  gold: "bg-tan-400",
 };
 
 export function AchievementsWidget() {
@@ -27,11 +24,11 @@ export function AchievementsWidget() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="h-6 w-32 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+      <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+        <div className="h-6 w-32 animate-pulse rounded bg-primary-100 dark:bg-primary-800" />
         <div className="mt-4 space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-10 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+            <div key={i} className="h-10 animate-pulse rounded-lg bg-primary-100 dark:bg-primary-800" />
           ))}
         </div>
       </div>
@@ -39,10 +36,12 @@ export function AchievementsWidget() {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white">
-          <TrophyIcon className="h-4 w-4 text-yellow-500" />
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
+          <div className="flex h-6 w-6 items-center justify-center">
+            {DUOTONE_ICONS.TrophyIcon}
+          </div>
           Achievements
         </h3>
         <Link
@@ -56,19 +55,23 @@ export function AchievementsWidget() {
       {/* Points + streak row */}
       <div className="mt-3 flex items-center gap-4">
         <div className="flex items-center gap-1.5">
-          <TrophyIcon className="h-4 w-4 text-yellow-500" />
-          <span className="text-sm font-bold text-zinc-900 dark:text-white">
+          <div className="flex h-4 w-4 items-center justify-center">
+            {DUOTONE_ICONS.TrophyIcon}
+          </div>
+          <span className="text-sm font-bold text-primary-800 dark:text-primary-100">
             {totalPoints}
           </span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">pts</span>
+          <span className="text-xs text-primary-400">pts</span>
         </div>
         {streak && streak.current_streak > 0 && (
           <div className="flex items-center gap-1.5">
-            <FireIcon className="h-4 w-4 text-orange-500" />
-            <span className="text-sm font-bold text-zinc-900 dark:text-white">
+            <div className="flex h-4 w-4 items-center justify-center">
+              {DUOTONE_ICONS.FireIcon}
+            </div>
+            <span className="text-sm font-bold text-primary-800 dark:text-primary-100">
               {streak.current_streak}
             </span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs text-primary-400">
               day streak
             </span>
           </div>
@@ -82,37 +85,30 @@ export function AchievementsWidget() {
             const def = getAchievement(a.achievement_key);
             const tier = a.tier as AchievementTier;
             const style = TIER_STYLES[tier];
+            const icon = def ? DUOTONE_ICONS[def.icon] : DUOTONE_ICONS.TrophyIcon;
             return (
               <div
                 key={a.id}
-                className="flex items-center gap-3 rounded-lg border border-zinc-100 p-2 dark:border-zinc-800"
+                className="flex items-center gap-3 rounded-lg border border-primary-100 p-2 dark:border-primary-800"
               >
-                <div
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-md",
-                    style?.bg || "bg-zinc-100 dark:bg-zinc-800"
-                  )}
-                >
-                  <TrophyIcon
-                    className={cn(
-                      "h-3.5 w-3.5",
-                      style?.text || "text-zinc-400"
-                    )}
-                  />
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-50 dark:bg-primary-800">
+                  <div className="flex h-4 w-4 items-center justify-center">
+                    {icon}
+                  </div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium text-zinc-900 dark:text-white">
+                  <p className="truncate text-xs font-medium text-primary-800 dark:text-primary-100">
                     {def?.name || a.achievement_key}
                   </p>
                 </div>
                 <div
                   className={cn(
                     "h-2 w-2 rounded-full",
-                    TIER_DOT_COLORS[tier] || "bg-zinc-300"
+                    TIER_DOT_COLORS[tier] || "bg-primary-300"
                   )}
                   title={style?.label}
                 />
-                <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400">
+                <span className="text-xs font-medium text-tan-600 dark:text-tan-400">
                   +{a.points}
                 </span>
               </div>
@@ -120,7 +116,7 @@ export function AchievementsWidget() {
           })}
         </div>
       ) : (
-        <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mt-4 text-center text-xs text-primary-400 dark:text-primary-500">
           No achievements yet. Start planting vines to earn your first badge.
         </p>
       )}

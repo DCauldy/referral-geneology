@@ -7,30 +7,32 @@ interface KpiCardProps {
     value: number;
     label: string;
   };
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: React.ReactElement;
   className?: string;
 }
 
-export function KpiCard({ title, value, change, icon: Icon, className }: KpiCardProps) {
+export function KpiCard({ title, value, change, icon, className }: KpiCardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900",
+        "rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-800 dark:bg-primary-900",
         className
       )}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-tan-500">
             {title}
           </p>
-          <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-white">
+          <p className="mt-1 font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
             {value}
           </p>
         </div>
-        {Icon && (
-          <div className="rounded-lg bg-primary-50 p-2 dark:bg-primary-950">
-            <Icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+        {icon && (
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 shadow-sm dark:bg-primary-800">
+            <div className="flex h-6 w-6 items-center justify-center">
+              {icon}
+            </div>
           </div>
         )}
       </div>
@@ -47,7 +49,7 @@ export function KpiCard({ title, value, change, icon: Icon, className }: KpiCard
             {change.value >= 0 ? "+" : ""}
             {change.value}%
           </span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="text-xs text-primary-400">
             {change.label}
           </span>
         </div>

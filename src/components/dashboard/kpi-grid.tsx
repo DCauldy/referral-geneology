@@ -6,16 +6,7 @@ import { useOrg } from "@/components/providers/org-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { KpiCard } from "./kpi-card";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
-import {
-  UsersIcon,
-  ArrowsRightLeftIcon,
-  CurrencyDollarIcon,
-  ArrowTrendingUpIcon,
-  BuildingOffice2Icon,
-  ChartBarIcon,
-  PaperAirplaneIcon,
-  InboxIcon,
-} from "@heroicons/react/24/outline";
+import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 
 interface OrgStats {
   total_contacts: number;
@@ -129,7 +120,7 @@ export function KpiGrid() {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-[120px] animate-pulse rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900" />
+          <div key={i} className="h-[120px] animate-pulse rounded-xl border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900" />
         ))}
       </div>
     );
@@ -143,32 +134,32 @@ export function KpiGrid() {
         <KpiCard
           title="Contacts"
           value={formatNumber(stats.total_contacts)}
-          icon={UsersIcon}
+          icon={DUOTONE_ICONS.UsersIcon}
         />
         <KpiCard
           title="Companies"
           value={formatNumber(stats.total_companies)}
-          icon={BuildingOffice2Icon}
+          icon={DUOTONE_ICONS.BuildingOffice2Icon}
         />
         <KpiCard
           title="Referrals"
           value={formatNumber(stats.total_referrals)}
-          icon={ArrowsRightLeftIcon}
+          icon={DUOTONE_ICONS.ArrowsRightLeftIcon}
         />
         <KpiCard
           title="Pipeline"
           value={formatCurrency(stats.pipeline_value)}
-          icon={CurrencyDollarIcon}
+          icon={DUOTONE_ICONS.CurrencyDollarIcon}
         />
         <KpiCard
           title="Won Revenue"
           value={formatCurrency(stats.won_deal_value)}
-          icon={ArrowTrendingUpIcon}
+          icon={DUOTONE_ICONS.ArrowTrendingUpIcon}
         />
         <KpiCard
           title="Conversion Rate"
           value={`${stats.conversion_rate}%`}
-          icon={ChartBarIcon}
+          icon={DUOTONE_ICONS.ChartBarIcon}
         />
       </div>
 
@@ -177,17 +168,17 @@ export function KpiGrid() {
           <KpiCard
             title="Referrals Shared"
             value={formatNumber(exchangeStats.seeds_shared)}
-            icon={PaperAirplaneIcon}
+            icon={DUOTONE_ICONS.PaperAirplaneIcon}
           />
           <KpiCard
             title="Referrals Received"
             value={formatNumber(exchangeStats.seeds_received)}
-            icon={InboxIcon}
+            icon={DUOTONE_ICONS.InboxIcon}
           />
           <KpiCard
             title="Exchange Conversion"
             value={`${exchangeStats.cross_network_yield}%`}
-            icon={ArrowsRightLeftIcon}
+            icon={DUOTONE_ICONS.ArrowsRightLeftIcon}
           />
         </div>
       )}

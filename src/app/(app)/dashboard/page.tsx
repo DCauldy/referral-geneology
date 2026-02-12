@@ -33,10 +33,10 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+      <h1 className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
         Dashboard
       </h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
         Your network at a glance. Contacts, companies, deals, and referrals all in one place.
       </p>
 

@@ -4,20 +4,23 @@ import { useEffect, useState } from "react";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
 import { formatRelative } from "@/lib/utils/format";
+import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 import type { Activity } from "@/types/database";
 
-const activityIcons: Record<string, string> = {
-  note: "📝",
-  call: "📞",
-  email: "📧",
-  meeting: "🤝",
-  deal_created: "💼",
-  deal_won: "🎉",
-  deal_lost: "❌",
-  referral_made: "🔗",
-  referral_received: "📥",
-  contact_created: "👤",
+const activityIcons: Record<string, React.ReactElement> = {
+  note: DUOTONE_ICONS.DocumentTextIcon,
+  call: DUOTONE_ICONS.UserPlusIcon,
+  email: DUOTONE_ICONS.PaperAirplaneIcon,
+  meeting: DUOTONE_ICONS.UsersIcon,
+  deal_created: DUOTONE_ICONS.CurrencyDollarIcon,
+  deal_won: DUOTONE_ICONS.TrophyIcon,
+  deal_lost: DUOTONE_ICONS.ArrowsRightLeftIcon,
+  referral_made: DUOTONE_ICONS.ArrowUpTrayIcon,
+  referral_received: DUOTONE_ICONS.InboxIcon,
+  contact_created: DUOTONE_ICONS.UserPlusIcon,
 };
+
+const fallbackIcon = DUOTONE_ICONS.DocumentTextIcon;
 
 export function RecentActivity() {
   const supabase = useSupabase();
@@ -45,47 +48,57 @@ export function RecentActivity() {
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
-        ))}
-      </div>
-    );
-  }
-
-  if (activities.length === 0) {
-    return (
-      <div className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        No activity yet. Add your first contact to get started.
+      <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+        <div className="h-6 w-32 animate-pulse rounded bg-primary-100 dark:bg-primary-800" />
+        <div className="mt-4 space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-12 animate-pulse rounded-lg bg-primary-100 dark:bg-primary-800" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-1">
-      {activities.map((activity) => (
-        <div
-          key={activity.id}
-          className="flex items-start gap-3 rounded-lg p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-        >
-          <span className="mt-0.5 text-sm">
-            {activityIcons[activity.activity_type] || "📌"}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm text-zinc-900 dark:text-white">
-              {activity.title}
-            </p>
-            {activity.description && (
-              <p className="truncate text-xs text-zinc-500">
-                {activity.description}
-              </p>
-            )}
-          </div>
-          <span className="shrink-0 text-xs text-zinc-400">
-            {formatRelative(activity.created_at)}
-          </span>
+    <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
+        <div className="flex h-6 w-6 items-center justify-center">
+          {DUOTONE_ICONS.DocumentTextIcon}
         </div>
-      ))}
+        Recent Activity
+      </h3>
+
+      {activities.length === 0 ? (
+        <p className="mt-4 text-center text-sm text-primary-400 dark:text-primary-500">
+          No activity yet. Add your first contact to start growing your trellis.
+        </p>
+      ) : (
+        <div className="mt-4 space-y-1">
+          {activities.map((activity) => (
+            <div
+              key={activity.id}
+              className="flex items-start gap-3 rounded-lg p-2 hover:bg-primary-50 dark:hover:bg-primary-800/50"
+            >
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center">
+                {activityIcons[activity.activity_type] || fallbackIcon}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-primary-800 dark:text-primary-100">
+                  {activity.title}
+                </p>
+                {activity.description && (
+                  <p className="truncate text-xs text-primary-400">
+                    {activity.description}
+                  </p>
+                )}
+              </div>
+              <span className="shrink-0 text-xs text-primary-400">
+                {formatRelative(activity.created_at)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

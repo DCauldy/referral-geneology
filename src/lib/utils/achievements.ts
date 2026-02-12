@@ -39,9 +39,9 @@ export const TIER_STYLES: Record<
   { bg: string; text: string; border: string; label: string }
 > = {
   bronze: {
-    bg: "bg-amber-100 dark:bg-amber-900/30",
-    text: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-300 dark:border-amber-700",
+    bg: "bg-tan-100 dark:bg-tan-900/30",
+    text: "text-tan-700 dark:text-tan-400",
+    border: "border-tan-300 dark:border-tan-700",
     label: "Bronze",
   },
   silver: {
@@ -51,9 +51,9 @@ export const TIER_STYLES: Record<
     label: "Silver",
   },
   gold: {
-    bg: "bg-yellow-100 dark:bg-yellow-900/30",
-    text: "text-yellow-700 dark:text-yellow-400",
-    border: "border-yellow-400 dark:border-yellow-600",
+    bg: "bg-tan-50 dark:bg-tan-900/30",
+    text: "text-tan-600 dark:text-tan-300",
+    border: "border-tan-400 dark:border-tan-600",
     label: "Gold",
   },
 };
