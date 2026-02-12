@@ -52,6 +52,12 @@ export function useAchievements() {
   }, [fetchAchievements, org?.id]);
 
   const checkAchievements = useCallback(async (): Promise<NewlyUnlocked[]> => {
+    // Never run achievement checks during impersonation — the org data
+    // belongs to someone else and would incorrectly award the admin
+    if (typeof window !== "undefined" && localStorage.getItem("impersonating_org")) {
+      return [];
+    }
+
     try {
       const res = await fetch("/api/achievements/check", { method: "POST" });
       if (!res.ok) return [];

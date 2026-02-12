@@ -20,6 +20,10 @@ export default function DashboardPage() {
     if (hasChecked.current) return;
     hasChecked.current = true;
 
+    // Skip achievement checks during org impersonation to avoid
+    // awarding the admin achievements based on another org's data
+    if (localStorage.getItem("impersonating_org")) return;
+
     checkAchievements().then((newlyUnlocked) => {
       for (const unlock of newlyUnlocked) {
         const def = getAchievement(unlock.achievement_key);
