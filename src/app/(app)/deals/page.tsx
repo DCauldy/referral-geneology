@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { DealList } from "@/components/deals/deal-list";
 import { DealPipelineBoard } from "@/components/deals/deal-pipeline-board";
@@ -53,7 +53,9 @@ export default function DealsPage() {
       </div>
 
       <div className="mt-6">
-        {view === "table" ? <DealList /> : <DealPipelineBoard />}
+        <Suspense>
+          {view === "table" ? <DealList /> : <DealPipelineBoard />}
+        </Suspense>
       </div>
     </div>
   );

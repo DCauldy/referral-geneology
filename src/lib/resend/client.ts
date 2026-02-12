@@ -1,6 +1,16 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let _resend: Resend | null = null;
+
+function getResend() {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY environment variable is not set");
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 export async function sendEmail(params: {
   to: string;
@@ -10,7 +20,7 @@ export async function sendEmail(params: {
   text?: string;
   replyTo?: string;
 }) {
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResend().emails.send({
     from: params.from || process.env.RESEND_FROM_EMAIL!,
     to: params.to,
     subject: params.subject,
@@ -35,7 +45,7 @@ export async function sendBatchEmails(
     text?: string;
   }[]
 ) {
-  const { data, error } = await resend.batch.send(
+  const { data, error } = await getResend().batch.send(
     emails.map((e) => ({
       from: e.from || process.env.RESEND_FROM_EMAIL!,
       to: e.to,

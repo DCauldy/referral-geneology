@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { ContactList } from "@/components/contacts/contact-list";
 
 export default function ContactsPage() {
@@ -11,7 +12,9 @@ export default function ContactsPage() {
       <p className="mt-1 mb-6 text-sm text-zinc-500 dark:text-zinc-400">
         Manage the people in your network.
       </p>
-      <ContactList />
+      <Suspense>
+        <ContactList />
+      </Suspense>
     </div>
   );
 }

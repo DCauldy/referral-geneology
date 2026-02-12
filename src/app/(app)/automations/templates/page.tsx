@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { EmailTemplateList } from "@/components/automations/email-template-list";
 
@@ -20,7 +21,9 @@ export default function TemplatesPage() {
           Craft and manage your email templates.
         </p>
       </div>
-      <EmailTemplateList />
+      <Suspense>
+        <EmailTemplateList />
+      </Suspense>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { CompanyList } from "@/components/companies/company-list";
 
 export default function CompaniesPage() {
@@ -11,7 +12,9 @@ export default function CompaniesPage() {
       <p className="mt-1 mb-6 text-sm text-zinc-500 dark:text-zinc-400">
         Manage the organizations in your network.
       </p>
-      <CompanyList />
+      <Suspense>
+        <CompanyList />
+      </Suspense>
     </div>
   );
 }

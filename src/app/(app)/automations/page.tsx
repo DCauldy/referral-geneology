@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { AutomationList } from "@/components/automations/automation-list";
 
 export default function AutomationsPage() {
@@ -13,7 +14,9 @@ export default function AutomationsPage() {
           Build automated sequences to engage your contacts.
         </p>
       </div>
-      <AutomationList />
+      <Suspense>
+        <AutomationList />
+      </Suspense>
     </div>
   );
 }
