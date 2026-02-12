@@ -42,6 +42,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/reset-password") ||
     request.nextUrl.pathname.startsWith("/auth/callback");
 
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+
   const isAppRoute =
     request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/contacts") ||
@@ -52,7 +54,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/insights") ||
     request.nextUrl.pathname.startsWith("/reports") ||
     request.nextUrl.pathname.startsWith("/import") ||
-    request.nextUrl.pathname.startsWith("/settings");
+    request.nextUrl.pathname.startsWith("/settings") ||
+    isAdminRoute;
 
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
@@ -81,7 +84,7 @@ export async function updateSession(request: NextRequest) {
     // Fetch active org from user profile
     const { data: profile } = await supabase
       .from("user_profiles")
-      .select("active_org_id")
+      .select("active_org_id, is_platform_admin")
       .eq("id", user.id)
       .single();
 
@@ -90,6 +93,13 @@ export async function updateSession(request: NextRequest) {
         "x-org-id",
         profile.active_org_id
       );
+    }
+
+    // Admin route guard: redirect non-admins to dashboard
+    if (isAdminRoute && !profile?.is_platform_admin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
     }
   }
 

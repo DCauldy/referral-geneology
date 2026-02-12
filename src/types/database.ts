@@ -103,6 +103,7 @@ export interface UserProfile {
   job_title: string | null;
   active_org_id: string | null;
   onboarding_completed: boolean;
+  is_platform_admin: boolean;
   preferences: Json;
   created_at: string;
   updated_at: string;

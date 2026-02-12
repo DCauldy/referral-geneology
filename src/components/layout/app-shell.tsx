@@ -7,6 +7,7 @@ import {
   SearchCommand,
   type SearchCommandRef,
 } from "@/components/shared/search-command";
+import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -19,6 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onClose={() => setSidebarOpen(false)}
       />
       <div className="lg:pl-64">
+        <ImpersonationBanner />
         <AppTopbar
           onMenuClick={() => setSidebarOpen(true)}
           onSearchClick={() => searchRef.current?.open()}

@@ -24,6 +24,7 @@ import {
   GlobeAltIcon,
   TrophyIcon,
   ChartBarSquareIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { useOrg } from "@/components/providers/org-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
@@ -371,6 +372,19 @@ export function AppSidebar({
                         </span>
                       )}
                     </Link>
+                    {profile?.is_platform_admin && (
+                      <>
+                        <div className="my-1 border-t border-tan-800" />
+                        <Link
+                          href="/admin"
+                          onClick={() => { close(); onClose?.(); }}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-tan-400 hover:bg-primary-800"
+                        >
+                          <ShieldCheckIcon className="size-4" />
+                          Admin Panel
+                        </Link>
+                      </>
+                    )}
                     <div className="my-1 border-t border-tan-800" />
                     <button
                       onClick={() => { close(); handleSignOut(); }}
