@@ -597,7 +597,13 @@ export default function HomePage() {
         </div>
 
         {/* Feature section — matches Tailwind Plus template: title → screenshot → features grid */}
-        <div id="features" className="mt-32 sm:mt-56">
+        <div
+          id="features"
+          className="relative pt-32 pb-32 sm:pt-56 sm:pb-56"
+          style={{
+            backgroundImage: `repeating-linear-gradient(45deg, rgba(47,84,53,0.04) 0px, rgba(47,84,53,0.04) 1px, transparent 1px, transparent 16px), repeating-linear-gradient(-45deg, rgba(47,84,53,0.04) 0px, rgba(47,84,53,0.04) 1px, transparent 1px, transparent 16px)`,
+          }}
+        >
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl sm:text-center">
               <h2 className="text-base/7 font-semibold text-primary-600 dark:text-primary-400">
@@ -638,7 +644,7 @@ export default function HomePage() {
         </div>
 
         {/* Testimonial section */}
-        <div className="relative z-10 mt-32 mb-20 sm:mt-56 sm:mb-24 xl:mb-0">
+        <div className="relative z-10 mb-20 sm:mb-24 xl:mb-0">
           <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
             <div className="absolute top-[calc(50%-36rem)] left-[calc(50%-19rem)] transform-gpu blur-3xl">
               <div
