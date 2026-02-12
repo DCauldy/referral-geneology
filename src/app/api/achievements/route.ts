@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isImpersonating } from "@/lib/admin/impersonation";
 
 // GET /api/achievements — returns user's earned achievements, progress counts, and streak
 export async function GET() {
@@ -25,17 +26,40 @@ export async function GET() {
 
   const orgId = profile.active_org_id;
 
+  // When impersonating, show the org owner's achievements instead of the admin's
+  let targetUserId = user.id;
+  let targetOnboarding = profile.onboarding_completed;
+
+  if (await isImpersonating(supabase, user.id, orgId)) {
+    const { data: ownerMembership } = await supabase
+      .from("org_members")
+      .select("user_id")
+      .eq("org_id", orgId)
+      .eq("role", "owner")
+      .single();
+
+    if (ownerMembership) {
+      targetUserId = ownerMembership.user_id;
+      const { data: ownerProfile } = await supabase
+        .from("user_profiles")
+        .select("onboarding_completed")
+        .eq("id", targetUserId)
+        .single();
+      targetOnboarding = ownerProfile?.onboarding_completed ?? false;
+    }
+  }
+
   // Parallel queries: achievements, streak, and progress counts
   const [achievementsRes, streakRes, ...countResults] = await Promise.all([
     supabase
       .from("user_achievements")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .order("unlocked_at", { ascending: false }),
     supabase
       .from("user_streaks")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", targetUserId)
       .eq("org_id", orgId)
       .maybeSingle(),
     // Progress counts for the UI
@@ -48,7 +72,7 @@ export async function GET() {
     supabase.from("activities").select("id", { count: "exact", head: true }).eq("org_id", orgId),
     supabase.from("automations").select("id", { count: "exact", head: true }).eq("org_id", orgId).neq("status", "draft"),
     supabase.from("ai_insights").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("is_dismissed", false),
-    supabase.from("exchange_trust_scores").select("trust_rating").eq("user_id", user.id).maybeSingle(),
+    supabase.from("exchange_trust_scores").select("trust_rating").eq("user_id", targetUserId).maybeSingle(),
   ]);
 
   const [
@@ -88,7 +112,7 @@ export async function GET() {
     automations: automationsRes.count || 0,
     insights: insightsRes.count || 0,
     trust_rating: trustRes.data?.trust_rating || 0,
-    onboarding_completed: profile.onboarding_completed || false,
+    onboarding_completed: targetOnboarding || false,
   };
 
   return NextResponse.json({
