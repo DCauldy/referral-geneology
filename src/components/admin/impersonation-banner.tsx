@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useOrg } from "@/components/providers/org-provider";
 
 interface ImpersonationState {
   orgName: string;
@@ -11,6 +12,7 @@ interface ImpersonationState {
 
 export function ImpersonationBanner() {
   const router = useRouter();
+  const { refreshOrg } = useOrg();
   const [state, setState] = useState<ImpersonationState | null>(null);
   const [exiting, setExiting] = useState(false);
 
@@ -39,6 +41,7 @@ export function ImpersonationBanner() {
       if (res.ok) {
         localStorage.removeItem("impersonating_org");
         setState(null);
+        await refreshOrg();
         router.push("/admin");
         router.refresh();
       }

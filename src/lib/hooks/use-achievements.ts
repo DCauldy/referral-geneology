@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useOrg } from "@/components/providers/org-provider";
 import type { UserAchievement, UserStreak } from "@/types/database";
 
 interface AchievementProgress {
@@ -25,6 +26,7 @@ interface NewlyUnlocked {
 }
 
 export function useAchievements() {
+  const { org } = useOrg();
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [streak, setStreak] = useState<UserStreak | null>(null);
   const [progress, setProgress] = useState<AchievementProgress | null>(null);
@@ -47,7 +49,7 @@ export function useAchievements() {
 
   useEffect(() => {
     fetchAchievements();
-  }, [fetchAchievements]);
+  }, [fetchAchievements, org?.id]);
 
   const checkAchievements = useCallback(async (): Promise<NewlyUnlocked[]> => {
     try {
