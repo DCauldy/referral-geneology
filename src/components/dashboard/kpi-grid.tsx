@@ -141,32 +141,32 @@ export function KpiGrid() {
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <KpiCard
-          title="Branches"
+          title="Contacts"
           value={formatNumber(stats.total_contacts)}
           icon={UsersIcon}
         />
         <KpiCard
-          title="Roots"
+          title="Companies"
           value={formatNumber(stats.total_companies)}
           icon={BuildingOffice2Icon}
         />
         <KpiCard
-          title="New Growth"
+          title="Referrals"
           value={formatNumber(stats.total_referrals)}
           icon={ArrowsRightLeftIcon}
         />
         <KpiCard
-          title="Grove Value"
+          title="Pipeline"
           value={formatCurrency(stats.pipeline_value)}
           icon={CurrencyDollarIcon}
         />
         <KpiCard
-          title="Harvest"
+          title="Won Revenue"
           value={formatCurrency(stats.won_deal_value)}
           icon={ArrowTrendingUpIcon}
         />
         <KpiCard
-          title="Yield Rate"
+          title="Conversion Rate"
           value={`${stats.conversion_rate}%`}
           icon={ChartBarIcon}
         />
@@ -175,17 +175,17 @@ export function KpiGrid() {
       {canExchangeReferrals && exchangeStats && (
         <div className="grid gap-4 sm:grid-cols-3">
           <KpiCard
-            title="Seeds Shared"
+            title="Referrals Shared"
             value={formatNumber(exchangeStats.seeds_shared)}
             icon={PaperAirplaneIcon}
           />
           <KpiCard
-            title="Seeds Received"
+            title="Referrals Received"
             value={formatNumber(exchangeStats.seeds_received)}
             icon={InboxIcon}
           />
           <KpiCard
-            title="Cross-Network Yield"
+            title="Exchange Conversion"
             value={`${exchangeStats.cross_network_yield}%`}
             icon={ArrowsRightLeftIcon}
           />

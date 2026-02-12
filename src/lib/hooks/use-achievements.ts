@@ -12,6 +12,8 @@ interface AchievementProgress {
   referrals: number;
   converted_referrals: number;
   activities: number;
+  automations: number;
+  insights: number;
   trust_rating: number;
   onboarding_completed: boolean;
 }

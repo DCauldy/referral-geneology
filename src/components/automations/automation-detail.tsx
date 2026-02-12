@@ -59,8 +59,8 @@ export function AutomationDetail({ automationId }: AutomationDetailProps) {
       toast.success(
         newStatus === "active" ? "Sequence activated" : "Sequence paused",
         newStatus === "active"
-          ? "This nurture sequence is now running."
-          : "This nurture sequence has been paused."
+          ? "This automation is now running."
+          : "This automation has been paused."
       );
       refresh();
     } catch (err) {
@@ -84,7 +84,7 @@ export function AutomationDetail({ automationId }: AutomationDetailProps) {
       if (error) throw error;
       toast.success(
         "Sequence removed",
-        "The nurture sequence has been permanently removed."
+        "The automation has been permanently removed."
       );
       router.push("/automations");
     } catch (err) {
@@ -281,7 +281,7 @@ export function AutomationDetail({ automationId }: AutomationDetailProps) {
               Delete Automation
             </h3>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Are you sure you want to uproot this nurture sequence? All steps,
+              Are you sure you want to delete this automation? All steps,
               enrollments, and email logs will be permanently removed.
             </p>
             <div className="mt-4 flex justify-end gap-2">

@@ -17,7 +17,7 @@ export default function NewAutomationPage() {
           New Automation
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Plant the seeds for a new nurture sequence.
+          Set up a new automation sequence.
         </p>
       </div>
       <AutomationForm />

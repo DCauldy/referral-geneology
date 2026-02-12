@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ReferralList } from "@/components/referrals/referral-list";
 
 export default function ReferralsPage() {
@@ -10,14 +9,13 @@ export default function ReferralsPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Referrals" }]} />
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
             Referrals
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Follow the new growth extending from every branch of your tree.
+            Track referrals between contacts in your network.
           </p>
         </div>
         <Link

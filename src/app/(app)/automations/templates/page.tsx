@@ -17,7 +17,7 @@ export default function TemplatesPage() {
           Templates
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Craft and manage the letters you send to your branches.
+          Craft and manage your email templates.
         </p>
       </div>
       <EmailTemplateList />

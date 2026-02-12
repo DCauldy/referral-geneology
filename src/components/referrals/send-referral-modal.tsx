@@ -58,12 +58,12 @@ export function SendReferralModal({
         );
       } else if (result.exchange?.receiver_user_id) {
         toast.success(
-          "Seed planted",
+          "Referral sent",
           "Your referral has been delivered to their inbox."
         );
       } else {
         toast.success(
-          "Seed planted",
+          "Referral sent",
           "An invitation has been sent. They'll receive it when they join."
         );
       }
@@ -93,7 +93,7 @@ export function SendReferralModal({
               Send Referral
             </h2>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Share this branch with another network to help it grow new roots.
+              Share this contact with another professional in your network.
             </p>
           </div>
           <button
@@ -134,8 +134,8 @@ export function SendReferralModal({
               className="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
             />
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              If they're on Referral Genealogy (paid plan), it'll appear in their inbox.
-              Otherwise they'll get an email invitation.
+              If they&apos;re on Trellis (paid plan), it&apos;ll appear in their inbox.
+              Otherwise they&apos;ll get an email invitation.
             </p>
           </div>
 

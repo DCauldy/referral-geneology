@@ -143,7 +143,7 @@ export function EmailTemplateList() {
         keyExtractor={(t) => t.id}
         onRowClick={(t) => router.push(`/automations/templates/${t.id}`)}
         isLoading={isLoading}
-        emptyMessage="No letters yet. Craft your first template to start reaching your branches."
+        emptyMessage="No templates yet. Create your first email template to get started."
       />
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
@@ -301,12 +300,11 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Reports" }]} />
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
         Reports
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Measure the reach and impact of your referral network across the grove.
+        Measure the reach and impact of your referral network.
       </p>
 
       {isLoading ? (
@@ -327,7 +325,7 @@ export default function ReportsPage() {
             </p>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               {canExchangeReferrals
-                ? "Start sharing seeds with other growers to see your network reports come to life."
+                ? "Start sharing referrals with other users to see your network reports come to life."
                 : "Network reports show exchange analytics, partner leaderboards, and conversion funnels."}
             </p>
             {canExchangeReferrals ? (
@@ -385,7 +383,7 @@ export default function ReportsPage() {
                 Exchange Funnel
               </h3>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                How seeds progress through the exchange pipeline
+                How referrals progress through the exchange pipeline
               </p>
               <div className="mt-4 space-y-3">
                 <FunnelBar
@@ -413,7 +411,7 @@ export default function ReportsPage() {
                   color="bg-red-400"
                 />
                 <FunnelBar
-                  label="Converted (Fruit Harvested)"
+                  label="Converted"
                   value={data.totalConverted}
                   total={data.totalExchanges}
                   color="bg-emerald-500"
@@ -489,7 +487,7 @@ export default function ReportsPage() {
                   Top Exchange Partners
                 </h3>
                 <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  Growers you exchange the most seeds with
+                  Partners you exchange the most referrals with
                 </p>
                 <div className="mt-4 divide-y divide-zinc-100 dark:divide-zinc-800">
                   {data.topPartners.map((partner, i) => (

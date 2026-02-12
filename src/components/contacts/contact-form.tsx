@@ -227,7 +227,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
           .eq("id", contact.id);
 
         if (error) throw error;
-        toast.success("Branch updated", "This branch's details have been saved.");
+        toast.success("Contact updated", "The contact details have been saved.");
       } else {
         const { data: inserted, error } = await supabase
           .from("contacts")
@@ -251,7 +251,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             .eq("id", inserted.id);
         }
 
-        toast.success("Branch added", "A new branch has been added to your tree.");
+        toast.success("Contact created", "The contact has been added to your network.");
       }
 
       onSuccess?.();

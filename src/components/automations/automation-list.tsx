@@ -200,7 +200,7 @@ export function AutomationList() {
         keyExtractor={(a) => a.id}
         onRowClick={(a) => router.push(`/automations/${a.id}`)}
         isLoading={isLoading}
-        emptyMessage="No nurture sequences yet. Create your first automation to tend your branches on autopilot."
+        emptyMessage="No automations yet. Create your first automation to engage your contacts on autopilot."
       />
     </div>
   );

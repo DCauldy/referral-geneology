@@ -13,6 +13,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils/cn";
 
+const TIER_DOT_COLORS: Record<AchievementTier, string> = {
+  bronze: "bg-amber-500",
+  silver: "bg-zinc-400 dark:bg-zinc-300",
+  gold: "bg-yellow-400",
+};
+
 export function AchievementsWidget() {
   const { achievements, streak, isLoading } = useAchievements();
 
@@ -74,7 +80,8 @@ export function AchievementsWidget() {
         <div className="mt-4 space-y-2">
           {recentThree.map((a) => {
             const def = getAchievement(a.achievement_key);
-            const style = TIER_STYLES[a.tier as AchievementTier];
+            const tier = a.tier as AchievementTier;
+            const style = TIER_STYLES[tier];
             return (
               <div
                 key={a.id}
@@ -98,15 +105,13 @@ export function AchievementsWidget() {
                     {def?.name || a.achievement_key}
                   </p>
                 </div>
-                <span
+                <div
                   className={cn(
-                    "rounded-full px-1.5 py-0.5 text-[9px] font-bold",
-                    style?.bg,
-                    style?.text
+                    "h-2 w-2 rounded-full",
+                    TIER_DOT_COLORS[tier] || "bg-zinc-300"
                   )}
-                >
-                  {style?.label}
-                </span>
+                  title={style?.label}
+                />
                 <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400">
                   +{a.points}
                 </span>
@@ -116,7 +121,7 @@ export function AchievementsWidget() {
         </div>
       ) : (
         <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          Your garden of achievements is waiting to bloom. Start growing your network to earn badges.
+          No achievements yet. Start planting vines to earn your first badge.
         </p>
       )}
     </div>

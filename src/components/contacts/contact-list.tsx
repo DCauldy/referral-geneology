@@ -209,7 +209,7 @@ export function ContactList() {
         keyExtractor={(c) => c.id}
         onRowClick={(c) => router.push(`/contacts/${c.id}`)}
         isLoading={isLoading}
-        emptyMessage="No branches yet. Add your first contact to start growing your tree."
+        emptyMessage="No contacts yet. Add your first contact to get started."
       />
 
       {/* Pagination */}

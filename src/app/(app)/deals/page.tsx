@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { DealList } from "@/components/deals/deal-list";
 import { DealPipelineBoard } from "@/components/deals/deal-pipeline-board";
 
@@ -13,14 +12,13 @@ export default function DealsPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Deals" }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
             Deals
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Track and manage the fruit growing across your grove.
+            Track and manage your deals and pipeline.
           </p>
         </div>
         <Link

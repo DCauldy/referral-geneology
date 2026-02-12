@@ -233,7 +233,7 @@ export function DealList() {
         keyExtractor={(d) => d.id}
         onRowClick={(d) => router.push(`/deals/${d.id}`)}
         isLoading={isLoading}
-        emptyMessage="No fruit on the vine yet. Create your first deal to start your harvest."
+        emptyMessage="No deals yet. Create your first deal to get started."
       />
 
       {/* Pagination */}

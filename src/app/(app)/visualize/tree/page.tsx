@@ -19,7 +19,7 @@ export default function TreeVisualizationPage() {
             Tree View
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Trace every branch from trunk to tip in your referral tree.
+            Trace referral chains from source to destination.
           </p>
         </div>
         <ViewSwitcher />

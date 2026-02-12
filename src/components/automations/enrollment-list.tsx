@@ -58,8 +58,8 @@ export function EnrollmentList({ automationId }: EnrollmentListProps) {
 
       if (error) throw error;
       toast.success(
-        "Branch planted",
-        "Branch planted in this nurture sequence."
+        "Contact enrolled",
+        "The contact has been enrolled in this automation."
       );
       setSelectedContactId(null);
       setShowEnrollForm(false);
@@ -252,7 +252,7 @@ export function EnrollmentList({ automationId }: EnrollmentListProps) {
         data={enrollments}
         keyExtractor={(e) => e.id}
         isLoading={isLoading}
-        emptyMessage="No branches planted yet. Enroll contacts to start nurturing."
+        emptyMessage="No contacts enrolled yet. Enroll contacts to start this automation."
       />
     </div>
   );

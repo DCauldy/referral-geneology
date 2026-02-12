@@ -155,11 +155,30 @@ export function AppSidebar({
       {/* Logo + plan */}
       <div className="shrink-0 pt-14 pb-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-tan-600 text-sm font-bold text-white">
-            RG
-          </div>
-          <span className="text-sm font-semibold text-white">
-            Referral Genealogy
+          <svg className="h-8 w-8 shrink-0" viewBox="0 0 48 48" fill="none">
+            <line x1="24" y1="6" x2="12" y2="18" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="24" y1="6" x2="36" y2="18" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="12" y1="18" x2="8" y2="32" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="12" y1="18" x2="24" y2="32" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="36" y1="18" x2="24" y2="32" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="36" y1="18" x2="40" y2="32" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="8" y1="32" x2="16" y2="42" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="24" y1="32" x2="16" y2="42" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="24" y1="32" x2="32" y2="42" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="40" y1="32" x2="32" y2="42" stroke="#e0e9df" strokeWidth="1.8" strokeLinecap="round" />
+            <line x1="12" y1="18" x2="36" y2="18" stroke="#e0e9df" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+            <line x1="8" y1="32" x2="40" y2="32" stroke="#e0e9df" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+            <circle cx="24" cy="6" r="3.5" fill="#5d8a5a" stroke="#e0e9df" strokeWidth="1.5" />
+            <circle cx="12" cy="18" r="3" fill="#96b593" stroke="#e0e9df" strokeWidth="1.5" />
+            <circle cx="36" cy="18" r="3" fill="#96b593" stroke="#e0e9df" strokeWidth="1.5" />
+            <circle cx="8" cy="32" r="2.5" fill="#c4a96a" stroke="#e0e9df" strokeWidth="1.2" />
+            <circle cx="24" cy="32" r="3" fill="#96b593" stroke="#e0e9df" strokeWidth="1.5" />
+            <circle cx="40" cy="32" r="2.5" fill="#c4a96a" stroke="#e0e9df" strokeWidth="1.2" />
+            <circle cx="16" cy="42" r="2.5" fill="#b09352" stroke="#e0e9df" strokeWidth="1.2" />
+            <circle cx="32" cy="42" r="2.5" fill="#b09352" stroke="#e0e9df" strokeWidth="1.2" />
+          </svg>
+          <span className="font-serif text-sm font-semibold text-white">
+            Trellis
           </span>
         </div>
         <p className="mt-2 text-xs capitalize text-tan-400">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { CsvUpload } from "@/components/import-export/csv-upload";
 
 const entityTypes = [
@@ -15,7 +14,6 @@ export default function ImportPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Import" }]} />
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
         Import Data
       </h1>

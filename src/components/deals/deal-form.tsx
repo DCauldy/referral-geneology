@@ -189,14 +189,14 @@ export function DealForm({ deal, onSuccess }: DealFormProps) {
           .eq("id", deal.id);
 
         if (error) throw error;
-        toast.success("Fruit updated", "The fruit details have been saved.");
+        toast.success("Deal updated", "The deal details have been saved.");
       } else {
         const { error } = await supabase
           .from("deals")
           .insert({ ...payload, org_id: org.id });
 
         if (error) throw error;
-        toast.success("Fruit added", "New fruit has been added to your grove.");
+        toast.success("Deal created", "The deal has been added to your pipeline.");
       }
 
       onSuccess?.();

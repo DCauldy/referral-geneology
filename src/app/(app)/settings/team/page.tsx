@@ -60,7 +60,7 @@ export default function TeamSettingsPage() {
       const memberRows = data ?? [];
       const userIds = memberRows.map((m) => m.user_id);
 
-      let profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      const profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
           .from("user_profiles")

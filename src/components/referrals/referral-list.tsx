@@ -93,7 +93,7 @@ export function ReferralList({ contactId, onRowClick }: ReferralListProps) {
         </div>
       ) : referrals.length === 0 ? (
         <div className="rounded-md border border-zinc-200 bg-zinc-50 p-8 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400">
-          No new growth yet. Referrals will appear here as your tree extends.
+          No referrals yet. Referrals will appear here as your network grows.
         </div>
       ) : (
         <>

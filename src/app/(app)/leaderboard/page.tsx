@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { useLeaderboard } from "@/lib/hooks/use-leaderboard";
 import { getInitials } from "@/lib/utils/format";
@@ -76,7 +75,7 @@ function LeaderboardTable({
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <ChartBarSquareIcon className="h-10 w-10 text-zinc-300 dark:text-zinc-600" />
         <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
-          No growers on the leaderboard yet. Start earning achievements to climb the ranks.
+          No users on the leaderboard yet. Start earning achievements to climb the ranks.
         </p>
       </div>
     );
@@ -85,7 +84,7 @@ function LeaderboardTable({
   return (
     <div className="space-y-1">
       {entries.map((entry, i) => {
-        const name = entry.display_name || entry.full_name || "Grower";
+        const name = entry.display_name || entry.full_name || "User";
         const nameParts = name.split(" ");
         const initials = getInitials(nameParts[0], nameParts.slice(1).join(" ") || undefined);
         const isCurrentUser = entry.user_id === currentUserId;
@@ -166,14 +165,13 @@ export default function LeaderboardPage() {
   if (isFreePlan) {
     return (
       <>
-        <Breadcrumbs items={[{ label: "Leaderboard" }]} />
         <div className="mx-auto max-w-lg py-16 text-center">
           <ChartBarSquareIcon className="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-600" />
           <h2 className="mt-4 text-lg font-semibold text-zinc-900 dark:text-white">
-            See who cultivates the most bountiful network
+            See who builds the strongest referral network
           </h2>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            The leaderboard ranks growers by achievements and points. Upgrade to a paid plan to see where you stand in the grove.
+            The leaderboard ranks users by achievements and points. Upgrade to a paid plan to see where you stand.
           </p>
           <Link
             href="/settings/billing"
@@ -188,7 +186,6 @@ export default function LeaderboardPage() {
 
   return (
     <>
-      <Breadcrumbs items={[{ label: "Leaderboard" }]} />
 
       <div className="space-y-6">
         {/* Header */}
@@ -197,7 +194,7 @@ export default function LeaderboardPage() {
             Leaderboard
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            See who cultivates the most bountiful network in the grove.
+            See who builds the strongest referral network.
           </p>
         </div>
 
@@ -224,7 +221,7 @@ export default function LeaderboardPage() {
                   : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
               )}
             >
-              All Growers
+              All Users
             </button>
           </div>
         )}

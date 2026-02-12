@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { useDirectory } from "@/lib/hooks/use-directory";
 import { useTrustScore } from "@/lib/hooks/use-trust-score";
@@ -202,7 +201,7 @@ function SuggestedForYou() {
 
           {data.recommendations.length === 0 ? (
             <p className="text-xs text-purple-600 dark:text-purple-400">
-              No suggestions available yet. More growers need to list themselves in the directory.
+              No suggestions available yet. More users need to list themselves in the directory.
             </p>
           ) : (
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -276,14 +275,13 @@ export default function DirectoryPage() {
   if (!canExchangeReferrals) {
     return (
       <>
-        <Breadcrumbs items={[{ label: "Directory" }]} />
         <div className="mx-auto max-w-lg py-16 text-center">
           <ArrowTopRightOnSquareIcon className="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-600" />
           <h2 className="mt-4 text-lg font-semibold text-zinc-900 dark:text-white">
-            Discover fellow growers in the network
+            Discover professionals in the network
           </h2>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            The directory connects you with other professionals to share new growth and plant roots together. Upgrade to a paid plan to browse and be listed.
+            The directory connects you with other professionals to exchange referrals. Upgrade to a paid plan to browse and be listed.
           </p>
           <Link
             href="/settings/billing"
@@ -298,7 +296,6 @@ export default function DirectoryPage() {
 
   return (
     <>
-      <Breadcrumbs items={[{ label: "Directory" }]} />
 
       <div className="space-y-6">
         {/* Header */}
@@ -307,7 +304,7 @@ export default function DirectoryPage() {
             Directory
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Discover growers across the network to share seeds and cultivate new roots together.
+            Discover professionals across the network to exchange referrals and build connections.
           </p>
         </div>
 
@@ -409,7 +406,7 @@ export default function DirectoryPage() {
 
         {/* Results count */}
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          {isLoading ? "Searching..." : `${total} grower${total !== 1 ? "s" : ""} found`}
+          {isLoading ? "Searching..." : `${total} professional${total !== 1 ? "s" : ""} found`}
         </p>
 
         {/* Grid */}
@@ -427,8 +424,8 @@ export default function DirectoryPage() {
             <MagnifyingGlassIcon className="h-10 w-10 text-zinc-300 dark:text-zinc-600" />
             <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
               {debouncedSearch || industry || location || specialty
-                ? "No growers match your filters. Try broadening your search."
-                : "The directory is waiting for its first growers. List yourself in Settings to get started."}
+                ? "No professionals match your filters. Try broadening your search."
+                : "The directory is waiting for its first listings. List yourself in Settings to get started."}
             </p>
           </div>
         ) : (

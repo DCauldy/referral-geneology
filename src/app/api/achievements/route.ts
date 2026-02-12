@@ -46,6 +46,8 @@ export async function GET() {
     supabase.from("referrals").select("id", { count: "exact", head: true }).eq("org_id", orgId),
     supabase.from("referrals").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "converted"),
     supabase.from("activities").select("id", { count: "exact", head: true }).eq("org_id", orgId),
+    supabase.from("automations").select("id", { count: "exact", head: true }).eq("org_id", orgId).neq("status", "draft"),
+    supabase.from("ai_insights").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("is_dismissed", false),
     supabase.from("exchange_trust_scores").select("trust_rating").eq("user_id", user.id).maybeSingle(),
   ]);
 
@@ -57,6 +59,8 @@ export async function GET() {
     referralsRes,
     convertedReferralsRes,
     activitiesRes,
+    automationsRes,
+    insightsRes,
     trustRes,
   ] = countResults;
 
@@ -81,6 +85,8 @@ export async function GET() {
     referrals: referralsRes.count || 0,
     converted_referrals: convertedReferralsRes.count || 0,
     activities: activitiesRes.count || 0,
+    automations: automationsRes.count || 0,
+    insights: insightsRes.count || 0,
     trust_rating: trustRes.data?.trust_rating || 0,
     onboarding_completed: profile.onboarding_completed || false,
   };

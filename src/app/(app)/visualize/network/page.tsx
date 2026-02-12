@@ -19,7 +19,7 @@ export default function NetworkVisualizationPage() {
             Network View
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Explore the root system connecting every branch of your network.
+            Explore the connections across your referral network.
           </p>
         </div>
         <ViewSwitcher />

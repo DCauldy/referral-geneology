@@ -19,7 +19,7 @@ export default function NewDealPage() {
         Add Deal
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Add new fruit to your grove.
+        Add a new deal to your pipeline.
       </p>
 
       <div className="mt-6 max-w-2xl">

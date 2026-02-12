@@ -163,7 +163,7 @@ export function StepBuilder({
       {steps.length === 0 ? (
         <div className="rounded-lg border border-dashed border-zinc-300 py-12 text-center dark:border-zinc-700">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            No steps yet. Add your first step to build this nurture sequence.
+            No steps yet. Add your first step to build this automation.
           </p>
         </div>
       ) : (

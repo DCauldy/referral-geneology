@@ -189,7 +189,7 @@ export function CompanyList() {
         keyExtractor={(c) => c.id}
         onRowClick={(c) => router.push(`/companies/${c.id}`)}
         isLoading={isLoading}
-        emptyMessage="No roots planted yet. Add your first company to anchor your network."
+        emptyMessage="No companies yet. Add your first company to get started."
       />
 
       {/* Pagination */}

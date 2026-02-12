@@ -42,7 +42,7 @@ export function PendingExchangeBanner() {
       </div>
       <div className="flex-1">
         <p className="text-sm font-medium text-teal-800 dark:text-teal-200">
-          {pendingCount} pending seed{pendingCount !== 1 ? "s" : ""} waiting to be planted
+          {pendingCount} pending referral{pendingCount !== 1 ? "s" : ""} waiting for review
         </p>
         <p className="text-xs text-teal-600 dark:text-teal-400">
           Review and accept incoming referrals in your exchange inbox.

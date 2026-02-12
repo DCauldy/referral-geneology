@@ -122,7 +122,7 @@ export function EmailLogList({
       data={logs}
       keyExtractor={(l) => l.id}
       isLoading={isLoading}
-      emptyMessage="No messages sent yet. Letters will appear here once your nurture sequence begins."
+      emptyMessage="No emails sent yet. Messages will appear here once your automation begins."
     />
   );
 }

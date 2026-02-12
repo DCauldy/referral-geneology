@@ -18,7 +18,7 @@ export default function NewTemplatePage() {
           New Template
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Craft a new letter for your branches.
+          Create a new email template.
         </p>
       </div>
       <EmailTemplateForm />

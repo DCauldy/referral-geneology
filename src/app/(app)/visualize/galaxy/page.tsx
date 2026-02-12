@@ -19,7 +19,7 @@ export default function GalaxyVisualizationPage() {
             Galaxy View
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            See the full forest from above — clusters, canopies, and constellations of growth.
+            A bird&apos;s-eye view of your entire referral network.
           </p>
         </div>
         <ViewSwitcher />

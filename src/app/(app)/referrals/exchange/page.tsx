@@ -120,8 +120,8 @@ export default function ReferralExchangePage() {
             Referral Exchange
           </h1>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
-            Send and receive referrals across networks. Share your branches with
-            other growers to expand everyone&apos;s forest.
+            Send and receive referrals across networks. Share contacts with
+            other professionals to expand your reach.
           </p>
           <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
             {isFreePlan
@@ -153,8 +153,8 @@ export default function ReferralExchangePage() {
           Referral Exchange
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Seeds shared between networks — send branches to other growers and
-          watch new growth take root.
+          Send and receive referrals across networks to grow your business
+          together.
         </p>
       </div>
 
@@ -205,8 +205,8 @@ function InboxTab() {
     try {
       const result = await acceptExchange(exchange.id);
       toast.success(
-        "New branch grafted",
-        "The referral has been accepted and the contact imported into your tree."
+        "Referral accepted",
+        "The referral has been accepted and the contact imported into your network."
       );
       if (result.contact_id) {
         // Refresh to update the list
@@ -258,7 +258,7 @@ function InboxTab() {
       <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
         <InboxIcon className="mx-auto h-10 w-10 text-zinc-400" />
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          No seeds received yet. When someone sends you a referral, it will
+          No referrals received yet. When someone sends you a referral, it will
           appear here.
         </p>
       </div>
@@ -305,8 +305,8 @@ function OutboxTab() {
       <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
         <PaperAirplaneIcon className="mx-auto h-10 w-10 text-zinc-400" />
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          No seeds sent yet. Send a referral from any contact&apos;s page to share a
-          branch with another network.
+          No referrals sent yet. Send a referral from any contact&apos;s page to share
+          with another network.
         </p>
       </div>
     );
@@ -341,9 +341,9 @@ function ReceiverStatusPanel({
     try {
       await updateReceiverStatus(exchange.id, status, visible);
       toast.success(
-        "Growth update shared",
+        "Status updated",
         visible
-          ? "The sender can now see how this branch is progressing."
+          ? "The sender can now see how this referral is progressing."
           : "Your update has been saved privately."
       );
       onUpdate();
@@ -360,7 +360,7 @@ function ReceiverStatusPanel({
       <div className="flex items-center gap-2">
         <ArrowPathIcon className="h-4 w-4 text-zinc-400" />
         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
-          Share your growth update with the sender
+          Share your status update with the sender
         </span>
       </div>
 
@@ -548,7 +548,7 @@ function ExchangeCard({
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
               >
                 <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-                View imported branch
+                View imported contact
               </Link>
             </div>
             <ReceiverStatusPanel
@@ -578,7 +578,7 @@ function ExchangeCard({
           exchange.receiver_status !== "none" ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                Growth update:
+                Status update:
               </span>
               <span
                 className={cn(
@@ -594,7 +594,7 @@ function ExchangeCard({
             </div>
           ) : (
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              Awaiting growth update from receiver...
+              Awaiting status update from receiver...
             </p>
           )}
         </div>

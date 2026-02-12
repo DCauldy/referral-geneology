@@ -114,7 +114,7 @@ export function AutomationForm({ automation }: AutomationFormProps) {
         if (error) throw error;
         toast.success(
           "Sequence updated",
-          "Your nurture sequence settings have been saved."
+          "Your automation settings have been saved."
         );
         router.push(`/automations/${automation.id}`);
       } else {
@@ -126,8 +126,8 @@ export function AutomationForm({ automation }: AutomationFormProps) {
 
         if (error) throw error;
         toast.success(
-          "Seeds planted",
-          "Your new nurture sequence is ready. Add steps to get started."
+          "Automation created",
+          "Your new automation is ready. Add steps to get started."
         );
         router.push(`/automations/${inserted.id}`);
       }

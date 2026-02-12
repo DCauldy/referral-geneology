@@ -79,15 +79,7 @@ export function InsightList() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
-            AI Insights
-          </h2>
-          <p className="text-sm text-zinc-500">
-            AI-generated insights about your referral network
-          </p>
-        </div>
+      <div className="mb-6 flex justify-end">
         <button
           onClick={handleGenerate}
           disabled={isGenerating}

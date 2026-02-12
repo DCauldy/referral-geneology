@@ -208,7 +208,7 @@ export function ExchangeAnalytics() {
           Network Exchange
         </h3>
         <p className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">
-          No exchange activity yet. Share seeds with other growers to see your network analytics.
+          No exchange activity yet. Share referrals with other users to see your network analytics.
         </p>
         <div className="mt-3 text-center">
           <Link

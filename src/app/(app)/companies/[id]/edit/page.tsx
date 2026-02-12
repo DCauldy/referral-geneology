@@ -29,7 +29,7 @@ export default function EditCompanyPage({
         Edit Company
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Maintain these root details.
+        Update this company&apos;s details.
       </p>
 
       <div className="mt-6 max-w-2xl">
