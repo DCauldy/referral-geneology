@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useContact } from "@/lib/hooks/use-contacts";
 import { useSupabase } from "@/components/providers/supabase-provider";
+import { useOrg } from "@/components/providers/org-provider";
 import { useToast } from "@/components/providers/toast-provider";
 import { cn } from "@/lib/utils/cn";
 import { getFullName, getInitials, formatDate, formatRelative } from "@/lib/utils/format";
 import { Skeleton } from "@/components/shared/loading-skeleton";
-import type { ContactChild, ImportantDate, ContactFavorites } from "@/types/database";
+import type { ContactChild, ImportantDate, ContactFavorites, Activity, ActivityType } from "@/types/database";
+import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -31,10 +33,32 @@ type TabKey = "overview" | "referrals" | "deals" | "activity" | "documents";
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
+  { key: "activity", label: "Activity" },
   { key: "referrals", label: "Referrals" },
   { key: "deals", label: "Deals" },
-  { key: "activity", label: "Activity" },
   { key: "documents", label: "Documents" },
+];
+
+const activityIcons: Record<string, React.ReactElement> = {
+  note: DUOTONE_ICONS.DocumentTextIcon,
+  call: DUOTONE_ICONS.UserPlusIcon,
+  email: DUOTONE_ICONS.PaperAirplaneIcon,
+  meeting: DUOTONE_ICONS.UsersIcon,
+  deal_created: DUOTONE_ICONS.CurrencyDollarIcon,
+  deal_won: DUOTONE_ICONS.TrophyIcon,
+  deal_lost: DUOTONE_ICONS.ArrowsRightLeftIcon,
+  referral_made: DUOTONE_ICONS.ArrowUpTrayIcon,
+  referral_received: DUOTONE_ICONS.InboxIcon,
+  contact_created: DUOTONE_ICONS.UserPlusIcon,
+};
+
+const fallbackIcon = DUOTONE_ICONS.DocumentTextIcon;
+
+const manualActivityTypes: { value: ActivityType; label: string }[] = [
+  { value: "note", label: "Note" },
+  { value: "call", label: "Call" },
+  { value: "email", label: "Email" },
+  { value: "meeting", label: "Meeting" },
 ];
 
 interface ContactDetailProps {
@@ -51,12 +75,74 @@ function formatLabel(value: string): string {
 export function ContactDetail({ contactId }: ContactDetailProps) {
   const router = useRouter();
   const supabase = useSupabase();
+  const { org } = useOrg();
   const toast = useToast();
   const { contact, isLoading, error } = useContact(contactId);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
   const { canExchangeReferrals } = usePlanLimits();
+
+  // Activity tab state
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [activityType, setActivityType] = useState<ActivityType>("note");
+  const [activityTitle, setActivityTitle] = useState("");
+  const [activityDescription, setActivityDescription] = useState("");
+  const [isSubmittingActivity, setIsSubmittingActivity] = useState(false);
+
+  const fetchActivities = useCallback(async () => {
+    setIsLoadingActivities(true);
+    const { data } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("entity_type", "contact")
+      .eq("entity_id", contactId)
+      .order("created_at", { ascending: false });
+    setActivities(data || []);
+    setIsLoadingActivities(false);
+  }, [supabase, contactId]);
+
+  useEffect(() => {
+    if (activeTab === "activity" || activeTab === "overview") {
+      fetchActivities();
+    }
+  }, [activeTab, fetchActivities]);
+
+  async function handleAddActivity(e: React.FormEvent) {
+    e.preventDefault();
+    if (!activityTitle.trim() || !org) return;
+
+    setIsSubmittingActivity(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error: insertError } = await supabase.from("activities").insert({
+        org_id: org.id,
+        entity_type: "contact" as const,
+        entity_id: contactId,
+        activity_type: activityType,
+        title: activityTitle.trim(),
+        description: activityDescription.trim() || null,
+        created_by: user?.id ?? null,
+      });
+
+      if (insertError) throw insertError;
+
+      toast.success("Growth logged", "A new entry has been recorded for this vine.");
+      setActivityTitle("");
+      setActivityDescription("");
+      setShowAddForm(false);
+      fetchActivities();
+    } catch (err) {
+      toast.error(
+        "Failed to log activity",
+        err instanceof Error ? err.message : "An unexpected error occurred."
+      );
+    } finally {
+      setIsSubmittingActivity(false);
+    }
+  }
 
   async function handleDelete() {
     if (!contact) return;
@@ -236,6 +322,58 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       {/* Tab Content */}
       {activeTab === "overview" && (
         <div className="grid gap-6 lg:grid-cols-2">
+          {/* Recent Activity */}
+          <div className="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800 lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Recent Activity
+              </h3>
+              <button
+                onClick={() => setActiveTab("activity")}
+                className="text-xs font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+              >
+                View all
+              </button>
+            </div>
+            {isLoadingActivities ? (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-10 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+                ))}
+              </div>
+            ) : activities.length === 0 ? (
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">
+                No activity recorded yet.
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {activities.slice(0, 5).map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 rounded-lg p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                  >
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center">
+                      {activityIcons[activity.activity_type] || fallbackIcon}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-zinc-900 dark:text-white">
+                        {activity.title}
+                      </p>
+                      {activity.description && (
+                        <p className="truncate text-xs text-zinc-400">
+                          {activity.description}
+                        </p>
+                      )}
+                    </div>
+                    <span className="shrink-0 text-xs text-zinc-400">
+                      {formatRelative(activity.created_at)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Contact Information */}
           <div className="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
@@ -435,6 +573,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
               <DetailRow
                 label="Referral Score"
                 value={String(contact.referral_score)}
+                tooltip="1 point per referral + 2 bonus points for each converted referral"
               />
               <DetailRow
                 label="Lifetime Referral Value"
@@ -521,10 +660,119 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       )}
 
       {activeTab === "activity" && (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Activity timeline will appear here.
-          </p>
+        <div className="space-y-4">
+          {/* Log Activity button / form */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowAddForm((v) => !v)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+            >
+              <PencilSquareIcon className="h-4 w-4" />
+              {showAddForm ? "Cancel" : "Log Activity"}
+            </button>
+          </div>
+
+          {showAddForm && (
+            <form
+              onSubmit={handleAddActivity}
+              className="rounded-xl border border-zinc-200 p-5 dark:border-zinc-800"
+            >
+              <h4 className="mb-4 text-sm font-semibold text-zinc-900 dark:text-white">
+                Log Activity
+              </h4>
+              <div className="space-y-3">
+                {/* Type selector */}
+                <div className="flex gap-2">
+                  {manualActivityTypes.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setActivityType(t.value)}
+                      className={cn(
+                        "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                        activityType === t.value
+                          ? "border-primary-600 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-300"
+                          : "border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600"
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Title */}
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={activityTitle}
+                  onChange={(e) => setActivityTitle(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                />
+                {/* Description */}
+                <textarea
+                  placeholder="Description (optional)"
+                  value={activityDescription}
+                  onChange={(e) => setActivityDescription(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSubmittingActivity || !activityTitle.trim()}
+                    className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+                  >
+                    {isSubmittingActivity ? "Saving..." : "Save"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          {/* Timeline */}
+          {isLoadingActivities ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-14 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+              ))}
+            </div>
+          ) : activities.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Notes, calls, and meetings for this contact will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="relative space-y-0">
+              {/* Vertical line */}
+              <div className="absolute left-[15px] top-2 bottom-2 w-px bg-zinc-200 dark:bg-zinc-700" />
+
+              {activities.map((activity) => (
+                <div key={activity.id} className="relative flex items-start gap-4 py-3">
+                  {/* Icon */}
+                  <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white dark:bg-zinc-900">
+                    <div className="flex h-5 w-5 items-center justify-center">
+                      {activityIcons[activity.activity_type] || fallbackIcon}
+                    </div>
+                  </div>
+                  {/* Content */}
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                      {activity.title}
+                    </p>
+                    {activity.description && (
+                      <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        {activity.description}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+                      {formatRelative(activity.created_at)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -550,15 +798,44 @@ function DetailRow({
   label,
   value,
   isLink = false,
+  tooltip,
 }: {
   label: string;
   value?: string | null;
   isLink?: boolean;
+  tooltip?: string;
 }) {
+  const [showTip, setShowTip] = useState(false);
+
   if (!value) return null;
   return (
     <div className="flex items-center justify-between py-1">
-      <dt className="text-sm text-zinc-500 dark:text-zinc-400">{label}</dt>
+      <dt className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+        {label}
+        {tooltip && (
+          <span className="relative">
+            <button
+              type="button"
+              onClick={() => setShowTip((v) => !v)}
+              onMouseEnter={() => setShowTip(true)}
+              onMouseLeave={() => setShowTip(false)}
+              className="inline-flex cursor-help translate-y-px"
+              aria-label={`Info: ${label}`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" fill="#e0e9df" stroke="#284a2e" strokeWidth="1.8" />
+                <line x1="12" y1="11" x2="12" y2="17" stroke="#2f5435" strokeWidth="2" strokeLinecap="round" />
+                <circle cx="12" cy="7.5" r="1.2" fill="#2f5435" />
+              </svg>
+            </button>
+            {showTip && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-50 w-56 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700 shadow-lg dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                {tooltip}
+              </div>
+            )}
+          </span>
+        )}
+      </dt>
       <dd className="text-sm font-medium text-zinc-900 dark:text-white">
         {isLink ? (
           <a

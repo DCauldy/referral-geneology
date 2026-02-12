@@ -50,7 +50,7 @@ All user-facing copy in the **logged-in app** (`src/app/(app)/` and its componen
 | Won Revenue         | Harvest        | KPI title: "Harvest"                             |
 | Conversion Rate     | Yield Rate     | KPI title: "Yield Rate"                          |
 | Delete contact      | Prune a vine   | "Are you sure you want to prune this vine?"      |
-| Activity            | Growth Log     | "This vine's growth log will appear here."       |
+| Activity            | Growth Log     | Tab/section label only (e.g., "Growth Log" heading). Empty state: "Notes, calls, and meetings for this contact will appear here." |
 
 ### Where to Apply Brand Language
 
