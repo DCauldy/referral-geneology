@@ -114,29 +114,9 @@ export function ReferralForm({
         return;
       }
 
-      // Update the referred contact's generation based on the referrer's generation
-      const { data: referrerContact } = await supabase
-        .from("contacts")
-        .select("generation")
-        .eq("id", data.referrer_id)
-        .single();
-
-      const referrerGen = referrerContact?.generation ?? 1;
-      const newGeneration = referrerGen + 1;
-
-      // Only update if the referred contact has no generation or a higher one (minimum rule)
-      const { data: referredContact } = await supabase
-        .from("contacts")
-        .select("generation")
-        .eq("id", data.referred_id)
-        .single();
-
-      if (!referredContact?.generation || referredContact.generation > newGeneration) {
-        await supabase
-          .from("contacts")
-          .update({ generation: newGeneration })
-          .eq("id", data.referred_id);
-      }
+      // Recalculate generations for the entire org using the DB function
+      // (recursive CTE that computes minimum-path generation for every contact)
+      await supabase.rpc("recalculate_generations", { p_org_id: org.id });
 
       toast.success("Referral created", "New growth has been recorded on your trellis.");
       onSuccess?.();
