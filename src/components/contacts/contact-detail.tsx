@@ -9,6 +9,7 @@ import { useToast } from "@/components/providers/toast-provider";
 import { cn } from "@/lib/utils/cn";
 import { getFullName, getInitials, formatDate, formatRelative } from "@/lib/utils/format";
 import { Skeleton } from "@/components/shared/loading-skeleton";
+import type { ContactChild, ImportantDate, ContactFavorites } from "@/types/database";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -19,6 +20,9 @@ import {
   MapPinIcon,
   StarIcon,
   PaperAirplaneIcon,
+  CakeIcon,
+  HeartIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { SendReferralModal } from "@/components/referrals/send-referral-modal";
@@ -266,6 +270,145 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
               </dl>
             </div>
           </div>
+
+          {/* Personal Details — only render when at least one field has data */}
+          {(contact.birthday || contact.anniversary || contact.spouse_partner_name || (contact.preferred_contact_method && contact.preferred_contact_method !== "email")) && (
+            <div className="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Personal Details
+              </h3>
+              <dl className="space-y-3">
+                <DetailRow
+                  label="Birthday"
+                  value={contact.birthday ? formatDate(contact.birthday) : null}
+                />
+                <DetailRow
+                  label="Anniversary"
+                  value={contact.anniversary ? formatDate(contact.anniversary) : null}
+                />
+                <DetailRow
+                  label="Spouse / Partner"
+                  value={contact.spouse_partner_name}
+                />
+                {contact.preferred_contact_method && contact.preferred_contact_method !== "email" && (
+                  <DetailRow
+                    label="Preferred Contact"
+                    value={formatLabel(contact.preferred_contact_method)}
+                  />
+                )}
+              </dl>
+            </div>
+          )}
+
+          {/* Interests & Family — only render when custom_fields has relevant data */}
+          {(() => {
+            const cf = contact.custom_fields;
+            const obj = (cf && typeof cf === "object" && !Array.isArray(cf) ? cf : {}) as Record<string, unknown>;
+            const cfChildren = (Array.isArray(obj.children) ? obj.children : []) as ContactChild[];
+            const cfHobbies = (Array.isArray(obj.hobbies) ? obj.hobbies : []) as string[];
+            const cfDates = (Array.isArray(obj.important_dates) ? obj.important_dates : []) as ImportantDate[];
+            const cfFavorites = (obj.favorites && typeof obj.favorites === "object" ? obj.favorites : {}) as ContactFavorites;
+            const hasFavorites = Object.values(cfFavorites).some(Boolean);
+            const hasData = cfChildren.length > 0 || cfHobbies.length > 0 || cfDates.length > 0 || hasFavorites;
+
+            if (!hasData) return null;
+
+            return (
+              <div className="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  Interests & Family
+                </h3>
+                <div className="space-y-4">
+                  {cfChildren.length > 0 && (
+                    <div>
+                      <dt className="mb-1.5 flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        <UserGroupIcon className="h-4 w-4" />
+                        Children
+                      </dt>
+                      <dd className="space-y-1">
+                        {cfChildren.map((child, i) => (
+                          <div key={i} className="text-sm text-zinc-900 dark:text-white">
+                            {child.name}
+                            {child.birthday && (
+                              <span className="ml-1.5 text-xs text-zinc-400">
+                                ({formatDate(child.birthday)})
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+
+                  {cfHobbies.length > 0 && (
+                    <div>
+                      <dt className="mb-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        Hobbies / Interests
+                      </dt>
+                      <dd className="flex flex-wrap gap-1.5">
+                        {cfHobbies.map((hobby, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+                          >
+                            {hobby}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+
+                  {cfDates.length > 0 && (
+                    <div>
+                      <dt className="mb-1.5 flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        <CakeIcon className="h-4 w-4" />
+                        Important Dates
+                      </dt>
+                      <dd className="space-y-1">
+                        {cfDates.map((d, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-zinc-500 dark:text-zinc-400">{d.label}</span>
+                            <span className="font-medium text-zinc-900 dark:text-white">
+                              {formatDate(d.date)}
+                            </span>
+                          </div>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+
+                  {hasFavorites && (
+                    <div>
+                      <dt className="mb-1.5 flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        <HeartIcon className="h-4 w-4" />
+                        Favorites
+                      </dt>
+                      <dd className="space-y-1">
+                        {cfFavorites.restaurant && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-zinc-500 dark:text-zinc-400">Restaurant</span>
+                            <span className="font-medium text-zinc-900 dark:text-white">{cfFavorites.restaurant}</span>
+                          </div>
+                        )}
+                        {cfFavorites.sports_team && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-zinc-500 dark:text-zinc-400">Sports Team</span>
+                            <span className="font-medium text-zinc-900 dark:text-white">{cfFavorites.sports_team}</span>
+                          </div>
+                        )}
+                        {cfFavorites.other && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-zinc-500 dark:text-zinc-400">Other</span>
+                            <span className="font-medium text-zinc-900 dark:text-white">{cfFavorites.other}</span>
+                          </div>
+                        )}
+                      </dd>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Scores & Meta */}
           <div className="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">

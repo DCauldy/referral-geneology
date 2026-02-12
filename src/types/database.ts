@@ -135,12 +135,33 @@ export interface Contact {
   rating: number | null;
   profile_photo_url: string | null;
   notes: string | null;
+  birthday: string | null;
+  anniversary: string | null;
+  spouse_partner_name: string | null;
+  preferred_contact_method: 'email' | 'phone' | 'text' | 'linkedin' | 'in_person';
   custom_fields: Json;
   created_at: string;
   updated_at: string;
   // Joined fields
   company?: Company;
   tags?: Tag[];
+}
+
+// Helper types for Contact custom_fields JSONB
+export interface ContactChild {
+  name: string;
+  birthday?: string;
+}
+
+export interface ImportantDate {
+  label: string;
+  date: string;
+}
+
+export interface ContactFavorites {
+  restaurant?: string;
+  sports_team?: string;
+  [key: string]: string | undefined;
 }
 
 export interface Company {
