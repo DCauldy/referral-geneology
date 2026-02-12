@@ -43,7 +43,7 @@ export function InsightList() {
       const res = await fetch("/api/ai/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orgId: org.id }),
+        body: JSON.stringify({ org_id: org.id }),
       });
 
       if (!res.ok) throw new Error("Failed to generate insights");
