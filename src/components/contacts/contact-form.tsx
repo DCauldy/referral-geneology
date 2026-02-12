@@ -300,7 +300,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
       } else {
         const { data: inserted, error } = await supabase
           .from("contacts")
-          .insert({ ...payload, org_id: org.id })
+          .insert({ ...payload, org_id: org.id, generation: 1 })
           .select("id")
           .single();
 

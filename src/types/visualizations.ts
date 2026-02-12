@@ -15,6 +15,7 @@ export interface VisualizationNode {
   rating: number | null;
   city: string | null;
   country: string | null;
+  generation: number | null;
   // Inter-network exchange properties
   isGhost?: boolean;
   ghostOrgName?: string | null;
@@ -55,6 +56,7 @@ export interface VisualizationFilters {
   referralStatuses: string[];
   minReferralScore: number;
   minDealValue: number;
+  generationRange: { min: number | null; max: number | null };
   dateRange: {
     start: string | null;
     end: string | null;
@@ -74,7 +76,7 @@ export interface ViewConfig {
     showLabels: boolean;
     showValues: boolean;
     showEdgeLabels: boolean;
-    colorBy: "relationship" | "industry" | "score" | "value";
+    colorBy: "relationship" | "industry" | "score" | "value" | "generation";
     sizeBy: "referrals" | "value" | "score" | "uniform";
   };
   zoom: number;
@@ -88,6 +90,7 @@ export const DEFAULT_FILTERS: VisualizationFilters = {
   referralStatuses: [],
   minReferralScore: 0,
   minDealValue: 0,
+  generationRange: { min: null, max: null },
   dateRange: { start: null, end: null },
   tags: [],
   showInterNetwork: false,

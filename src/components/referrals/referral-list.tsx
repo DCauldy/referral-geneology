@@ -122,20 +122,34 @@ export function ReferralList({ contactId, onRowClick }: ReferralListProps) {
                   }}
                 >
                   <TableCell className="font-medium">
-                    {referral.referrer
-                      ? getFullName(
-                          referral.referrer.first_name,
-                          referral.referrer.last_name ?? undefined
-                        )
-                      : "Unknown"}
+                    <span className="flex items-center gap-1.5">
+                      {referral.referrer
+                        ? getFullName(
+                            referral.referrer.first_name,
+                            referral.referrer.last_name ?? undefined
+                          )
+                        : "Unknown"}
+                      {(referral.referrer as unknown as { generation?: number | null })?.generation != null && (
+                        <span className="inline-flex rounded-full bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+                          Gen {(referral.referrer as unknown as { generation: number }).generation}
+                        </span>
+                      )}
+                    </span>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {referral.referred
-                      ? getFullName(
-                          referral.referred.first_name,
-                          referral.referred.last_name ?? undefined
-                        )
-                      : "Unknown"}
+                    <span className="flex items-center gap-1.5">
+                      {referral.referred
+                        ? getFullName(
+                            referral.referred.first_name,
+                            referral.referred.last_name ?? undefined
+                          )
+                        : "Unknown"}
+                      {(referral.referred as unknown as { generation?: number | null })?.generation != null && (
+                        <span className="inline-flex rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                          Gen {(referral.referred as unknown as { generation: number }).generation}
+                        </span>
+                      )}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge color={typeColors[referral.referral_type]}>

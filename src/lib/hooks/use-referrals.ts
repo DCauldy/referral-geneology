@@ -41,7 +41,7 @@ export function useReferrals(options: UseReferralsOptions = {}) {
       let query = supabase
         .from("referrals")
         .select(
-          "*, referrer:contacts!referrals_referrer_id_fkey(id, first_name, last_name, email), referred:contacts!referrals_referred_id_fkey(id, first_name, last_name, email), deal:deals(id, name, value)",
+          "*, referrer:contacts!referrals_referrer_id_fkey(id, first_name, last_name, email, generation), referred:contacts!referrals_referred_id_fkey(id, first_name, last_name, email, generation), deal:deals(id, name, value)",
           { count: "exact" }
         )
         .eq("org_id", org.id);

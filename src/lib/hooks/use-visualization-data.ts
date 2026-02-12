@@ -38,6 +38,12 @@ export function useVisualizationData(filters: VisualizationFilters = DEFAULT_FIL
       if (filters.minReferralScore > 0) {
         contactQuery = contactQuery.gte("referral_score", filters.minReferralScore);
       }
+      if (filters.generationRange.min != null) {
+        contactQuery = contactQuery.gte("generation", filters.generationRange.min);
+      }
+      if (filters.generationRange.max != null) {
+        contactQuery = contactQuery.lte("generation", filters.generationRange.max);
+      }
 
       const { data: contacts, error: contactError } = await contactQuery;
       if (contactError) throw contactError;
@@ -121,6 +127,7 @@ export function useVisualizationData(filters: VisualizationFilters = DEFAULT_FIL
           rating: c.rating,
           city: c.city,
           country: c.country,
+          generation: c.generation ?? null,
         }));
 
       // Transform to visualization edges
@@ -184,6 +191,7 @@ export function useVisualizationData(filters: VisualizationFilters = DEFAULT_FIL
               rating: null,
               city: null,
               country: null,
+              generation: null,
               isGhost: true,
               ghostOrgName: ex.receiver_email,
               exchangeId: ex.id,
@@ -235,6 +243,7 @@ export function useVisualizationData(filters: VisualizationFilters = DEFAULT_FIL
               rating: null,
               city: null,
               country: null,
+              generation: null,
               isGhost: true,
               ghostOrgName: "External Network",
               exchangeId: ex.id,

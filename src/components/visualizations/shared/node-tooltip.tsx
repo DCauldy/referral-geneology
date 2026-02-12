@@ -64,6 +64,14 @@ export function NodeTooltip({ node, position }: NodeTooltipProps) {
             </span>
           </div>
         )}
+        {node.generation != null && (
+          <div className="col-span-2">
+            <span className="text-zinc-500 dark:text-zinc-400">Generation:</span>{" "}
+            <span className="font-medium text-zinc-700 dark:text-zinc-300">
+              Gen {node.generation}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

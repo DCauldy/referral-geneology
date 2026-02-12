@@ -26,6 +26,15 @@ const INDUSTRY_COLORS: Record<string, string> = {
   marketing: "#14b8a6",
 };
 
+const GENERATION_COLORS: Record<number, string> = {
+  1: "#2f5435", // hunter green
+  2: "#5d8a5a",
+  3: "#8b5cf6",
+  4: "#b09352", // warm tan
+  5: "#ec4899",
+};
+const GENERATION_DEFAULT_COLOR = "#06b6d4"; // Gen 6+
+
 const STATUS_COLORS: Record<string, string> = {
   pending: "#96b593",
   active: "#2f5435",
@@ -53,6 +62,9 @@ export function getNodeColor(
       return scoreToColor(node.referralScore);
     case "value":
       return valueToColor(node.dealValue);
+    case "generation":
+      if (node.generation == null) return "#94a3b8";
+      return GENERATION_COLORS[node.generation] || GENERATION_DEFAULT_COLOR;
     default:
       return "#2f5435";
   }
@@ -212,6 +224,16 @@ export function getLegendItems(colorBy: string, showInterNetwork?: boolean): Arr
         { label: "$10K-$50K", color: "#5d8a5a" },
         { label: "$50K-$100K", color: "#8b5cf6" },
         { label: ">$100K", color: "#6d28d9" },
+      ];
+      break;
+    case "generation":
+      items = [
+        { label: "Gen 1 (Direct)", color: GENERATION_COLORS[1] },
+        { label: "Gen 2", color: GENERATION_COLORS[2] },
+        { label: "Gen 3", color: GENERATION_COLORS[3] },
+        { label: "Gen 4", color: GENERATION_COLORS[4] },
+        { label: "Gen 5", color: GENERATION_COLORS[5] },
+        { label: "Gen 6+", color: GENERATION_DEFAULT_COLOR },
       ];
       break;
     default:

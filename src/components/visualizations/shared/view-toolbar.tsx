@@ -72,6 +72,7 @@ export function ViewToolbar({
         <option value="industry">Color: Industry</option>
         <option value="score">Color: Score</option>
         <option value="value">Color: Value</option>
+        <option value="generation">Color: Generation</option>
       </select>
 
       {/* Size by */}

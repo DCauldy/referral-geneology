@@ -57,6 +57,11 @@ function TreeNodeComponent({ data }: NodeProps) {
 
         {/* Badges */}
         <div className="flex items-center gap-1">
+          {node.generation != null && (
+            <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[9px] font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+              Gen {node.generation}
+            </span>
+          )}
           {node.referralCount > 0 && (
             <span className="rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-medium text-primary-700 dark:bg-primary-900 dark:text-primary-300">
               {node.referralCount} refs

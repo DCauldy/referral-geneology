@@ -126,6 +126,27 @@ export function ContactList() {
         ),
       },
       {
+        key: "generation",
+        header: "Generation",
+        sortable: true,
+        render: (contact) => {
+          const gen = contact.generation;
+          if (gen == null) return <span className="text-zinc-400">--</span>;
+          return (
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                gen === 1
+                  ? "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300"
+                  : "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+              )}
+            >
+              Gen {gen}
+            </span>
+          );
+        },
+      },
+      {
         key: "referral_score",
         header: "Score",
         sortable: true,

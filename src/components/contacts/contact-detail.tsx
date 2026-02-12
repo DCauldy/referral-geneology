@@ -170,6 +170,18 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
                   {contact.phone}
                 </a>
               )}
+              {contact.generation != null && (
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                    contact.generation === 1
+                      ? "bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300"
+                      : "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                  )}
+                >
+                  Gen {contact.generation}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -416,6 +428,10 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
               Scores & Metrics
             </h3>
             <dl className="space-y-3">
+              <DetailRow
+                label="Generation"
+                value={contact.generation != null ? `Gen ${contact.generation}` : null}
+              />
               <DetailRow
                 label="Referral Score"
                 value={String(contact.referral_score)}

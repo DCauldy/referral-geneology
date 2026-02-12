@@ -337,6 +337,7 @@ export function GalaxyView() {
             )}
             <p className="mt-1 text-[10px] text-zinc-400">
               Score: {tooltip.node.referralScore} | Refs: {tooltip.node.referralCount}
+              {tooltip.node.generation != null && ` | Gen ${tooltip.node.generation}`}
             </p>
           </div>
         )}

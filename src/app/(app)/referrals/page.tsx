@@ -26,7 +26,7 @@ export default function ReferralsPage() {
         </Link>
       </div>
 
-      <ReferralList onRowClick={(id) => router.push(`/referrals/${id}`)} />
+      <ReferralList onRowClick={(_referralId, contactId) => router.push(`/contacts/${contactId}`)} />
     </div>
   );
 }

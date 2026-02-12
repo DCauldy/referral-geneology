@@ -133,6 +133,7 @@ export interface Contact {
   referral_score: number;
   lifetime_referral_value: number;
   rating: number | null;
+  generation: number | null;
   profile_photo_url: string | null;
   notes: string | null;
   birthday: string | null;

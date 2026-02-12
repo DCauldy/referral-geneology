@@ -114,7 +114,31 @@ export function ReferralForm({
         return;
       }
 
-      toast.success("Referral created", "The referral has been recorded.");
+      // Update the referred contact's generation based on the referrer's generation
+      const { data: referrerContact } = await supabase
+        .from("contacts")
+        .select("generation")
+        .eq("id", data.referrer_id)
+        .single();
+
+      const referrerGen = referrerContact?.generation ?? 1;
+      const newGeneration = referrerGen + 1;
+
+      // Only update if the referred contact has no generation or a higher one (minimum rule)
+      const { data: referredContact } = await supabase
+        .from("contacts")
+        .select("generation")
+        .eq("id", data.referred_id)
+        .single();
+
+      if (!referredContact?.generation || referredContact.generation > newGeneration) {
+        await supabase
+          .from("contacts")
+          .update({ generation: newGeneration })
+          .eq("id", data.referred_id);
+      }
+
+      toast.success("Referral created", "New growth has been recorded on your trellis.");
       onSuccess?.();
     } catch (err) {
       toast.error(

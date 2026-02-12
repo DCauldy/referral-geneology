@@ -43,6 +43,11 @@ function NetworkNodeComponent({ data }: NodeProps) {
         <p className="mt-1 max-w-[100px] truncate text-center text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
           {node.label}
         </p>
+        {node.generation != null && (
+          <p className="text-center text-[8px] font-medium text-zinc-400 dark:text-zinc-500">
+            Gen {node.generation}
+          </p>
+        )}
       </div>
 
       <Handle type="source" position={Position.Bottom} className="!opacity-0 !w-1 !h-1" />
