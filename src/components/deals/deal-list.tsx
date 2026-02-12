@@ -32,7 +32,11 @@ const statusColors: Record<string, string> = {
   abandoned: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
 };
 
-export function DealList() {
+interface DealListProps {
+  contactId?: string;
+}
+
+export function DealList({ contactId }: DealListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -47,6 +51,7 @@ export function DealList() {
     search,
     status,
     stageId,
+    contactId,
     page,
     pageSize: PAGE_SIZE,
   });

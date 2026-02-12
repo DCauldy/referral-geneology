@@ -28,6 +28,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { SendReferralModal } from "@/components/referrals/send-referral-modal";
+import { ReferralList } from "@/components/referrals/referral-list";
+import { DealList } from "@/components/deals/deal-list";
 
 type TabKey = "overview" | "referrals" | "deals" | "activity" | "documents";
 
@@ -644,19 +646,11 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       )}
 
       {activeTab === "referrals" && (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Referral connections and chains will appear here.
-          </p>
-        </div>
+        <ReferralList contactId={contactId} />
       )}
 
       {activeTab === "deals" && (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Associated deals will appear here.
-          </p>
-        </div>
+        <DealList contactId={contactId} />
       )}
 
       {activeTab === "activity" && (
