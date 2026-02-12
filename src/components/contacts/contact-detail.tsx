@@ -30,6 +30,12 @@ import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { SendReferralModal } from "@/components/referrals/send-referral-modal";
 import { ReferralList } from "@/components/referrals/referral-list";
 import { DealList } from "@/components/deals/deal-list";
+import {
+  Dialog,
+  DialogTitle,
+  DialogDescription,
+  DialogActions,
+} from "@/components/catalyst/dialog";
 
 type TabKey = "overview" | "referrals" | "deals" | "activity" | "documents";
 
@@ -82,6 +88,8 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
   const { contact, isLoading, error } = useContact(contactId);
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [showSendModal, setShowSendModal] = useState(false);
   const { canExchangeReferrals } = usePlanLimits();
 
@@ -148,9 +156,6 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
 
   async function handleDelete() {
     if (!contact) return;
-    if (!window.confirm("Are you sure you want to delete this contact? This action cannot be undone.")) {
-      return;
-    }
 
     setIsDeleting(true);
     try {
@@ -160,7 +165,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
         .eq("id", contact.id);
 
       if (error) throw error;
-      toast.success("Contact deleted", "The contact has been removed.");
+      toast.success("Vine pruned", "The contact has been removed from your trellis.");
       router.push("/contacts");
     } catch (err) {
       toast.error(
@@ -169,6 +174,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       );
     } finally {
       setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   }
 
@@ -291,7 +297,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
             Edit
           </Link>
           <button
-            onClick={handleDelete}
+            onClick={() => setShowDeleteConfirm(true)}
             disabled={isDeleting}
             className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
           >
@@ -784,6 +790,47 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
           onClose={() => setShowSendModal(false)}
         />
       )}
+
+      <Dialog open={showDeleteConfirm} onClose={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }} size="sm">
+        <DialogTitle>Prune this contact?</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to prune{" "}
+          <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            {contact ? getFullName(contact.first_name, contact.last_name ?? undefined) : "this contact"}
+          </span>{" "}
+          from your trellis? This action cannot be undone.
+        </DialogDescription>
+        <div className="mt-4">
+          <label htmlFor="delete-confirm" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Type <span className="font-semibold">delete</span> to confirm
+          </label>
+          <input
+            id="delete-confirm"
+            type="text"
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+            placeholder="delete"
+            className="mt-1.5 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-red-500 dark:focus:ring-red-500"
+            autoComplete="off"
+          />
+        </div>
+        <DialogActions>
+          <button
+            onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+            disabled={isDeleting}
+            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting || deleteConfirmText.toLowerCase() !== "delete"}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

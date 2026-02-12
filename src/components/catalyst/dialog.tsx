@@ -6,8 +6,9 @@ import {
   DialogPanel,
   DialogTitle as HeadlessDialogTitle,
   Description as HeadlessDescription,
+  Transition,
+  TransitionChild,
 } from "@headlessui/react";
-import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils/cn";
 
 const sizeStyles = {
@@ -38,27 +39,34 @@ export function Dialog({
   children,
 }: DialogProps) {
   return (
-    <AnimatePresence>
-      {open && (
-        <HeadlessDialog static open={open} onClose={onClose} className="relative z-50">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+    <Transition show={open}>
+      <HeadlessDialog onClose={onClose} className="relative z-50">
+        {/* Backdrop */}
+        <TransitionChild
+          enter="transition-opacity duration-150 ease-out"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-opacity duration-100 ease-in"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div
             className="fixed inset-0 bg-black/30 dark:bg-black/50"
             aria-hidden="true"
           />
+        </TransitionChild>
 
-          {/* Full-screen container to center the panel */}
-          <div className="fixed inset-0 flex items-center justify-center p-4">
+        {/* Full-screen container to center the panel */}
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <TransitionChild
+            enter="transition duration-200 ease-out"
+            enterFrom="opacity-0 scale-95 translate-y-2"
+            enterTo="opacity-100 scale-100 translate-y-0"
+            leave="transition duration-150 ease-in"
+            leaveFrom="opacity-100 scale-100 translate-y-0"
+            leaveTo="opacity-0 scale-95 translate-y-2"
+          >
             <DialogPanel
-              as={motion.div}
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              {...{ transition: { duration: 0.2, ease: "easeOut" } } as Record<string, unknown>}
               className={cn(
                 "w-full rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900",
                 "ring-1 ring-zinc-200 dark:ring-zinc-700",
@@ -68,10 +76,10 @@ export function Dialog({
             >
               {children}
             </DialogPanel>
-          </div>
-        </HeadlessDialog>
-      )}
-    </AnimatePresence>
+          </TransitionChild>
+        </div>
+      </HeadlessDialog>
+    </Transition>
   );
 }
 
