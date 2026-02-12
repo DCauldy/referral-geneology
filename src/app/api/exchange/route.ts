@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/resend/client";
 import { getFromAddress } from "@/lib/resend/config";
+import { isImpersonating } from "@/lib/admin/impersonation";
 
 // POST - Send a referral exchange
 export async function POST(request: NextRequest) {
@@ -38,6 +39,15 @@ export async function POST(request: NextRequest) {
     if (!org || org.plan === "free") {
       return NextResponse.json(
         { error: "Referral exchange requires a paid plan" },
+        { status: 403 }
+      );
+    }
+
+    // Block exchange creation during impersonation to prevent
+    // sending emails and creating records in another org
+    if (await isImpersonating(supabase, user.id, org.id)) {
+      return NextResponse.json(
+        { error: "Cannot send exchanges while impersonating an organization" },
         { status: 403 }
       );
     }

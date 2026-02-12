@@ -6,6 +6,7 @@ import {
   buildContactVariables,
   getFromAddress,
 } from "@/lib/resend/config";
+import { isImpersonating } from "@/lib/admin/impersonation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +48,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Contact has no email address" },
         { status: 400 }
+      );
+    }
+
+    // Block email sending during impersonation
+    if (await isImpersonating(supabase, user.id, contact.org_id)) {
+      return NextResponse.json(
+        { error: "Cannot send emails while impersonating an organization" },
+        { status: 403 }
       );
     }
 

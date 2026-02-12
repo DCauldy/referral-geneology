@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isImpersonating } from "@/lib/admin/impersonation";
 
 // POST /api/achievements/check — triggers check_achievements() + update_user_streak()
 export async function POST() {
@@ -14,7 +15,7 @@ export async function POST() {
 
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("active_org_id, is_platform_admin")
+    .select("active_org_id")
     .eq("id", user.id)
     .single();
 
@@ -24,31 +25,10 @@ export async function POST() {
 
   const orgId = profile.active_org_id;
 
-  // Skip achievement checks for platform admins viewing another org
-  // to prevent awarding achievements based on someone else's data
-  if (profile.is_platform_admin) {
-    const { data: membership } = await supabase
-      .from("org_members")
-      .select("role")
-      .eq("org_id", orgId)
-      .eq("user_id", user.id)
-      .single();
-
-    // If the admin is only in this org as an impersonation member (admin role
-    // injected by the impersonate endpoint), skip the check
-    if (!membership || membership.role === "admin") {
-      // Verify they were an original member by checking if they're the owner
-      const { count } = await supabase
-        .from("org_members")
-        .select("id", { count: "exact", head: true })
-        .eq("org_id", orgId)
-        .eq("user_id", user.id)
-        .eq("role", "owner");
-
-      if (!count || count === 0) {
-        return NextResponse.json({ newly_unlocked: [], streak_updated: false });
-      }
-    }
+  // Skip achievement checks during impersonation to prevent
+  // awarding achievements based on another org's data
+  if (await isImpersonating(supabase, user.id, orgId)) {
+    return NextResponse.json({ newly_unlocked: [], streak_updated: false });
   }
 
   // Run both RPCs in parallel

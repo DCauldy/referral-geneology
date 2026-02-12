@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isImpersonating } from "@/lib/admin/impersonation";
 import type { EntityType } from "@/types/database";
 
 interface CsvRow {
@@ -142,6 +143,14 @@ export async function POST(request: NextRequest) {
     }
 
     const orgId = profile.active_org_id;
+
+    // Block bulk imports during impersonation
+    if (await isImpersonating(supabase, user.id, orgId)) {
+      return NextResponse.json(
+        { error: "Cannot import data while impersonating an organization" },
+        { status: 403 }
+      );
+    }
 
     // Parse form data
     const formData = await request.formData();
