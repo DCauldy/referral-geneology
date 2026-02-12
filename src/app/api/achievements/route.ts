@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isImpersonating } from "@/lib/admin/impersonation";
 
 // GET /api/achievements — returns user's earned achievements, progress counts, and streak
@@ -27,11 +28,14 @@ export async function GET() {
   const orgId = profile.active_org_id;
 
   // When impersonating, show the org owner's achievements instead of the admin's
+  // Use admin client to bypass RLS for reading another user's data
   let targetUserId = user.id;
   let targetOnboarding = profile.onboarding_completed;
+  const impersonating = await isImpersonating(supabase, user.id, orgId);
+  const queryClient = impersonating ? createAdminClient() : supabase;
 
-  if (await isImpersonating(supabase, user.id, orgId)) {
-    const { data: ownerMembership } = await supabase
+  if (impersonating) {
+    const { data: ownerMembership } = await queryClient
       .from("org_members")
       .select("user_id")
       .eq("org_id", orgId)
@@ -40,7 +44,7 @@ export async function GET() {
 
     if (ownerMembership) {
       targetUserId = ownerMembership.user_id;
-      const { data: ownerProfile } = await supabase
+      const { data: ownerProfile } = await queryClient
         .from("user_profiles")
         .select("onboarding_completed")
         .eq("id", targetUserId)
@@ -51,28 +55,28 @@ export async function GET() {
 
   // Parallel queries: achievements, streak, and progress counts
   const [achievementsRes, streakRes, ...countResults] = await Promise.all([
-    supabase
+    queryClient
       .from("user_achievements")
       .select("*")
       .eq("user_id", targetUserId)
       .order("unlocked_at", { ascending: false }),
-    supabase
+    queryClient
       .from("user_streaks")
       .select("*")
       .eq("user_id", targetUserId)
       .eq("org_id", orgId)
       .maybeSingle(),
     // Progress counts for the UI
-    supabase.from("contacts").select("id", { count: "exact", head: true }).eq("org_id", orgId),
-    supabase.from("companies").select("id", { count: "exact", head: true }).eq("org_id", orgId),
-    supabase.from("deals").select("id", { count: "exact", head: true }).eq("org_id", orgId),
-    supabase.from("deals").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "won"),
-    supabase.from("referrals").select("id", { count: "exact", head: true }).eq("org_id", orgId),
-    supabase.from("referrals").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "converted"),
-    supabase.from("activities").select("id", { count: "exact", head: true }).eq("org_id", orgId),
-    supabase.from("automations").select("id", { count: "exact", head: true }).eq("org_id", orgId).neq("status", "draft"),
-    supabase.from("ai_insights").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("is_dismissed", false),
-    supabase.from("exchange_trust_scores").select("trust_rating").eq("user_id", targetUserId).maybeSingle(),
+    queryClient.from("contacts").select("id", { count: "exact", head: true }).eq("org_id", orgId),
+    queryClient.from("companies").select("id", { count: "exact", head: true }).eq("org_id", orgId),
+    queryClient.from("deals").select("id", { count: "exact", head: true }).eq("org_id", orgId),
+    queryClient.from("deals").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "won"),
+    queryClient.from("referrals").select("id", { count: "exact", head: true }).eq("org_id", orgId),
+    queryClient.from("referrals").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("status", "converted"),
+    queryClient.from("activities").select("id", { count: "exact", head: true }).eq("org_id", orgId),
+    queryClient.from("automations").select("id", { count: "exact", head: true }).eq("org_id", orgId).neq("status", "draft"),
+    queryClient.from("ai_insights").select("id", { count: "exact", head: true }).eq("org_id", orgId).eq("is_dismissed", false),
+    queryClient.from("exchange_trust_scores").select("trust_rating").eq("user_id", targetUserId).maybeSingle(),
   ]);
 
   const [
@@ -89,7 +93,7 @@ export async function GET() {
   ] = countResults;
 
   // Sum won revenue
-  const { data: wonDealsData } = await supabase
+  const { data: wonDealsData } = await queryClient
     .from("deals")
     .select("value")
     .eq("org_id", orgId)
