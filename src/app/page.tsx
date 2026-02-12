@@ -11,6 +11,7 @@ import {
   SunIcon,
   MoonIcon,
 } from "@heroicons/react/24/outline";
+import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
   { name: "Features", href: "#features" },
@@ -318,6 +319,7 @@ function ScreenshotCrossfade() {
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dark, setDark] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("theme");
@@ -326,6 +328,12 @@ export default function HomePage() {
       setDark(true);
       document.documentElement.classList.add("dark");
     }
+  }, []);
+
+  useEffect(() => {
+    createClient().auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
   }, []);
 
   function toggleDark() {
@@ -410,10 +418,10 @@ export default function HomePage() {
               {dark ? <SunIcon className="size-5" /> : <MoonIcon className="size-5" />}
             </button>
             <Link
-              href="/login"
+              href={isLoggedIn ? "/dashboard" : "/login"}
               className="text-sm/6 font-semibold text-gray-900 hover:text-primary-700 dark:text-white dark:hover:text-primary-400"
             >
-              Log in <span aria-hidden="true">&rarr;</span>
+              {isLoggedIn ? "Dashboard" : "Log in"} <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
         </nav>
@@ -492,11 +500,11 @@ export default function HomePage() {
                   </div>
                   <div className="py-6">
                     <Link
-                      href="/login"
+                      href={isLoggedIn ? "/dashboard" : "/login"}
                       onClick={() => setMobileMenuOpen(false)}
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/5"
                     >
-                      Log in
+                      {isLoggedIn ? "Dashboard" : "Log in"}
                     </Link>
                   </div>
                 </div>
@@ -911,7 +919,7 @@ export default function HomePage() {
                       <Link href="/about" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">About</Link>
                     </li>
                     <li>
-                      <Link href="/login" className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Sign In</Link>
+                      <Link href={isLoggedIn ? "/dashboard" : "/login"} className="text-sm/6 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">{isLoggedIn ? "Dashboard" : "Sign In"}</Link>
                     </li>
                     <li>
                       <span className="text-sm/6 text-gray-600 dark:text-gray-400">Documentation</span>

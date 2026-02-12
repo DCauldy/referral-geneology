@@ -37,12 +37,33 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-primary-50/50 px-4 dark:bg-primary-950">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white">
-            RG
+          <div className="mx-auto mb-3 flex items-center justify-center gap-2.5">
+            <svg className="h-9 w-9 shrink-0" viewBox="0 0 48 48" fill="none">
+              <line x1="24" y1="6" x2="12" y2="18" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="24" y1="6" x2="36" y2="18" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="12" y1="18" x2="8" y2="32" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="12" y1="18" x2="24" y2="32" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="36" y1="18" x2="24" y2="32" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="36" y1="18" x2="40" y2="32" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="8" y1="32" x2="16" y2="42" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="24" y1="32" x2="16" y2="42" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="24" y1="32" x2="32" y2="42" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="40" y1="32" x2="32" y2="42" stroke="#2f5435" strokeWidth="1.8" strokeLinecap="round" />
+              <line x1="12" y1="18" x2="36" y2="18" stroke="#2f5435" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+              <line x1="8" y1="32" x2="40" y2="32" stroke="#2f5435" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+              <circle cx="24" cy="6" r="3.5" fill="#2f5435" stroke="#fff" strokeWidth="1.5" />
+              <circle cx="12" cy="18" r="3" fill="#5d8a5a" stroke="#fff" strokeWidth="1.5" />
+              <circle cx="36" cy="18" r="3" fill="#5d8a5a" stroke="#fff" strokeWidth="1.5" />
+              <circle cx="8" cy="32" r="2.5" fill="#c4a96a" stroke="#fff" strokeWidth="1.2" />
+              <circle cx="24" cy="32" r="3" fill="#5d8a5a" stroke="#fff" strokeWidth="1.5" />
+              <circle cx="40" cy="32" r="2.5" fill="#c4a96a" stroke="#fff" strokeWidth="1.2" />
+              <circle cx="16" cy="42" r="2.5" fill="#b09352" stroke="#fff" strokeWidth="1.2" />
+              <circle cx="32" cy="42" r="2.5" fill="#b09352" stroke="#fff" strokeWidth="1.2" />
+            </svg>
+            <span className="font-serif text-xl font-semibold text-zinc-900 dark:text-white">
+              Trellis
+            </span>
           </div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
-            Referral Genealogy
-          </h1>
         </div>
         <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
           {sent ? (
