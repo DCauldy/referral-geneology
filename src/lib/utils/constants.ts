@@ -201,6 +201,11 @@ export const DEFAULT_PIPELINE_STAGES = [
   { name: "Lost", display_order: 6, color: "#ef4444", is_won: false, is_lost: true },
 ];
 
+// Feature flags — flip to true when ready to launch
+export const FEATURE_FLAGS = {
+  aiSuggestions: false, // "Suggested for You" on Directory page
+} as const;
+
 export const CURRENCIES = [
   { code: "USD", symbol: "$", name: "US Dollar" },
   { code: "EUR", symbol: "\u20ac", name: "Euro" },

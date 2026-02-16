@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { useOrg } from "@/components/providers/org-provider";
 import { useToast } from "@/components/providers/toast-provider";
+import { useImpersonation } from "@/lib/hooks/use-impersonation";
 import { PLAN_DISPLAY } from "@/lib/polar/plans";
 import { CheckIcon } from "@heroicons/react/24/outline";
 
@@ -54,6 +55,7 @@ const plans = [
 export default function BillingSettingsPage() {
   const { org } = useOrg();
   const toast = useToast();
+  const { isImpersonating } = useImpersonation();
   const [isLoading, setIsLoading] = useState(false);
 
   const currentPlan = org?.plan || "free";
@@ -132,7 +134,7 @@ export default function BillingSettingsPage() {
 
               <button
                 onClick={() => handleUpgrade(plan.key)}
-                disabled={plan.key === currentPlan || isLoading}
+                disabled={plan.key === currentPlan || isLoading || isImpersonating}
                 className={`mt-6 w-full rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   plan.key === currentPlan
                     ? "cursor-default border border-zinc-300 bg-zinc-100 text-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-400"

@@ -5,8 +5,10 @@ import { SettingsSection } from "@/components/settings/settings-section";
 import { useOrg } from "@/components/providers/org-provider";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useToast } from "@/components/providers/toast-provider";
+import { useImpersonation } from "@/lib/hooks/use-impersonation";
 import { INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 const inputClassName =
   "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
@@ -18,6 +20,7 @@ export default function OrganizationSettingsPage() {
   const supabase = useSupabase();
   const { org, membership, refreshOrg } = useOrg();
   const toast = useToast();
+  const { isImpersonating } = useImpersonation();
 
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
@@ -68,6 +71,13 @@ export default function OrganizationSettingsPage() {
 
   return (
     <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+      {isImpersonating && (
+        <div className="mx-4 mt-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200 sm:mx-6 lg:mx-8">
+          <ExclamationTriangleIcon className="size-5 shrink-0" />
+          <p>Viewing organization settings in read-only mode.</p>
+        </div>
+      )}
+
       {/* Organization Details */}
       <SettingsSection
         title="Organization Details"
@@ -83,7 +93,8 @@ export default function OrganizationSettingsPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={inputClassName}
+              disabled={isImpersonating}
+              className={cn(inputClassName, isImpersonating && "cursor-not-allowed opacity-60")}
               placeholder="Acme Inc."
             />
           </div>
@@ -116,7 +127,8 @@ export default function OrganizationSettingsPage() {
               type="url"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              className={inputClassName}
+              disabled={isImpersonating}
+              className={cn(inputClassName, isImpersonating && "cursor-not-allowed opacity-60")}
               placeholder="https://example.com"
             />
           </div>
@@ -129,7 +141,8 @@ export default function OrganizationSettingsPage() {
               id="org_industry"
               value={industry}
               onChange={(e) => setIndustry(e.target.value)}
-              className={inputClassName}
+              disabled={isImpersonating}
+              className={cn(inputClassName, isImpersonating && "cursor-not-allowed opacity-60")}
             >
               <option value="">Select industry...</option>
               {INDUSTRIES.map((ind) => (
@@ -138,20 +151,22 @@ export default function OrganizationSettingsPage() {
             </select>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary-700 disabled:opacity-50"
-            >
-              {isSaving ? "Saving..." : "Save"}
-            </button>
-          </div>
+          {!isImpersonating && (
+            <div>
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary-700 disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          )}
         </form>
       </SettingsSection>
 
-      {/* Danger Zone - Owner only */}
-      {isOwner && (
+      {/* Danger Zone - Owner only, hidden during impersonation */}
+      {isOwner && !isImpersonating && (
         <SettingsSection
           title="Danger Zone"
           description="Permanently delete this organization and all its data. This cannot be undone."

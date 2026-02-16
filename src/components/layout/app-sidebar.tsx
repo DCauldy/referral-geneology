@@ -119,6 +119,13 @@ export function AppSidebar({
   const { org, profile } = useOrg();
   const { canAccessView, canAccessAI, canImportExport, canAccessAutomations, canExchangeReferrals } = usePlanLimits();
 
+  // Impersonation state — use red admin theme
+  const [isImpersonating, setIsImpersonating] = useState(false);
+
+  useEffect(() => {
+    setIsImpersonating(!!localStorage.getItem("impersonating_org"));
+  }, []);
+
   // Pending exchange count for badge
   const [pendingExchangeCount, setPendingExchangeCount] = useState(0);
 
@@ -164,17 +171,30 @@ export function AppSidebar({
     cn(
       "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold",
       active
-        ? "bg-tan-800/40 text-white"
+        ? isImpersonating
+          ? "bg-red-900/40 text-white"
+          : "bg-tan-800/40 text-white"
         : locked
-          ? "text-primary-200/50"
-          : "text-primary-200 hover:bg-primary-900 hover:text-white"
+          ? isImpersonating
+            ? "text-red-200/50"
+            : "text-primary-200/50"
+          : isImpersonating
+            ? "text-red-200 hover:bg-red-900/30 hover:text-white"
+            : "text-primary-200 hover:bg-primary-900 hover:text-white"
     );
 
   const iconClasses = (active: boolean) =>
-    cn("size-6 shrink-0", active ? "text-white" : "text-primary-200 group-hover:text-white");
+    cn(
+      "size-6 shrink-0",
+      active
+        ? "text-white"
+        : isImpersonating
+          ? "text-red-200 group-hover:text-white"
+          : "text-primary-200 group-hover:text-white"
+    );
 
   const sidebarContent = (
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-primary-800 px-6 pb-4">
+    <div className={cn("flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4", isImpersonating ? "bg-red-950" : "bg-primary-800")}>
       {/* Logo + plan */}
       <div className="shrink-0 pt-14 pb-4">
         <div className="flex items-center gap-2">
@@ -204,7 +224,7 @@ export function AppSidebar({
             Trellis
           </span>
         </div>
-        <p className="mt-2 text-xs capitalize text-tan-400">
+        <p className={cn("mt-2 text-xs capitalize", isImpersonating ? "text-red-400" : "text-tan-400")}>
           {org?.plan || "free"} plan
         </p>
       </div>
@@ -228,7 +248,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {locked && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
+                        <span className={cn("ml-auto w-9 min-w-max rounded-full px-2.5 py-0.5 text-center text-xs/5 font-medium", isImpersonating ? "bg-red-800/50 text-red-200" : "bg-tan-700/50 text-tan-200")}>
                           PRO
                         </span>
                       )}
@@ -246,7 +266,7 @@ export function AppSidebar({
 
           {/* Visualize section */}
           <li>
-            <div className="text-xs/6 font-semibold text-tan-400">
+            <div className={cn("text-xs/6 font-semibold", isImpersonating ? "text-red-400" : "text-tan-400")}>
               Visualize
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -262,7 +282,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {!hasAccess && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
+                        <span className={cn("ml-auto w-9 min-w-max rounded-full px-2.5 py-0.5 text-center text-xs/5 font-medium", isImpersonating ? "bg-red-800/50 text-red-200" : "bg-tan-700/50 text-tan-200")}>
                           PRO
                         </span>
                       )}
@@ -275,7 +295,7 @@ export function AppSidebar({
 
           {/* Automate section */}
           <li>
-            <div className="text-xs/6 font-semibold text-tan-400">
+            <div className={cn("text-xs/6 font-semibold", isImpersonating ? "text-red-400" : "text-tan-400")}>
               Automate
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -291,7 +311,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {!hasAccess && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
+                        <span className={cn("ml-auto w-9 min-w-max rounded-full px-2.5 py-0.5 text-center text-xs/5 font-medium", isImpersonating ? "bg-red-800/50 text-red-200" : "bg-tan-700/50 text-tan-200")}>
                           PRO
                         </span>
                       )}
@@ -304,7 +324,7 @@ export function AppSidebar({
 
           {/* More section */}
           <li>
-            <div className="text-xs/6 font-semibold text-tan-400">
+            <div className={cn("text-xs/6 font-semibold", isImpersonating ? "text-red-400" : "text-tan-400")}>
               Grow
             </div>
             <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -323,7 +343,7 @@ export function AppSidebar({
                       <item.icon className={iconClasses(isActive(item.href))} />
                       {item.name}
                       {locked && (
-                        <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
+                        <span className={cn("ml-auto w-9 min-w-max rounded-full px-2.5 py-0.5 text-center text-xs/5 font-medium", isImpersonating ? "bg-red-800/50 text-red-200" : "bg-tan-700/50 text-tan-200")}>
                           PRO
                         </span>
                       )}
@@ -337,7 +357,7 @@ export function AppSidebar({
           {/* User profile footer */}
           <li className="-mx-6 mt-auto">
             <Popover className="relative">
-              <PopoverButton className="flex w-full items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white hover:bg-primary-900 focus:outline-none">
+              <PopoverButton className={cn("flex w-full items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-white focus:outline-none", isImpersonating ? "hover:bg-red-900/30" : "hover:bg-primary-900")}>
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -345,25 +365,28 @@ export function AppSidebar({
                     className="size-8 rounded-full bg-primary-900"
                   />
                 ) : (
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-tan-800 text-xs font-medium text-tan-200">
+                  <div className={cn("flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-medium", isImpersonating ? "bg-red-800 text-red-200" : "bg-tan-800 text-tan-200")}>
                     {initials}
                   </div>
                 )}
                 <span className="truncate">
                   {profile?.full_name || "User"}
                 </span>
-                <ChevronUpIcon className="ml-auto size-4 text-primary-300" />
+                <ChevronUpIcon className={cn("ml-auto size-4", isImpersonating ? "text-red-300" : "text-primary-300")} />
               </PopoverButton>
               <PopoverPanel
                 anchor="top start"
-                className="z-50 mb-2 ml-4 w-52 rounded-xl border border-tan-800 bg-primary-900 py-1 shadow-lg"
+                className={cn("z-50 mb-2 ml-4 w-52 rounded-xl border py-1 shadow-lg", isImpersonating ? "border-red-800 bg-red-950" : "border-tan-800 bg-primary-900")}
               >
-                {({ close }) => (
+                {({ close }) => {
+                  const menuLink = cn("flex items-center gap-2 px-4 py-2 text-sm", isImpersonating ? "text-red-100 hover:bg-red-900/30" : "text-primary-100 hover:bg-primary-800");
+                  const divider = cn("my-1 border-t", isImpersonating ? "border-red-800" : "border-tan-800");
+                  return (
                   <>
                     <Link
                       href="/settings/profile"
                       onClick={() => { close(); onClose?.(); }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary-100 hover:bg-primary-800"
+                      className={menuLink}
                     >
                       <UserCircleIcon className="size-4" />
                       Profile
@@ -371,7 +394,7 @@ export function AppSidebar({
                     <Link
                       href="/settings/billing"
                       onClick={() => { close(); onClose?.(); }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary-100 hover:bg-primary-800"
+                      className={menuLink}
                     >
                       <CreditCardIcon className="size-4" />
                       Billing
@@ -379,7 +402,7 @@ export function AppSidebar({
                     <Link
                       href="/settings/organization"
                       onClick={() => { close(); onClose?.(); }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary-100 hover:bg-primary-800"
+                      className={menuLink}
                     >
                       <Cog6ToothIcon className="size-4" />
                       Settings
@@ -388,41 +411,45 @@ export function AppSidebar({
                       href={canImportExport ? "/import" : "/settings/billing"}
                       onClick={() => { close(); onClose?.(); }}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2 text-sm hover:bg-primary-800",
-                        canImportExport ? "text-primary-100" : "text-primary-100/50"
+                        "flex items-center gap-2 px-4 py-2 text-sm",
+                        isImpersonating ? "hover:bg-red-900/30" : "hover:bg-primary-800",
+                        canImportExport
+                          ? isImpersonating ? "text-red-100" : "text-primary-100"
+                          : isImpersonating ? "text-red-100/50" : "text-primary-100/50"
                       )}
                     >
                       <DocumentArrowDownIcon className="size-4" />
                       Import
                       {!canImportExport && (
-                        <span className="ml-auto rounded-full bg-tan-700/50 px-2 py-0.5 text-[10px] font-medium text-tan-200">
+                        <span className={cn("ml-auto rounded-full px-2 py-0.5 text-[10px] font-medium", isImpersonating ? "bg-red-800/50 text-red-200" : "bg-tan-700/50 text-tan-200")}>
                           PRO
                         </span>
                       )}
                     </Link>
                     {profile?.is_platform_admin && (
                       <>
-                        <div className="my-1 border-t border-tan-800" />
+                        <div className={divider} />
                         <Link
                           href="/admin"
                           onClick={() => { close(); onClose?.(); }}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-tan-400 hover:bg-primary-800"
+                          className={cn("flex items-center gap-2 px-4 py-2 text-sm", isImpersonating ? "text-red-300 hover:bg-red-900/30" : "text-tan-400 hover:bg-primary-800")}
                         >
                           <ShieldCheckIcon className="size-4" />
                           Admin Panel
                         </Link>
                       </>
                     )}
-                    <div className="my-1 border-t border-tan-800" />
+                    <div className={divider} />
                     <button
                       onClick={() => { close(); handleSignOut(); }}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-primary-800"
+                      className={cn("flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400", isImpersonating ? "hover:bg-red-900/30" : "hover:bg-primary-800")}
                     >
                       <ArrowRightStartOnRectangleIcon className="size-4" />
                       Sign out
                     </button>
                   </>
-                )}
+                  );
+                }}
               </PopoverPanel>
             </Popover>
           </li>

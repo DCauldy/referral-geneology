@@ -4,7 +4,8 @@ import { useState } from "react";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { CsvUpload } from "@/components/import-export/csv-upload";
 import { ExportDialog } from "@/components/import-export/export-dialog";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { useImpersonation } from "@/lib/hooks/use-impersonation";
+import { ArrowDownTrayIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 const inputClassName =
   "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
@@ -17,6 +18,23 @@ export default function ImportExportSettingsPage() {
   const [entityType, setEntityType] = useState<
     "contact" | "company" | "deal"
   >("contact");
+  const { isImpersonating } = useImpersonation();
+
+  if (isImpersonating) {
+    return (
+      <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+        <SettingsSection
+          title="Import / Export"
+          description="Data import and export tools."
+        >
+          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200">
+            <ExclamationTriangleIcon className="size-5 shrink-0" />
+            <p>Import and export are disabled during impersonation to protect organization data.</p>
+          </div>
+        </SettingsSection>
+      </div>
+    );
+  }
 
   return (
     <div className="divide-y divide-zinc-200 dark:divide-zinc-800">

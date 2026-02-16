@@ -5,6 +5,7 @@ import { SettingsSection } from "@/components/settings/settings-section";
 import { useOrg } from "@/components/providers/org-provider";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
+import { useImpersonation } from "@/lib/hooks/use-impersonation";
 import { getInitials } from "@/lib/utils/format";
 import type { OrgRole } from "@/types/database";
 
@@ -35,6 +36,7 @@ export default function TeamSettingsPage() {
   const supabase = useSupabase();
   const { org } = useOrg();
   const { isFreePlan, maxUsers } = usePlanLimits();
+  const { isImpersonating } = useImpersonation();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -118,17 +120,19 @@ export default function TeamSettingsPage() {
                   `${Math.max(members.length, 1)} of ${maxUsers} seat${maxUsers === 1 ? "" : "s"} used`
                 )}
               </p>
-              <button
-                type="button"
-                disabled={!isLoading && Math.max(members.length, 1) >= maxUsers}
-                className={
-                  !isLoading && Math.max(members.length, 1) >= maxUsers
-                    ? "cursor-not-allowed rounded-lg bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
-                    : "rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
-                }
-              >
-                Invite Member
-              </button>
+              {!isImpersonating && (
+                <button
+                  type="button"
+                  disabled={!isLoading && Math.max(members.length, 1) >= maxUsers}
+                  className={
+                    !isLoading && Math.max(members.length, 1) >= maxUsers
+                      ? "cursor-not-allowed rounded-lg bg-zinc-300 px-4 py-2 text-sm font-medium text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
+                      : "rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+                  }
+                >
+                  Invite Member
+                </button>
+              )}
             </div>
 
             {isLoading ? (

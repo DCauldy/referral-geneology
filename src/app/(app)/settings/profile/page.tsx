@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SettingsSection } from "@/components/settings/settings-section";
 import { useOrg } from "@/components/providers/org-provider";
 import { useSupabase } from "@/components/providers/supabase-provider";
@@ -8,10 +8,11 @@ import { useToast } from "@/components/providers/toast-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { useMyDirectoryProfile } from "@/lib/hooks/use-directory";
-import { getInitials } from "@/lib/utils/format";
+import { useImpersonation } from "@/lib/hooks/use-impersonation";
+import { getInitials, formatPhone } from "@/lib/utils/format";
 import { INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
-import { CameraIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CameraIcon, ExclamationTriangleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const inputClassName =
   "block w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 shadow-sm placeholder:text-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-primary-700 dark:bg-primary-800 dark:text-white dark:placeholder:text-primary-500";
@@ -19,11 +20,214 @@ const inputClassName =
 const labelClassName =
   "mb-1.5 block text-sm font-medium text-primary-700 dark:text-primary-300";
 
+const readOnlyInputClassName =
+  "block w-full rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-sm text-primary-800 dark:border-primary-700 dark:bg-primary-900 dark:text-white";
+
 const themeOptions = [
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
   { value: "system", label: "System" },
 ] as const;
+
+interface ImpersonatedUser {
+  full_name: string | null;
+  avatar_url: string | null;
+  email: string | null;
+  phone: string | null;
+  job_title: string | null;
+  directory_profile: {
+    display_name: string;
+    company_name: string | null;
+    industry: string | null;
+    location: string | null;
+    bio: string | null;
+    specialties: string[];
+    referral_categories: string[];
+    accepts_referrals: boolean;
+    is_visible: boolean;
+  } | null;
+}
+
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className={labelClassName}>{label}</span>
+      <div className={readOnlyInputClassName}>{value || "—"}</div>
+    </div>
+  );
+}
+
+function ImpersonatedProfileView({ userId }: { userId: string }) {
+  const [user, setUser] = useState<ImpersonatedUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`);
+      if (!res.ok) {
+        setError("Failed to load user profile");
+        return;
+      }
+      setUser(await res.json());
+    } catch {
+      setError("Failed to load user profile");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (loading) {
+    return (
+      <div className="divide-y divide-primary-200 dark:divide-primary-800">
+        <SettingsSection
+          title="Personal Information"
+          description="Viewing this user's profile details."
+        >
+          <div className="grid max-w-lg gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-10 animate-pulse rounded-lg bg-primary-100 dark:bg-primary-900" />
+            ))}
+          </div>
+        </SettingsSection>
+      </div>
+    );
+  }
+
+  if (error || !user) {
+    return (
+      <div className="divide-y divide-primary-200 dark:divide-primary-800">
+        <SettingsSection
+          title="Personal Information"
+          description="Viewing this user's profile details."
+        >
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
+            {error || "User not found"}
+          </div>
+        </SettingsSection>
+      </div>
+    );
+  }
+
+  const nameParts = (user.full_name || "").split(" ");
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ");
+  const dir = user.directory_profile;
+
+  return (
+    <div className="divide-y divide-primary-200 dark:divide-primary-800">
+      <SettingsSection
+        title="Personal Information"
+        description="Viewing this user's profile details."
+      >
+        <div className="grid max-w-lg gap-6">
+          {/* Avatar */}
+          <div className="flex items-center gap-5">
+            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 text-lg font-semibold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt="Avatar"
+                  className="h-16 w-16 rounded-full object-cover"
+                />
+              ) : (
+                getInitials(firstName, lastName)
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-primary-700 dark:text-primary-300">
+                {user.full_name || "No name set"}
+              </p>
+              {user.job_title && (
+                <p className="text-xs text-primary-500">{user.job_title}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Name fields */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ReadOnlyField label="First Name" value={firstName} />
+            <ReadOnlyField label="Last Name" value={lastName} />
+          </div>
+
+          <ReadOnlyField label="Email" value={user.email || ""} />
+          <ReadOnlyField label="Phone" value={formatPhone(user.phone)} />
+          <ReadOnlyField label="Job Title" value={user.job_title || ""} />
+        </div>
+      </SettingsSection>
+
+      {/* Directory Profile (read-only) */}
+      {dir && (
+        <SettingsSection
+          title="Directory Presence"
+          description="This user's directory profile."
+        >
+          <div className="grid max-w-lg gap-6">
+            <ReadOnlyField label="Display Name" value={dir.display_name} />
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ReadOnlyField label="Company" value={dir.company_name || ""} />
+              <ReadOnlyField label="Industry" value={dir.industry || ""} />
+            </div>
+
+            <ReadOnlyField label="Location" value={dir.location || ""} />
+
+            {dir.bio && <ReadOnlyField label="Bio" value={dir.bio} />}
+
+            {dir.specialties.length > 0 && (
+              <div>
+                <span className={labelClassName}>Specialties</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {dir.specialties.map((s) => (
+                    <span
+                      key={s}
+                      className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {dir.referral_categories.length > 0 && (
+              <div>
+                <span className={labelClassName}>Referral Categories</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {dir.referral_categories.map((c) => (
+                    <span
+                      key={c}
+                      className="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-700 dark:bg-teal-900/30 dark:text-teal-300"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ReadOnlyField
+                label="Accepts Referrals"
+                value={dir.accepts_referrals ? "Yes" : "No"}
+              />
+              <ReadOnlyField
+                label="Directory Visibility"
+                value={dir.is_visible ? "Visible" : "Hidden"}
+              />
+            </div>
+          </div>
+        </SettingsSection>
+      )}
+    </div>
+  );
+}
 
 export default function ProfileSettingsPage() {
   const supabase = useSupabase();
@@ -32,6 +236,7 @@ export default function ProfileSettingsPage() {
   const { theme, setTheme } = useTheme();
   const { canExchangeReferrals } = usePlanLimits();
   const { profile: dirProfile, isLoading: dirLoading, saveProfile: saveDirProfile } = useMyDirectoryProfile();
+  const { isImpersonating, impersonatedUserId, orgName } = useImpersonation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -62,6 +267,8 @@ export default function ProfileSettingsPage() {
 
   // Load profile data
   useEffect(() => {
+    if (isImpersonating) return;
+
     if (profile) {
       const parts = (profile.full_name || "").split(" ");
       setFirstName(parts[0] || "");
@@ -79,10 +286,12 @@ export default function ProfileSettingsPage() {
       if (user?.email) setEmail(user.email);
     }
     loadEmail();
-  }, [profile, supabase]);
+  }, [profile, supabase, isImpersonating]);
 
   // Load directory profile data
   useEffect(() => {
+    if (isImpersonating) return;
+
     if (dirProfile) {
       setDirVisible(dirProfile.is_visible);
       setDirDisplayName(dirProfile.display_name);
@@ -99,7 +308,7 @@ export default function ProfileSettingsPage() {
       // Pre-fill from user profile
       setDirDisplayName(profile.full_name || "");
     }
-  }, [dirProfile, dirLoading, profile]);
+  }, [dirProfile, dirLoading, profile, isImpersonating]);
 
   function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -171,6 +380,40 @@ export default function ProfileSettingsPage() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  // Impersonation: show read-only view of target user
+  if (isImpersonating) {
+    if (impersonatedUserId) {
+      return (
+        <>
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200">
+            <ExclamationTriangleIcon className="size-5 shrink-0" />
+            <p>
+              Viewing <span className="font-semibold">{orgName}</span>&apos;s profile in read-only mode.
+            </p>
+          </div>
+          <ImpersonatedProfileView userId={impersonatedUserId} />
+        </>
+      );
+    }
+
+    // Org-level impersonation — no specific user ID
+    return (
+      <div className="divide-y divide-primary-200 dark:divide-primary-800">
+        <SettingsSection
+          title="Personal Information"
+          description="User profile details."
+        >
+          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200">
+            <ExclamationTriangleIcon className="size-5 shrink-0" />
+            <p>
+              User profile is not available during organization-level impersonation. To view a specific user&apos;s profile, impersonate from the Users page instead.
+            </p>
+          </div>
+        </SettingsSection>
+      </div>
+    );
   }
 
   return (

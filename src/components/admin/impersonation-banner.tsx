@@ -8,6 +8,7 @@ import { useOrg } from "@/components/providers/org-provider";
 interface ImpersonationState {
   orgName: string;
   originalOrgId: string;
+  userId?: string;
 }
 
 export function ImpersonationBanner() {

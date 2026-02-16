@@ -6,7 +6,7 @@ import { useDirectory } from "@/lib/hooks/use-directory";
 import { useTrustScore } from "@/lib/hooks/use-trust-score";
 import { useNetworkSuggestions } from "@/lib/hooks/use-network-suggestions";
 import { getInitials, formatPhone } from "@/lib/utils/format";
-import { INDUSTRIES } from "@/lib/utils/constants";
+import { INDUSTRIES, FEATURE_FLAGS } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 import type { DirectoryProfile } from "@/types/database";
 import Link from "next/link";
@@ -152,7 +152,7 @@ function SuggestedForYou() {
   const { canAccessAI } = usePlanLimits();
   const { data, isLoading, error, generate } = useNetworkSuggestions();
 
-  if (!canAccessAI) return null;
+  if (!FEATURE_FLAGS.aiSuggestions || !canAccessAI) return null;
 
   return (
     <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-5 dark:border-purple-800/50 dark:bg-purple-950/20">

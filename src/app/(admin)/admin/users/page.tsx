@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/lib/utils/format";
@@ -75,6 +76,7 @@ export default function AdminUsersPage() {
           JSON.stringify({
             orgName: data.orgName,
             originalOrgId: data.originalOrgId,
+            userId: user.id,
           })
         );
         router.push("/dashboard");
@@ -161,9 +163,12 @@ export default function AdminUsersPage() {
                   <tr key={user.id}>
                     <td className="whitespace-nowrap px-5 py-3 text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                        <Link
+                          href={`/admin/users/${user.id}`}
+                          className="font-medium text-primary-600 hover:underline dark:text-primary-400"
+                        >
                           {user.full_name || "—"}
-                        </span>
+                        </Link>
                         {user.is_platform_admin && (
                           <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-300">
                             ADMIN

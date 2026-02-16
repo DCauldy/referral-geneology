@@ -76,6 +76,7 @@ export default function AdminOrganizationsPage() {
           JSON.stringify({
             orgName: data.orgName,
             originalOrgId: data.originalOrgId,
+            userId: null,
           })
         );
         router.push("/dashboard");
