@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/shared/loading-skeleton";
 import { EditableField } from "@/components/shared/editable-field";
 import { TagInput } from "@/components/shared/tag-input";
 import { uploadCompanyLogo, deleteCompanyLogo } from "@/lib/supabase/storage";
+import { INDUSTRIES } from "@/lib/utils/constants";
 import {
   TrashIcon,
   GlobeAltIcon,
@@ -438,6 +439,8 @@ export function CompanyDetail({ companyId }: CompanyDetailProps) {
                 label="Industry"
                 value={company.industry}
                 onSave={(v) => saveField("industry", v)}
+                type="select"
+                options={INDUSTRIES.map((ind) => ({ value: ind, label: ind }))}
                 placeholder="Industry"
               />
               <EditableField

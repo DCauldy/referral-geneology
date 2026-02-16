@@ -13,7 +13,7 @@ import { EditableField } from "@/components/shared/editable-field";
 import { TagInput } from "@/components/shared/tag-input";
 import { CreateCompanyModal } from "@/components/companies/create-company-modal";
 import { uploadContactPhoto, deleteContactPhoto } from "@/lib/supabase/storage";
-import { RELATIONSHIP_TYPES } from "@/lib/utils/constants";
+import { RELATIONSHIP_TYPES, INDUSTRIES } from "@/lib/utils/constants";
 import type { ContactChild, ImportantDate, ContactFavorites, Activity, ActivityType, Tag } from "@/types/database";
 import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 import {
@@ -845,6 +845,8 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
                 label="Industry"
                 value={contact.industry}
                 onSave={(v) => saveField("industry", v)}
+                type="select"
+                options={INDUSTRIES.map((ind) => ({ value: ind, label: ind }))}
                 placeholder="Industry"
               />
               <EditableField
