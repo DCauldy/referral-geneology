@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCompany } from "@/lib/hooks/use-companies";
 import { useSupabase } from "@/components/providers/supabase-provider";
@@ -8,6 +8,7 @@ import { useOrg } from "@/components/providers/org-provider";
 import { useToast } from "@/components/providers/toast-provider";
 import { cn } from "@/lib/utils/cn";
 import { formatDate, formatRelative, formatPhone } from "@/lib/utils/format";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@/components/shared/loading-skeleton";
 import { EditableField } from "@/components/shared/editable-field";
 import { TagInput } from "@/components/shared/tag-input";
@@ -26,7 +27,7 @@ import {
 import { DUOTONE_ICONS } from "@/components/shared/duotone-icons";
 import { ContactList } from "@/components/contacts/contact-list";
 import { DealList } from "@/components/deals/deal-list";
-import type { Tag } from "@/types/database";
+import type { Tag, Activity, ActivityType } from "@/types/database";
 import {
   Dialog,
   DialogTitle,
@@ -42,6 +43,35 @@ const tabs: { key: TabKey; label: string }[] = [
   { key: "deals", label: "Deals" },
   { key: "activity", label: "Activity" },
 ];
+
+const activityIcons: Record<string, React.ReactElement> = {
+  note: DUOTONE_ICONS.DocumentTextIcon,
+  call: DUOTONE_ICONS.UserPlusIcon,
+  email: DUOTONE_ICONS.PaperAirplaneIcon,
+  meeting: DUOTONE_ICONS.UsersIcon,
+  deal_created: DUOTONE_ICONS.CurrencyDollarIcon,
+  deal_won: DUOTONE_ICONS.TrophyIcon,
+  deal_lost: DUOTONE_ICONS.ArrowsRightLeftIcon,
+  company_created: DUOTONE_ICONS.BuildingOffice2Icon,
+  contact_created: DUOTONE_ICONS.UserPlusIcon,
+  contact_updated: DUOTONE_ICONS.ArrowsRightLeftIcon,
+};
+
+const fallbackIcon = DUOTONE_ICONS.DocumentTextIcon;
+
+const manualActivityTypes: { value: ActivityType; label: string }[] = [
+  { value: "note", label: "Note" },
+  { value: "call", label: "Call" },
+  { value: "email", label: "Email" },
+  { value: "meeting", label: "Meeting" },
+];
+
+function formatLabel(value: string): string {
+  return value
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -67,6 +97,15 @@ export function CompanyDetail({ companyId }: CompanyDetailProps) {
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [showTagInput, setShowTagInput] = useState(false);
 
+  // Activity state
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [activityType, setActivityType] = useState<ActivityType>("note");
+  const [activityTitle, setActivityTitle] = useState("");
+  const [activityDescription, setActivityDescription] = useState("");
+  const [isSubmittingActivity, setIsSubmittingActivity] = useState(false);
+
   // Load all org-level tags
   useEffect(() => {
     async function load() {
@@ -81,10 +120,45 @@ export function CompanyDetail({ companyId }: CompanyDetailProps) {
     load();
   }, [supabase, org]);
 
+  // Fetch activities
+  const fetchActivities = useCallback(async () => {
+    setIsLoadingActivities(true);
+    const { data } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("entity_type", "company")
+      .eq("entity_id", companyId)
+      .order("created_at", { ascending: false });
+    setActivities(data || []);
+    setIsLoadingActivities(false);
+  }, [supabase, companyId]);
+
+  useEffect(() => {
+    if (activeTab === "activity" || activeTab === "overview") {
+      fetchActivities();
+    }
+  }, [activeTab, fetchActivities]);
+
   // --- Save helpers ---
+
+  async function logChange(field: string, oldValue: string | null, newValue: string | null) {
+    if (!org) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("activities").insert({
+      org_id: org.id,
+      entity_type: "company" as const,
+      entity_id: companyId,
+      activity_type: "contact_updated" as const,
+      title: `Updated ${formatLabel(field)}`,
+      description: null,
+      metadata: { field, old_value: oldValue, new_value: newValue },
+      created_by: user?.id ?? null,
+    });
+  }
 
   async function saveField(field: string, value: string | null) {
     if (!company) return;
+    const oldValue = (company as unknown as Record<string, unknown>)[field] as string | null;
     const { error: updateError } = await supabase
       .from("companies")
       .update({ [field]: value })
@@ -93,7 +167,9 @@ export function CompanyDetail({ companyId }: CompanyDetailProps) {
       toast.error("Failed to save", updateError.message);
       throw updateError;
     }
+    await logChange(field, oldValue, value);
     await refresh();
+    fetchActivities();
   }
 
   async function saveNumberField(field: string, value: string | null) {
@@ -195,6 +271,42 @@ export function CompanyDetail({ companyId }: CompanyDetailProps) {
       await refresh();
     } catch (err) {
       toast.error("Failed to remove logo", err instanceof Error ? err.message : "An unexpected error occurred.");
+    }
+  }
+
+  // --- Activity ---
+
+  async function handleAddActivity(e: React.FormEvent) {
+    e.preventDefault();
+    if (!activityTitle.trim() || !org) return;
+
+    setIsSubmittingActivity(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error: insertError } = await supabase.from("activities").insert({
+        org_id: org.id,
+        entity_type: "company" as const,
+        entity_id: companyId,
+        activity_type: activityType,
+        title: activityTitle.trim(),
+        description: activityDescription.trim() || null,
+        created_by: user?.id ?? null,
+      });
+
+      if (insertError) throw insertError;
+
+      toast.success("Activity logged", "A new activity has been recorded for this company.");
+      setActivityTitle("");
+      setActivityDescription("");
+      setShowAddForm(false);
+      fetchActivities();
+    } catch (err) {
+      toast.error(
+        "Failed to log activity",
+        err instanceof Error ? err.message : "An unexpected error occurred."
+      );
+    } finally {
+      setIsSubmittingActivity(false);
     }
   }
 
@@ -577,10 +689,142 @@ export function CompanyDetail({ companyId }: CompanyDetailProps) {
       )}
 
       {activeTab === "activity" && (
-        <div className="rounded-xl border border-dashed border-primary-200 p-12 text-center dark:border-primary-700">
-          <p className="text-sm text-primary-500 dark:text-primary-400">
-            Activity timeline will appear here.
-          </p>
+        <div className="space-y-4">
+          {/* Log Activity button / form */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowAddForm((v) => !v)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+            >
+              <PencilSquareIcon className="h-4 w-4" />
+              {showAddForm ? "Cancel" : "Log Activity"}
+            </button>
+          </div>
+
+          {showAddForm && (
+            <form
+              onSubmit={handleAddActivity}
+              className="rounded-xl border border-primary-200 p-5 dark:border-primary-800"
+            >
+              <h4 className="mb-4 text-sm font-semibold text-primary-800 dark:text-primary-100">
+                Log Activity
+              </h4>
+              <div className="space-y-3">
+                {/* Type selector */}
+                <div className="flex gap-2">
+                  {manualActivityTypes.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setActivityType(t.value)}
+                      className={cn(
+                        "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                        activityType === t.value
+                          ? "border-primary-600 bg-primary-50 text-primary-700 dark:border-primary-500 dark:bg-primary-900/30 dark:text-primary-300"
+                          : "border-primary-200 text-primary-600 hover:border-primary-300 dark:border-primary-700 dark:text-primary-400 dark:hover:border-primary-600"
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Title */}
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={activityTitle}
+                  onChange={(e) => setActivityTitle(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 placeholder-primary-300 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-100 dark:placeholder-primary-600"
+                />
+                {/* Description */}
+                <textarea
+                  placeholder="Description (optional)"
+                  value={activityDescription}
+                  onChange={(e) => setActivityDescription(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 placeholder-primary-300 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-100 dark:placeholder-primary-600"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSubmittingActivity || !activityTitle.trim()}
+                    className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+                  >
+                    {isSubmittingActivity ? "Saving..." : "Save"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          {/* Timeline */}
+          {isLoadingActivities ? (
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-14 animate-pulse rounded-lg bg-primary-100 dark:bg-primary-900/30" />
+              ))}
+            </div>
+          ) : activities.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-primary-200 p-12 text-center dark:border-primary-700">
+              <p className="text-sm text-primary-500 dark:text-primary-400">
+                Notes, calls, and meetings for this company will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="relative space-y-0">
+              {/* Vertical line */}
+              <div className="absolute left-[15px] top-2 bottom-2 w-px bg-primary-200 dark:bg-primary-700" />
+
+              {activities.map((activity) => {
+                const meta = activity.metadata as Record<string, unknown> | null;
+                const field = meta?.field as string | undefined;
+                const oldVal = meta?.old_value as string | null | undefined;
+                const newVal = meta?.new_value as string | null | undefined;
+                const isAutoLog = activity.activity_type === "contact_updated" && field;
+
+                const resolveValue = (v: string | null | undefined): string => {
+                  if (v == null) return "empty";
+                  if (v.length > 60) return v.slice(0, 60) + "...";
+                  return v;
+                };
+
+                return (
+                  <div key={activity.id} className="relative flex items-start gap-4 py-3">
+                    {/* Icon */}
+                    <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white dark:bg-primary-950">
+                      <div className="flex h-5 w-5 items-center justify-center">
+                        {activityIcons[activity.activity_type] || fallbackIcon}
+                      </div>
+                    </div>
+                    {/* Content */}
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <p className="text-sm font-medium text-primary-800 dark:text-primary-100">
+                        {activity.title}
+                      </p>
+                      {isAutoLog && (
+                        <p className="mt-0.5 text-sm text-primary-500 dark:text-primary-400">
+                          <span className="line-through decoration-red-400/50">{resolveValue(oldVal ?? null)}</span>
+                          {" "}
+                          <span className="text-primary-400 dark:text-primary-500">&rarr;</span>
+                          {" "}
+                          <span className="text-primary-700 dark:text-primary-200">{resolveValue(newVal ?? null)}</span>
+                        </p>
+                      )}
+                      {activity.description && (
+                        <p className="mt-0.5 text-sm text-primary-500 dark:text-primary-400">
+                          {activity.description}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-primary-400 dark:text-primary-500">
+                        {formatRelative(activity.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
