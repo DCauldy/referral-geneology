@@ -4,7 +4,7 @@ import { sendEmail } from "@/lib/resend/client";
 import { getFromAddress } from "@/lib/resend/config";
 import { isImpersonating } from "@/lib/admin/impersonation";
 
-// POST - Send a referral exchange
+// POST - Send a referral exchange (or save as draft)
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -53,12 +53,33 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { receiver_email, contact_snapshot, context_note, source_contact_id } =
-      body;
+    const {
+      receiver_email,
+      contact_snapshot,
+      context_note,
+      source_contact_id,
+      interest_level,
+      contact_approach,
+      internal_notes,
+      sender_metadata,
+      notify_on_connect,
+      remind_follow_up,
+      status: requestedStatus,
+    } = body;
 
-    if (!receiver_email || !contact_snapshot) {
+    const isDraft = requestedStatus === "draft";
+
+    // Drafts only require contact_snapshot; non-drafts also require receiver_email
+    if (!contact_snapshot) {
       return NextResponse.json(
-        { error: "receiver_email and contact_snapshot are required" },
+        { error: "contact_snapshot is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!isDraft && !receiver_email) {
+      return NextResponse.json(
+        { error: "receiver_email is required" },
         { status: 400 }
       );
     }
@@ -70,25 +91,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prevent sending to yourself
-    if (receiver_email === user.email) {
+    // Prevent sending to yourself (skip check for drafts without receiver email)
+    if (receiver_email && receiver_email === user.email) {
       return NextResponse.json(
         { error: "Cannot send a referral to yourself" },
         { status: 400 }
       );
     }
 
+    // Build the insert payload
+    const insertPayload: Record<string, unknown> = {
+      sender_user_id: user.id,
+      sender_org_id: org.id,
+      receiver_email: receiver_email || null,
+      contact_snapshot,
+      context_note: context_note || null,
+      source_contact_id: source_contact_id || null,
+      interest_level: interest_level || null,
+      contact_approach: contact_approach || null,
+      internal_notes: internal_notes || null,
+      sender_metadata: sender_metadata || {},
+      notify_on_connect: notify_on_connect ?? false,
+      remind_follow_up: remind_follow_up ?? false,
+    };
+
+    if (isDraft) {
+      insertPayload.status = "draft";
+      insertPayload.expires_at = null;
+    }
+
     // Insert the exchange (trigger resolves receiver_user_id and checks plan)
     const { data: exchange, error: insertError } = await supabase
       .from("referral_exchanges")
-      .insert({
-        sender_user_id: user.id,
-        sender_org_id: org.id,
-        receiver_email,
-        contact_snapshot,
-        context_note: context_note || null,
-        source_contact_id: source_contact_id || null,
-      })
+      .insert(insertPayload)
       .select()
       .single();
 
@@ -98,6 +133,11 @@ export async function POST(request: NextRequest) {
         { error: insertError.message },
         { status: 500 }
       );
+    }
+
+    // Drafts skip all email notifications
+    if (isDraft) {
+      return NextResponse.json({ success: true, exchange });
     }
 
     // Send notification email to receiver
@@ -122,16 +162,16 @@ export async function POST(request: NextRequest) {
         // Receiver exists but is on free plan - still notify via email
         await sendEmail({
           to: receiver_email,
-          from: getFromAddress("Referral Genealogy"),
+          from: getFromAddress("Trellis"),
           subject: `${senderName} wants to send you a referral`,
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #1e293b;">You have a pending referral</h2>
               <p><strong>${senderName}</strong> from <strong>${org.name}</strong> wants to send you a referral for <strong>${contactName}</strong>.</p>
               ${context_note ? `<p style="color: #64748b; font-style: italic;">"${context_note}"</p>` : ""}
-              <p>To receive referrals on Referral Genealogy, you need a Pro or Team plan.</p>
+              <p>To receive referrals on Trellis, you need a Pro or Team plan.</p>
               <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/settings/billing"
-                 style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                 style="display: inline-block; padding: 12px 24px; background-color: #2f5435; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                 Upgrade Your Plan
               </a>
             </div>
@@ -141,7 +181,7 @@ export async function POST(request: NextRequest) {
         // Receiver is a paid user - notify them of the incoming referral
         await sendEmail({
           to: receiver_email,
-          from: getFromAddress("Referral Genealogy"),
+          from: getFromAddress("Trellis"),
           subject: `${senderName} sent you a referral for ${contactName}`,
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -149,7 +189,7 @@ export async function POST(request: NextRequest) {
               <p><strong>${senderName}</strong> from <strong>${org.name}</strong> sent you a referral for <strong>${contactName}</strong>.</p>
               ${context_note ? `<p style="color: #64748b; font-style: italic;">"${context_note}"</p>` : ""}
               <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/exchange"
-                 style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                 style="display: inline-block; padding: 12px 24px; background-color: #2f5435; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                 View in Your Inbox
               </a>
             </div>
@@ -159,16 +199,16 @@ export async function POST(request: NextRequest) {
         // Receiver not on platform - send invitation email
         await sendEmail({
           to: receiver_email,
-          from: getFromAddress("Referral Genealogy"),
-          subject: `${senderName} sent you a referral on Referral Genealogy`,
+          from: getFromAddress("Trellis"),
+          subject: `${senderName} sent you a referral on Trellis`,
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #1e293b;">You've been sent a referral</h2>
               <p><strong>${senderName}</strong> from <strong>${org.name}</strong> wants to send you a referral for <strong>${contactName}</strong>.</p>
               ${context_note ? `<p style="color: #64748b; font-style: italic;">"${context_note}"</p>` : ""}
-              <p>Sign up for Referral Genealogy (Pro or Team plan) to receive this referral and start growing your network.</p>
+              <p>Sign up for Trellis (Pro or Team plan) to receive this referral and start growing your network.</p>
               <a href="${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/signup?ref=${exchange.token}"
-                 style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                 style="display: inline-block; padding: 12px 24px; background-color: #2f5435; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
                 Claim Your Referral
               </a>
             </div>
@@ -216,6 +256,8 @@ export async function GET(request: NextRequest) {
       query = query.eq("sender_user_id", user.id);
     } else {
       query = query.eq("receiver_user_id", user.id);
+      // Never show drafts to receivers (belt & suspenders with RLS)
+      query = query.neq("status", "draft");
     }
 
     if (status) {
@@ -272,17 +314,26 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const enriched = exchanges.map((e) => ({
-      ...e,
-      sender_profile:
-        direction === "received" ? profiles[e.sender_user_id] : undefined,
-      sender_org:
-        direction === "received" ? orgs[e.sender_org_id] : undefined,
-      receiver_profile:
-        direction === "sent" && e.receiver_user_id
-          ? profiles[e.receiver_user_id]
-          : undefined,
-    }));
+    const enriched = exchanges.map((e) => {
+      const enrichedExchange: Record<string, unknown> = {
+        ...e,
+        sender_profile:
+          direction === "received" ? profiles[e.sender_user_id] : undefined,
+        sender_org:
+          direction === "received" ? orgs[e.sender_org_id] : undefined,
+        receiver_profile:
+          direction === "sent" && e.receiver_user_id
+            ? profiles[e.receiver_user_id]
+            : undefined,
+      };
+
+      // Strip internal_notes from received exchanges (privacy)
+      if (direction === "received") {
+        delete enrichedExchange.internal_notes;
+      }
+
+      return enrichedExchange;
+    });
 
     return NextResponse.json({
       exchanges: enriched,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
@@ -118,6 +119,27 @@ export function AppSidebar({
   const { org, profile } = useOrg();
   const { canAccessView, canAccessAI, canImportExport, canAccessAutomations, canExchangeReferrals } = usePlanLimits();
 
+  // Pending exchange count for badge
+  const [pendingExchangeCount, setPendingExchangeCount] = useState(0);
+
+  useEffect(() => {
+    if (!canExchangeReferrals) return;
+    const supabase = createClient();
+
+    async function fetchPending() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { count } = await supabase
+        .from("referral_exchanges")
+        .select("id", { count: "exact", head: true })
+        .eq("receiver_user_id", user.id)
+        .eq("status", "pending");
+      setPendingExchangeCount(count ?? 0);
+    }
+
+    fetchPending();
+  }, [canExchangeReferrals]);
+
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
     if (href === "/automations") return pathname === "/automations" || (pathname.startsWith("/automations/") && !pathname.startsWith("/automations/templates"));
@@ -195,6 +217,7 @@ export function AppSidebar({
             <ul role="list" className="-mx-2 space-y-1">
               {navigation.map((item) => {
                 const locked = item.requiresExchange && !canExchangeReferrals;
+                const showBadge = item.name === "Exchange" && !locked && pendingExchangeCount > 0;
                 return (
                   <li key={item.href}>
                     <Link
@@ -207,6 +230,11 @@ export function AppSidebar({
                       {locked && (
                         <span className="ml-auto w-9 min-w-max rounded-full bg-tan-700/50 px-2.5 py-0.5 text-center text-xs/5 font-medium text-tan-200">
                           PRO
+                        </span>
+                      )}
+                      {showBadge && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
+                          {pendingExchangeCount}
                         </span>
                       )}
                     </Link>

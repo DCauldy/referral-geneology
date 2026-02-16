@@ -11,8 +11,8 @@ import { useTrustScore } from "@/lib/hooks/use-trust-score";
 import { useToast } from "@/components/providers/toast-provider";
 import { SendReferralModal } from "@/components/referrals/send-referral-modal";
 import { cn } from "@/lib/utils/cn";
-import { formatDate } from "@/lib/utils/format";
-import type { ReferralExchange } from "@/types/database";
+import { formatDate, formatPhone } from "@/lib/utils/format";
+import type { ReferralExchange, SenderMetadata } from "@/types/database";
 import {
   InboxIcon,
   PaperAirplaneIcon,
@@ -23,17 +23,24 @@ import {
   ArrowTopRightOnSquareIcon,
   UserIcon,
   BuildingOfficeIcon,
+  PhoneIcon,
+  EnvelopeIcon,
   ShieldCheckIcon,
   ArrowPathIcon,
   EyeIcon,
   EyeSlashIcon,
   PlusIcon,
+  DocumentTextIcon,
+  PencilSquareIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 
-type TabKey = "inbox" | "outbox";
+type TabKey = "inbox" | "outbox" | "drafts";
 
 const statusColors: Record<string, string> = {
+  draft:
+    "bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-400",
   pending:
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
   accepted:
@@ -46,6 +53,7 @@ const statusColors: Record<string, string> = {
 };
 
 const statusIcons: Record<string, typeof ClockIcon> = {
+  draft: DocumentTextIcon,
   pending: ClockIcon,
   accepted: CheckCircleIcon,
   declined: XCircleIcon,
@@ -67,6 +75,21 @@ const receiverStatusLabels: Record<string, string> = {
   in_progress: "In Progress",
   converted: "Converted",
   lost: "Lost",
+};
+
+const interestLevelLabels: Record<string, string> = {
+  just_curious: "Just Curious",
+  exploring_options: "Exploring Options",
+  actively_looking: "Actively Looking",
+  ready_soon: "Ready Soon",
+  ready_now: "Ready Now",
+};
+
+const contactApproachLabels: Record<string, string> = {
+  they_will_contact: "They'll Reach Out",
+  please_reach_out: "Please Reach Out",
+  intro_already_made: "Intro Already Made",
+  timing_tbd: "Timing TBD",
 };
 
 
@@ -98,6 +121,7 @@ export default function ReferralExchangePage() {
   const { canExchangeReferrals, isFreePlan } = usePlanLimits();
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
   const [showSendModal, setShowSendModal] = useState(false);
+  const [editingDraft, setEditingDraft] = useState<ReferralExchange | null>(null);
 
   if (!canExchangeReferrals) {
     return (
@@ -161,6 +185,11 @@ export default function ReferralExchangePage() {
                 label: "Sent",
                 icon: PaperAirplaneIcon,
               },
+              {
+                key: "drafts" as const,
+                label: "Drafts",
+                icon: DocumentTextIcon,
+              },
             ] as const
           ).map((tab) => (
             <button
@@ -180,12 +209,24 @@ export default function ReferralExchangePage() {
         </nav>
       </div>
 
-      {activeTab === "inbox" ? <InboxTab /> : <OutboxTab />}
+      {activeTab === "inbox" && <InboxTab />}
+      {activeTab === "outbox" && <OutboxTab />}
+      {activeTab === "drafts" && (
+        <DraftsTab onEditDraft={(d) => setEditingDraft(d)} />
+      )}
 
       {showSendModal && (
         <SendReferralModal
           onClose={() => setShowSendModal(false)}
           onSuccess={() => setShowSendModal(false)}
+        />
+      )}
+
+      {editingDraft && (
+        <SendReferralModal
+          draft={editingDraft}
+          onClose={() => setEditingDraft(null)}
+          onSuccess={() => setEditingDraft(null)}
         />
       )}
     </div>
@@ -208,7 +249,6 @@ function InboxTab() {
         "The referral has been accepted and the contact imported into your network."
       );
       if (result.contact_id) {
-        // Refresh to update the list
         refresh();
       }
     } catch (err) {
@@ -286,6 +326,9 @@ function OutboxTab() {
     direction: "sent",
   });
 
+  // Filter out drafts from outbox (they have their own tab)
+  const sentExchanges = exchanges.filter((e) => e.status !== "draft");
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -299,13 +342,13 @@ function OutboxTab() {
     );
   }
 
-  if (exchanges.length === 0) {
+  if (sentExchanges.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-primary-300 p-12 text-center dark:border-primary-700">
         <PaperAirplaneIcon className="mx-auto h-10 w-10 text-primary-400" />
         <p className="mt-2 text-sm text-primary-500 dark:text-primary-400">
-          No referrals sent yet. Click &ldquo;Send Referral&rdquo; above to share a vine
-          with another network.
+          No referrals sent yet. Click &ldquo;Send Referral&rdquo; above to
+          share a contact with another network.
         </p>
       </div>
     );
@@ -313,13 +356,125 @@ function OutboxTab() {
 
   return (
     <div className="space-y-4">
-      {exchanges.map((exchange) => (
+      {sentExchanges.map((exchange) => (
         <ExchangeCard
           key={exchange.id}
           exchange={exchange}
           direction="sent"
         />
       ))}
+    </div>
+  );
+}
+
+function DraftsTab({
+  onEditDraft,
+}: {
+  onEditDraft: (draft: ReferralExchange) => void;
+}) {
+  const toast = useToast();
+  const { exchanges, isLoading, refresh } = useReferralExchange({
+    direction: "sent",
+    status: "draft",
+  });
+
+  async function handleDelete(exchange: ReferralExchange) {
+    if (!window.confirm("Delete this draft? This cannot be undone.")) return;
+
+    try {
+      const res = await fetch(`/api/exchange/${exchange.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete draft");
+      }
+      toast.success("Draft deleted", "The draft has been removed.");
+      refresh();
+    } catch (err) {
+      toast.error(
+        "Failed to delete",
+        err instanceof Error ? err.message : "An unexpected error occurred."
+      );
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-24 animate-pulse rounded-xl border border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (exchanges.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-primary-300 p-12 text-center dark:border-primary-700">
+        <DocumentTextIcon className="mx-auto h-10 w-10 text-primary-400" />
+        <p className="mt-2 text-sm text-primary-500 dark:text-primary-400">
+          No drafts yet. Save a referral as a draft to finish it later.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {exchanges.map((exchange) => {
+        const snapshot = exchange.contact_snapshot;
+        const contactName = [snapshot.first_name, snapshot.last_name]
+          .filter(Boolean)
+          .join(" ");
+
+        return (
+          <div
+            key={exchange.id}
+            className="flex items-center justify-between rounded-xl border border-primary-200 bg-white px-4 py-3 shadow-sm dark:border-primary-700 dark:bg-primary-900/50"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
+                <UserIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-primary-800 dark:text-white">
+                  {contactName}
+                </span>
+                <div className="flex items-center gap-2 text-xs text-primary-500 dark:text-primary-400">
+                  {exchange.receiver_email ? (
+                    <span>To: {exchange.receiver_email}</span>
+                  ) : (
+                    <span className="italic">No recipient yet</span>
+                  )}
+                  <span>&middot;</span>
+                  <span>Edited {formatDate(exchange.updated_at)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onEditDraft(exchange)}
+                className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary-700"
+              >
+                <PencilSquareIcon className="h-3.5 w-3.5" />
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(exchange)}
+                className="inline-flex items-center gap-1 rounded-lg border border-primary-200 px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
+                Delete
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -354,22 +509,26 @@ function ReceiverStatusPanel({
     }
   }
 
-  return (
-    <div className="mt-4 space-y-3 border-t border-primary-100 pt-4 dark:border-primary-800">
-      <div className="flex items-center gap-2">
-        <ArrowPathIcon className="h-4 w-4 text-primary-400" />
-        <span className="text-xs font-medium text-primary-600 dark:text-primary-300">
-          Share your status update with the sender
-        </span>
-      </div>
+  const statusDescriptions: Record<string, string> = {
+    none: "No status to report yet",
+    in_progress: "Actively working this referral",
+    converted: "Successfully closed or converted",
+    lost: "Did not convert",
+  };
 
-      <div className="flex flex-wrap items-center gap-2">
+  return (
+    <div className="mt-2 space-y-1.5 pl-10">
+      <span className="text-[11px] font-medium text-primary-500 dark:text-primary-400">
+        How is this referral progressing?
+      </span>
+      <div className="flex flex-wrap items-center gap-1.5">
         {(["none", "in_progress", "converted", "lost"] as const).map((s) => (
           <button
             key={s}
             onClick={() => setStatus(s)}
+            title={statusDescriptions[s]}
             className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
               status === s
                 ? receiverStatusColors[s]
                 : "bg-primary-50 text-primary-500 hover:bg-primary-100 dark:bg-primary-800 dark:text-primary-400 dark:hover:bg-primary-700"
@@ -378,34 +537,41 @@ function ReceiverStatusPanel({
             {receiverStatusLabels[s]}
           </button>
         ))}
-      </div>
-
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-xs text-primary-500 dark:text-primary-400">
+        <button
+          onClick={handleSave}
+          disabled={isSubmitting}
+          className="ml-1 shrink-0 rounded-lg bg-primary-600 px-2.5 py-0.5 text-xs font-medium text-white shadow-sm hover:bg-primary-700 disabled:opacity-50"
+        >
+          {isSubmitting ? "Saving..." : "Save"}
+        </button>
+        <label
+          className="ml-1 flex items-center gap-1 text-[11px] text-primary-500 dark:text-primary-400"
+          title={visible ? "The sender can see your status update" : "Your status update is private — only you can see it"}
+        >
           <input
             type="checkbox"
             checked={visible}
             onChange={(e) => setVisible(e.target.checked)}
-            className="h-3.5 w-3.5 rounded border-primary-300 text-primary-600 focus:ring-primary-500 dark:border-primary-600 dark:bg-primary-800"
+            className="h-3 w-3 rounded border-primary-300 text-primary-600 focus:ring-primary-500 dark:border-primary-600 dark:bg-primary-800"
           />
           {visible ? (
-            <span className="inline-flex items-center gap-1">
-              <EyeIcon className="h-3 w-3" /> Visible to sender
-            </span>
+            <>
+              <EyeIcon className="h-3 w-3" />
+              <span>Visible to sender</span>
+            </>
           ) : (
-            <span className="inline-flex items-center gap-1">
-              <EyeSlashIcon className="h-3 w-3" /> Private
-            </span>
+            <>
+              <EyeSlashIcon className="h-3 w-3" />
+              <span>Private</span>
+            </>
           )}
         </label>
-        <button
-          onClick={handleSave}
-          disabled={isSubmitting}
-          className="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary-700 disabled:opacity-50"
-        >
-          {isSubmitting ? "Saving..." : "Save Update"}
-        </button>
       </div>
+      {status !== exchange.receiver_status && (
+        <p className="text-[11px] text-primary-400 dark:text-primary-500">
+          {statusDescriptions[status]}
+        </p>
+      )}
     </div>
   );
 }
@@ -438,163 +604,184 @@ function ExchangeCard({
       ? exchange.sender_user_id
       : exchange.receiver_user_id;
 
-  return (
-    <div className="rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-700 dark:bg-primary-900/50">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          {/* Sender/receiver info */}
-          <div className="mb-3 flex items-center gap-2 text-xs text-primary-500 dark:text-primary-400">
-            {direction === "received" ? (
-              <>
-                <span>From</span>
-                <span className="font-medium text-primary-700 dark:text-primary-300">
-                  {exchange.sender_profile?.full_name || "Unknown"}
-                </span>
-                {exchange.sender_org && (
-                  <>
-                    <span>at</span>
-                    <span className="font-medium text-primary-700 dark:text-primary-300">
-                      {exchange.sender_org.name}
-                    </span>
-                  </>
-                )}
-                {trustUserId && <TrustBadge userId={trustUserId} />}
-              </>
-            ) : (
-              <>
-                <span>To</span>
-                <span className="font-medium text-primary-700 dark:text-primary-300">
-                  {exchange.receiver_email}
-                </span>
-                {trustUserId && <TrustBadge userId={trustUserId} />}
-              </>
-            )}
-            <span>&middot;</span>
-            <span>{formatDate(exchange.created_at)}</span>
-          </div>
+  const metadata = exchange.sender_metadata as SenderMetadata | undefined;
 
-          {/* Contact snapshot */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
-              <UserIcon className="h-5 w-5" />
+  return (
+    <div className="rounded-xl border border-primary-200 bg-white px-4 py-3 shadow-sm dark:border-primary-700 dark:bg-primary-900/50">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          {/* Contact name + details row */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
+              <UserIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
             </div>
-            <div>
-              <p className="font-medium text-primary-800 dark:text-white">
-                {contactName}
-              </p>
-              <div className="flex items-center gap-3 text-sm text-primary-500 dark:text-primary-400">
-                {snapshot.company_name && (
-                  <span className="inline-flex items-center gap-1">
-                    <BuildingOfficeIcon className="h-3.5 w-3.5" />
-                    {snapshot.company_name}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                {exchange.imported_contact_id ? (
+                  <Link
+                    href={`/contacts/${exchange.imported_contact_id}`}
+                    className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline dark:text-primary-400 dark:hover:text-primary-300"
+                  >
+                    {contactName}
+                  </Link>
+                ) : (
+                  <span className="text-sm font-semibold text-primary-800 dark:text-white">
+                    {contactName}
                   </span>
                 )}
-                {snapshot.email && <span>{snapshot.email}</span>}
+                {snapshot.company_name && (
+                  <span className="hidden text-xs text-primary-400 sm:inline dark:text-primary-500">
+                    at {snapshot.company_name}
+                  </span>
+                )}
+              </div>
+              {/* Contact details */}
+              {(snapshot.email || snapshot.phone) && (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-primary-500 dark:text-primary-400">
+                  {snapshot.email && (
+                    <span className="inline-flex items-center gap-0.5">
+                      <EnvelopeIcon className="h-3 w-3" />
+                      {snapshot.email}
+                    </span>
+                  )}
+                  {snapshot.phone && (
+                    <span className="inline-flex items-center gap-0.5">
+                      <PhoneIcon className="h-3 w-3" />
+                      {formatPhone(snapshot.phone)}
+                    </span>
+                  )}
+                </div>
+              )}
+              {/* Referrer info */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-primary-500 dark:text-primary-400">
+                {direction === "received" ? (
+                  <>
+                    <span>
+                      From{" "}
+                      <span className="font-medium text-primary-700 dark:text-primary-300">
+                        {exchange.sender_profile?.full_name || "Unknown"}
+                      </span>
+                      {exchange.sender_org && (
+                        <> at {exchange.sender_org.name}</>
+                      )}
+                    </span>
+                    {trustUserId && <TrustBadge userId={trustUserId} />}
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      To{" "}
+                      <span className="font-medium text-primary-700 dark:text-primary-300">
+                        {exchange.receiver_email}
+                      </span>
+                    </span>
+                    {trustUserId && <TrustBadge userId={trustUserId} />}
+                  </>
+                )}
+                <span>{formatDate(exchange.created_at)}</span>
               </div>
             </div>
           </div>
 
+          {/* Badges row */}
+          {(exchange.interest_level || exchange.contact_approach) && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 pl-10">
+              {exchange.interest_level && (
+                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  {interestLevelLabels[exchange.interest_level] || exchange.interest_level}
+                </span>
+              )}
+              {exchange.contact_approach && (
+                <span className="rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                  {contactApproachLabels[exchange.contact_approach] || exchange.contact_approach}
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Context note */}
           {exchange.context_note && (
-            <p className="mt-3 text-sm italic text-primary-600 dark:text-primary-400">
+            <p className="mt-1 pl-10 text-xs italic text-primary-600 dark:text-primary-400">
               &ldquo;{exchange.context_note}&rdquo;
             </p>
+          )}
+
+          {/* Sender metadata */}
+          {direction === "sent" && metadata && (metadata.how_you_know || metadata.timeline_urgency) && (
+            <div className="mt-1 flex flex-wrap gap-3 pl-10 text-[11px] text-primary-400 dark:text-primary-500">
+              {metadata.how_you_know && <span>Relationship: {metadata.how_you_know}</span>}
+              {metadata.timeline_urgency && <span>Timeline: {metadata.timeline_urgency}</span>}
+            </div>
           )}
         </div>
 
         {/* Status badge */}
         <span
           className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
+            "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
             statusColors[exchange.status]
           )}
         >
-          <StatusIcon className="h-3.5 w-3.5" />
+          <StatusIcon className="h-3 w-3" />
           {exchange.status.charAt(0).toUpperCase() + exchange.status.slice(1)}
         </span>
       </div>
 
       {/* Actions for pending inbox items */}
       {direction === "received" && exchange.status === "pending" && (
-        <div className="mt-4 flex items-center gap-3 border-t border-primary-100 pt-4 dark:border-primary-800">
+        <div className="mt-2 flex items-center gap-2 pl-10">
           <button
             onClick={onAccept}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-green-700 disabled:opacity-50"
           >
-            <CheckCircleIcon className="h-4 w-4" />
+            <CheckCircleIcon className="h-3.5 w-3.5" />
             Accept & Import
           </button>
           <button
             onClick={onDecline}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 disabled:opacity-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
+            className="inline-flex items-center gap-1 rounded-lg border border-primary-200 px-3 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50 disabled:opacity-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
           >
-            <XCircleIcon className="h-4 w-4" />
+            <XCircleIcon className="h-3.5 w-3.5" />
             Decline
           </button>
         </div>
       )}
 
-      {/* Show imported contact link + receiver status panel (inbox, accepted) */}
+      {/* Receiver status panel (inbox, accepted) */}
       {direction === "received" &&
         exchange.status === "accepted" &&
         exchange.imported_contact_id && (
-          <>
-            <div className="mt-4 border-t border-primary-100 pt-4 dark:border-primary-800">
-              <Link
-                href={`/contacts/${exchange.imported_contact_id}`}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
-              >
-                <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-                View imported contact
-              </Link>
-            </div>
-            <ReceiverStatusPanel
-              exchange={exchange}
-              onUpdate={onStatusUpdate || (() => {})}
-            />
-          </>
+          <ReceiverStatusPanel
+            exchange={exchange}
+            onUpdate={onStatusUpdate || (() => {})}
+          />
         )}
 
-      {/* Show imported contact link (outbox, accepted) */}
-      {direction === "sent" &&
-        exchange.status === "accepted" &&
-        exchange.imported_contact_id && (
-          <div className="mt-4 border-t border-primary-100 pt-4 dark:border-primary-800">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-primary-500 dark:text-primary-400">
-                Accepted on {exchange.accepted_at ? formatDate(exchange.accepted_at) : "N/A"}
-              </span>
-            </div>
-          </div>
-        )}
-
-      {/* Enhanced receiver status feedback (for sent items) */}
+      {/* Accepted info (outbox) */}
       {direction === "sent" && exchange.status === "accepted" && (
-        <div className="mt-3 border-t border-primary-100 pt-3 dark:border-primary-800">
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 pl-10">
+          <span className="text-[11px] text-primary-400 dark:text-primary-500">
+            Accepted {exchange.accepted_at ? formatDate(exchange.accepted_at) : ""}
+          </span>
           {exchange.receiver_status_visible &&
           exchange.receiver_status !== "none" ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-primary-500 dark:text-primary-400">
-                Status update:
-              </span>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                  receiverStatusColors[exchange.receiver_status]
-                )}
-              >
-                {exchange.receiver_status === "converted" && (
-                  <StarIcon className="h-3 w-3" />
-                )}
-                {receiverStatusLabels[exchange.receiver_status]}
-              </span>
-            </div>
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+                receiverStatusColors[exchange.receiver_status]
+              )}
+            >
+              {exchange.receiver_status === "converted" && (
+                <StarIcon className="h-3 w-3" />
+              )}
+              {receiverStatusLabels[exchange.receiver_status]}
+            </span>
           ) : (
-            <p className="text-xs text-primary-400 dark:text-primary-500">
-              Awaiting status update from receiver...
-            </p>
+            <span className="text-[11px] italic text-primary-400 dark:text-primary-500">
+              Awaiting update...
+            </span>
           )}
         </div>
       )}

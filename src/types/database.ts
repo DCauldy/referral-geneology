@@ -34,7 +34,7 @@ export type ReferralStatus =
   | "declined";
 export type DealType = "one_time" | "recurring" | "retainer" | "project";
 export type DealStatus = "open" | "won" | "lost" | "abandoned";
-export type EntityType = "contact" | "company" | "deal";
+export type EntityType = "contact" | "company" | "deal" | "exchange";
 export type ActivityType =
   | "note"
   | "call"
@@ -452,12 +452,31 @@ export interface EmailLog {
 
 // Referral Exchange types
 export type ExchangeStatus =
+  | "draft"
   | "pending"
   | "accepted"
   | "declined"
   | "expired"
   | "undeliverable";
 export type ReceiverStatus = "none" | "in_progress" | "converted" | "lost";
+
+export type InterestLevel =
+  | "just_curious"
+  | "exploring_options"
+  | "actively_looking"
+  | "ready_soon"
+  | "ready_now";
+
+export type ContactApproach =
+  | "they_will_contact"
+  | "please_reach_out"
+  | "intro_already_made"
+  | "timing_tbd";
+
+export interface SenderMetadata {
+  how_you_know?: string;
+  timeline_urgency?: string;
+}
 
 export interface ContactSnapshot {
   first_name: string;
@@ -474,7 +493,7 @@ export interface ReferralExchange {
   sender_user_id: string;
   sender_org_id: string;
   receiver_user_id: string | null;
-  receiver_email: string;
+  receiver_email: string | null;
   contact_snapshot: ContactSnapshot;
   context_note: string | null;
   source_contact_id: string | null;
@@ -482,6 +501,12 @@ export interface ReferralExchange {
   receiver_status: ReceiverStatus;
   receiver_status_visible: boolean;
   imported_contact_id: string | null;
+  interest_level: InterestLevel | null;
+  contact_approach: ContactApproach | null;
+  internal_notes: string | null;
+  sender_metadata: SenderMetadata;
+  notify_on_connect: boolean;
+  remind_follow_up: boolean;
   accepted_at: string | null;
   declined_at: string | null;
   expires_at: string | null;
@@ -490,6 +515,15 @@ export interface ReferralExchange {
   // Joined fields (for display)
   sender_profile?: UserProfile;
   sender_org?: Pick<Organization, "id" | "name">;
+}
+
+export interface ExchangeMessage {
+  id: string;
+  exchange_id: string;
+  sender_user_id: string;
+  message: string;
+  created_at: string;
+  sender_profile?: Pick<UserProfile, "full_name" | "avatar_url">;
 }
 
 // Directory Profile types

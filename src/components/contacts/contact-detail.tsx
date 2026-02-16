@@ -33,6 +33,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
+import { ExchangeThread } from "@/components/contacts/exchange-thread";
+import type { ReferralExchange } from "@/types/database";
 import { SendReferralModal } from "@/components/referrals/send-referral-modal";
 import { ReferralList } from "@/components/referrals/referral-list";
 import { DealList } from "@/components/deals/deal-list";
@@ -51,9 +53,9 @@ const PREFERRED_CONTACT_METHODS = [
   "in_person",
 ] as const;
 
-type TabKey = "overview" | "referrals" | "deals" | "activity" | "documents";
+type TabKey = "overview" | "referrals" | "deals" | "activity" | "exchange" | "documents";
 
-const tabs: { key: TabKey; label: string }[] = [
+const baseTabs: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "activity", label: "Activity" },
   { key: "referrals", label: "Referrals" },
@@ -121,6 +123,9 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
   const [showSendModal, setShowSendModal] = useState(false);
   const { canExchangeReferrals } = usePlanLimits();
 
+  // Linked exchange for Exchange tab
+  const [linkedExchange, setLinkedExchange] = useState<ReferralExchange | null>(null);
+
   // Photo upload
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
@@ -175,6 +180,43 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
     }
     load();
   }, [supabase, org]);
+
+  // Check if this contact is linked to an exchange
+  useEffect(() => {
+    async function loadExchange() {
+      if (!canExchangeReferrals) return;
+      try {
+        // Check if this contact is the imported_contact_id or source_contact_id on any exchange
+        const { data: asImported } = await supabase
+          .from("referral_exchanges")
+          .select("*")
+          .eq("imported_contact_id", contactId)
+          .eq("status", "accepted")
+          .limit(1)
+          .maybeSingle();
+
+        if (asImported) {
+          setLinkedExchange(asImported as unknown as ReferralExchange);
+          return;
+        }
+
+        const { data: asSource } = await supabase
+          .from("referral_exchanges")
+          .select("*")
+          .eq("source_contact_id", contactId)
+          .eq("status", "accepted")
+          .limit(1)
+          .maybeSingle();
+
+        if (asSource) {
+          setLinkedExchange(asSource as unknown as ReferralExchange);
+        }
+      } catch {
+        // Silently fail — exchange tab just won't appear
+      }
+    }
+    loadExchange();
+  }, [supabase, contactId, canExchangeReferrals]);
 
   const fetchActivities = useCallback(async () => {
     setIsLoadingActivities(true);
@@ -504,6 +546,15 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
   const initials = getInitials(contact.first_name, contact.last_name ?? undefined);
   const cf = parseCustomFields(contact.custom_fields);
 
+  // Build visible tabs dynamically — insert Exchange before Documents when linked
+  const visibleTabs = linkedExchange
+    ? [
+        ...baseTabs.filter((t) => t.key !== "documents"),
+        { key: "exchange" as TabKey, label: "Exchange" },
+        ...baseTabs.filter((t) => t.key === "documents"),
+      ]
+    : baseTabs;
+
   const companyOptions = companies.map((c) => ({ value: c.id, label: c.name }));
   const relationshipOptions = RELATIONSHIP_TYPES.map((t) => ({
     value: t,
@@ -684,7 +735,7 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
       {/* Tabs */}
       <div className="border-b border-primary-200 dark:border-primary-800">
         <nav className="-mb-px flex gap-6">
-          {tabs.map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -1466,6 +1517,10 @@ export function ContactDetail({ contactId }: ContactDetailProps) {
             </div>
           )}
         </div>
+      )}
+
+      {activeTab === "exchange" && linkedExchange && (
+        <ExchangeThread exchange={linkedExchange} contactId={contactId} />
       )}
 
       {activeTab === "documents" && (
