@@ -5,6 +5,7 @@ import { SettingsSection } from "@/components/settings/settings-section";
 import { useOrg } from "@/components/providers/org-provider";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useToast } from "@/components/providers/toast-provider";
+import { INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 
 const inputClassName =
@@ -124,14 +125,17 @@ export default function OrganizationSettingsPage() {
             <label htmlFor="org_industry" className={labelClassName}>
               Industry
             </label>
-            <input
+            <select
               id="org_industry"
-              type="text"
               value={industry}
               onChange={(e) => setIndustry(e.target.value)}
               className={inputClassName}
-              placeholder="Technology"
-            />
+            >
+              <option value="">Select industry...</option>
+              {INDUSTRIES.map((ind) => (
+                <option key={ind} value={ind}>{ind}</option>
+              ))}
+            </select>
           </div>
 
           <div>

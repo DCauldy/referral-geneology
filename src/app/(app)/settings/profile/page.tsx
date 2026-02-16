@@ -9,6 +9,7 @@ import { useTheme } from "@/components/providers/theme-provider";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import { useMyDirectoryProfile } from "@/lib/hooks/use-directory";
 import { getInitials } from "@/lib/utils/format";
+import { INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 import { CameraIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -431,14 +432,17 @@ export default function ProfileSettingsPage() {
                 <label htmlFor="dir_industry" className={labelClassName}>
                   Industry
                 </label>
-                <input
+                <select
                   id="dir_industry"
-                  type="text"
                   value={dirIndustry}
                   onChange={(e) => setDirIndustry(e.target.value)}
                   className={inputClassName}
-                  placeholder="Technology"
-                />
+                >
+                  <option value="">Select industry...</option>
+                  {INDUSTRIES.map((ind) => (
+                    <option key={ind} value={ind}>{ind}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

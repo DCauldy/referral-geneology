@@ -6,6 +6,7 @@ import { useDirectory } from "@/lib/hooks/use-directory";
 import { useTrustScore } from "@/lib/hooks/use-trust-score";
 import { useNetworkSuggestions } from "@/lib/hooks/use-network-suggestions";
 import { getInitials, formatPhone } from "@/lib/utils/format";
+import { INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 import type { DirectoryProfile } from "@/types/database";
 import Link from "next/link";
@@ -23,20 +24,7 @@ import {
   PhoneIcon,
 } from "@heroicons/react/24/outline";
 
-const INDUSTRY_OPTIONS = [
-  "Technology",
-  "Finance",
-  "Healthcare",
-  "Real Estate",
-  "Legal",
-  "Marketing",
-  "Consulting",
-  "Education",
-  "Construction",
-  "Retail",
-  "Manufacturing",
-  "Insurance",
-];
+const INDUSTRY_OPTIONS = INDUSTRIES;
 
 const inputClassName =
   "block w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 shadow-sm placeholder:text-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-primary-700 dark:bg-primary-800 dark:text-white dark:placeholder:text-primary-500";

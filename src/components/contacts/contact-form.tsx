@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
 import { useToast } from "@/components/providers/toast-provider";
-import { RELATIONSHIP_TYPES } from "@/lib/utils/constants";
+import { RELATIONSHIP_TYPES, INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 import { getInitials } from "@/lib/utils/format";
 import { uploadContactPhoto, deleteContactPhoto } from "@/lib/supabase/storage";
@@ -696,13 +696,16 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             <label htmlFor="industry" className={labelClassName}>
               Industry
             </label>
-            <input
+            <select
               id="industry"
-              type="text"
               {...register("industry")}
               className={inputClassName}
-              placeholder="Technology"
-            />
+            >
+              <option value="">Select industry...</option>
+              {INDUSTRIES.map((ind) => (
+                <option key={ind} value={ind}>{ind}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="relationship_type" className={labelClassName}>

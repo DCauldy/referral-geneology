@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
 import { useToast } from "@/components/providers/toast-provider";
+import { INDUSTRIES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 import type { Company } from "@/types/database";
 
@@ -165,13 +166,16 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
             <label htmlFor="industry" className={labelClassName}>
               Industry
             </label>
-            <input
+            <select
               id="industry"
-              type="text"
               {...register("industry")}
               className={inputClassName}
-              placeholder="Technology"
-            />
+            >
+              <option value="">Select industry...</option>
+              {INDUSTRIES.map((ind) => (
+                <option key={ind} value={ind}>{ind}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="website" className={labelClassName}>
