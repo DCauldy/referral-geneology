@@ -4,12 +4,15 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useContacts } from "@/lib/hooks/use-contacts";
+import { useTags } from "@/lib/hooks/use-tags";
 import { DataTable, type Column } from "@/components/shared/data-table";
 import { RELATIONSHIP_TYPES } from "@/lib/utils/constants";
 import { getFullName, getInitials, formatDate, formatPhone } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Contact } from "@/types/database";
 import { TagBadge } from "@/components/shared/tag-input";
+import { ContactFilters } from "@/components/contacts/contact-filters";
+import { ActiveFilterPills } from "@/components/contacts/active-filter-pills";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -18,6 +21,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 const PAGE_SIZE = 25;
+
+const FILTER_PARAMS = ["tags", "tagMode", "activity", "gen", "location", "minScore", "hasEmail", "hasPhone"];
 
 function formatLabel(value: string): string {
   return value
@@ -34,18 +39,53 @@ export function ContactList({ companyId }: ContactListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Existing params
   const search = searchParams.get("search") ?? "";
   const relationshipType = searchParams.get("type") ?? "";
   const industry = searchParams.get("industry") ?? "";
   const page = parseInt(searchParams.get("page") ?? "0", 10);
 
+  // New filter params (all primitives for stable hook deps)
+  const tagFilter = searchParams.get("tags") ?? "";
+  const tagMode = (searchParams.get("tagMode") as "or" | "and") || "or";
+  const activity = searchParams.get("activity") ?? "";
+  const generation = searchParams.get("gen") ?? "";
+  const location = searchParams.get("location") ?? "";
+  const minScoreStr = searchParams.get("minScore") ?? "";
+  const minScore = minScoreStr ? parseFloat(minScoreStr) : undefined;
+  const hasEmail = searchParams.get("hasEmail") === "1";
+  const hasPhone = searchParams.get("hasPhone") === "1";
+
+  // Count active advanced filters
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (tagFilter) count++;
+    if (activity) count++;
+    if (generation) count++;
+    if (location) count++;
+    if (minScoreStr) count++;
+    if (hasEmail) count++;
+    if (hasPhone) count++;
+    return count;
+  }, [tagFilter, activity, generation, location, minScoreStr, hasEmail, hasPhone]);
+
   const [searchInput, setSearchInput] = useState(search);
+
+  const { tags: availableTags } = useTags("contact");
 
   const { contacts, totalCount, isLoading } = useContacts({
     search,
     relationshipType,
     industry,
     companyId,
+    tagFilter: tagFilter || undefined,
+    tagMode,
+    activity: activity || undefined,
+    generation: generation || undefined,
+    location: location || undefined,
+    minScore,
+    hasEmail: hasEmail || undefined,
+    hasPhone: hasPhone || undefined,
     page,
     pageSize: PAGE_SIZE,
   });
@@ -71,6 +111,22 @@ export function ContactList({ companyId }: ContactListProps) {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     updateParams({ search: searchInput });
+  }
+
+  function handleRemoveFilterPills(paramsToRemove: string[]) {
+    const updates: Record<string, string> = {};
+    for (const key of paramsToRemove) {
+      updates[key] = "";
+    }
+    updateParams(updates);
+  }
+
+  function handleClearAllFilters() {
+    const updates: Record<string, string> = {};
+    for (const key of FILTER_PARAMS) {
+      updates[key] = "";
+    }
+    updateParams(updates);
   }
 
   const columns: Column<Contact>[] = useMemo(
@@ -252,6 +308,12 @@ export function ContactList({ companyId }: ContactListProps) {
             ))}
           </select>
 
+          <ContactFilters
+            currentParams={searchParams}
+            onApply={updateParams}
+            activeCount={activeFilterCount}
+          />
+
           <Link
             href="/contacts/new"
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
@@ -261,6 +323,16 @@ export function ContactList({ companyId }: ContactListProps) {
           </Link>
         </div>
       </div>
+
+      {/* Active Filter Pills */}
+      {activeFilterCount > 0 && (
+        <ActiveFilterPills
+          searchParams={searchParams}
+          availableTags={availableTags}
+          onRemove={handleRemoveFilterPills}
+          onClearAll={handleClearAllFilters}
+        />
+      )}
 
       {/* Table */}
       <DataTable
