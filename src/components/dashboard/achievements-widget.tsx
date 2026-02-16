@@ -117,7 +117,7 @@ export function AchievementsWidget() {
         </div>
       ) : (
         <p className="mt-4 text-center text-xs text-primary-400 dark:text-primary-500">
-          No achievements yet. Start planting vines to earn your first badge.
+          No achievements yet. Start adding contacts and deals to earn your first badge.
         </p>
       )}
     </div>

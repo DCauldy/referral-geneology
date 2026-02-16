@@ -6,9 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useContacts } from "@/lib/hooks/use-contacts";
 import { DataTable, type Column } from "@/components/shared/data-table";
 import { RELATIONSHIP_TYPES } from "@/lib/utils/constants";
-import { getFullName, getInitials, formatDate } from "@/lib/utils/format";
+import { getFullName, getInitials, formatDate, formatPhone } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Contact } from "@/types/database";
+import { TagBadge } from "@/components/shared/tag-input";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -25,7 +26,11 @@ function formatLabel(value: string): string {
     .join(" ");
 }
 
-export function ContactList() {
+interface ContactListProps {
+  companyId?: string;
+}
+
+export function ContactList({ companyId }: ContactListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -40,6 +45,7 @@ export function ContactList() {
     search,
     relationshipType,
     industry,
+    companyId,
     page,
     pageSize: PAGE_SIZE,
   });
@@ -91,7 +97,7 @@ export function ContactList() {
                 {getFullName(contact.first_name, contact.last_name ?? undefined)}
               </p>
               {contact.job_title && (
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs text-primary-500 dark:text-primary-400">
                   {contact.job_title}
                 </p>
               )}
@@ -100,11 +106,24 @@ export function ContactList() {
         ),
       },
       {
+        key: "phone",
+        header: "Phone",
+        render: (contact) => {
+          const number = contact.mobile_phone || contact.phone;
+          return (
+            <span className="text-primary-600 dark:text-primary-400">
+              {number ? formatPhone(number) : "--"}
+            </span>
+          );
+        },
+      },
+      {
         key: "email",
         header: "Email",
         sortable: true,
+        className: "hidden md:table-cell",
         render: (contact) => (
-          <span className="text-zinc-600 dark:text-zinc-400">
+          <span className="text-primary-600 dark:text-primary-400">
             {contact.email ?? "--"}
           </span>
         ),
@@ -112,6 +131,7 @@ export function ContactList() {
       {
         key: "company",
         header: "Company",
+        className: "hidden lg:table-cell",
         render: (contact) => (
           <span>{contact.company?.name ?? "--"}</span>
         ),
@@ -119,19 +139,44 @@ export function ContactList() {
       {
         key: "relationship_type",
         header: "Type",
+        className: "hidden lg:table-cell",
         render: (contact) => (
-          <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+          <span className="inline-flex rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-800 dark:text-primary-300">
             {formatLabel(contact.relationship_type)}
           </span>
         ),
       },
       {
+        key: "tags",
+        header: "Tags",
+        className: "hidden xl:table-cell",
+        render: (contact) => {
+          const tags = contact.tags ?? [];
+          if (tags.length === 0) return <span className="text-primary-400">--</span>;
+          const visible = tags.slice(0, 3);
+          const overflow = tags.length - 3;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {visible.map((tag) => (
+                <TagBadge key={tag.id} tag={tag} />
+              ))}
+              {overflow > 0 && (
+                <span className="inline-flex items-center rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-500 dark:bg-primary-800 dark:text-primary-400">
+                  +{overflow}
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
         key: "generation",
         header: "Generation",
         sortable: true,
+        className: "hidden xl:table-cell",
         render: (contact) => {
           const gen = contact.generation;
-          if (gen == null) return <span className="text-zinc-400">--</span>;
+          if (gen == null) return <span className="text-primary-400">--</span>;
           return (
             <span
               className={cn(
@@ -150,6 +195,7 @@ export function ContactList() {
         key: "referral_score",
         header: "Score",
         sortable: true,
+        className: "hidden xl:table-cell",
         render: (contact) => (
           <span className="font-medium">{contact.referral_score}</span>
         ),
@@ -158,8 +204,9 @@ export function ContactList() {
         key: "created_at",
         header: "Created",
         sortable: true,
+        className: "hidden lg:table-cell",
         render: (contact) => (
-          <span className="text-zinc-500 dark:text-zinc-400">
+          <span className="text-primary-500 dark:text-primary-400">
             {formatDate(contact.created_at)}
           </span>
         ),
@@ -174,18 +221,18 @@ export function ContactList() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={handleSearch} className="flex flex-1 gap-2">
           <div className="relative flex-1 sm:max-w-xs">
-            <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search contacts..."
-              className="block w-full rounded-lg border border-zinc-300 py-2 pl-9 pr-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
+              className="block w-full rounded-lg border border-primary-200 py-2 pl-9 pr-3 text-sm text-primary-800 placeholder:text-primary-300 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-100 dark:placeholder:text-primary-600"
             />
           </div>
           <button
             type="submit"
-            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-lg border border-primary-200 px-3 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
           >
             Search
           </button>
@@ -195,7 +242,7 @@ export function ContactList() {
           <select
             value={relationshipType}
             onChange={(e) => updateParams({ type: e.target.value })}
-            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+            className="rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-300"
           >
             <option value="">All Types</option>
             {RELATIONSHIP_TYPES.map((type) => (
@@ -204,14 +251,6 @@ export function ContactList() {
               </option>
             ))}
           </select>
-
-          <input
-            type="text"
-            value={industry}
-            onChange={(e) => updateParams({ industry: e.target.value })}
-            placeholder="Industry"
-            className="w-32 rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:placeholder:text-zinc-500"
-          />
 
           <Link
             href="/contacts/new"
@@ -235,8 +274,8 @@ export function ContactList() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-zinc-200 pt-4 dark:border-zinc-800">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center justify-between border-t border-primary-200 pt-4 dark:border-zinc-800">
+          <p className="text-sm text-primary-500 dark:text-primary-400">
             Showing {page * PAGE_SIZE + 1} to{" "}
             {Math.min((page + 1) * PAGE_SIZE, totalCount)} of {totalCount}{" "}
             contacts
@@ -246,25 +285,25 @@ export function ContactList() {
               disabled={page === 0}
               onClick={() => updateParams({ page: String(page - 1) })}
               className={cn(
-                "rounded-lg border border-zinc-300 p-2 text-sm dark:border-zinc-700",
+                "rounded-lg border border-primary-200 p-2 text-sm dark:border-primary-700",
                 page === 0
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  : "hover:bg-primary-50 dark:hover:bg-zinc-800"
               )}
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </button>
-            <span className="px-3 text-sm text-zinc-700 dark:text-zinc-300">
+            <span className="px-3 text-sm text-primary-700 dark:text-primary-300">
               Page {page + 1} of {totalPages}
             </span>
             <button
               disabled={page >= totalPages - 1}
               onClick={() => updateParams({ page: String(page + 1) })}
               className={cn(
-                "rounded-lg border border-zinc-300 p-2 text-sm dark:border-zinc-700",
+                "rounded-lg border border-primary-200 p-2 text-sm dark:border-primary-700",
                 page >= totalPages - 1
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  : "hover:bg-primary-50 dark:hover:bg-zinc-800"
               )}
             >
               <ChevronRightIcon className="h-4 w-4" />

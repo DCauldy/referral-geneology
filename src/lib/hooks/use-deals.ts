@@ -109,7 +109,7 @@ export function useDeal(id: string) {
       const { data, error: fetchError } = await supabase
         .from("deals")
         .select(
-          "*, contact:contacts(id, first_name, last_name), company:companies(id, name), stage:pipeline_stages(id, name, color)"
+          "*, contact:contacts(id, first_name, last_name, email, phone, mobile_phone), company:companies(id, name), stage:pipeline_stages(id, name, color)"
         )
         .eq("id", id)
         .single();

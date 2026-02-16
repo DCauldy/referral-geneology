@@ -6,6 +6,7 @@ import { useOrg } from "@/components/providers/org-provider";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/format";
 import { XMarkIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import { CreateDealModal } from "@/components/deals/create-deal-modal";
 
 interface DealResult {
   id: string;
@@ -21,6 +22,7 @@ interface DealPickerProps {
   label?: string;
   error?: string;
   placeholder?: string;
+  allowCreate?: boolean;
 }
 
 export function DealPicker({
@@ -29,6 +31,7 @@ export function DealPicker({
   label,
   error,
   placeholder = "Search deals...",
+  allowCreate = false,
 }: DealPickerProps) {
   const supabase = useSupabase();
   const { org } = useOrg();
@@ -40,6 +43,7 @@ export function DealPicker({
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -173,13 +177,13 @@ export function DealPicker({
     open: "text-primary-600 dark:text-primary-400",
     won: "text-green-600 dark:text-green-400",
     lost: "text-red-600 dark:text-red-400",
-    abandoned: "text-zinc-500 dark:text-zinc-400",
+    abandoned: "text-primary-500 dark:text-primary-400",
   };
 
   return (
     <div ref={containerRef} className="relative w-full">
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label className="mb-1.5 block text-sm font-medium text-primary-700 dark:text-primary-300">
           {label}
         </label>
       )}
@@ -187,31 +191,31 @@ export function DealPicker({
       {selectedDeal ? (
         <div
           className={cn(
-            "flex items-center gap-2 rounded-md border bg-white px-3 py-2 dark:bg-zinc-900",
+            "flex items-center gap-2 rounded-md border bg-white px-3 py-2 dark:bg-primary-900/50",
             error
               ? "border-red-500 dark:border-red-400"
-              : "border-zinc-300 dark:border-zinc-600"
+              : "border-primary-200 dark:border-primary-700"
           )}
         >
-          <span className="flex-1 truncate text-sm text-zinc-900 dark:text-zinc-100">
+          <span className="flex-1 truncate text-sm text-primary-800 dark:text-primary-100">
             {selectedDeal.name}
           </span>
           {selectedDeal.value !== null && (
-            <span className="shrink-0 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <span className="shrink-0 text-xs font-medium text-primary-500 dark:text-primary-400">
               {formatCurrency(selectedDeal.value, selectedDeal.currency)}
             </span>
           )}
           <button
             type="button"
             onClick={clearSelection}
-            className="shrink-0 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+            className="shrink-0 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300"
           >
             <XMarkIcon className="h-4 w-4" />
           </button>
         </div>
       ) : (
         <div className="relative">
-          <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400" />
           <input
             ref={inputRef}
             type="text"
@@ -228,13 +232,13 @@ export function DealPicker({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "block w-full rounded-md border bg-white py-2 pl-9 pr-3 text-sm text-zinc-900 shadow-sm transition-colors duration-150",
-              "placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
-              "dark:bg-zinc-900 dark:text-zinc-100",
+              "block w-full rounded-md border bg-white py-2 pl-9 pr-3 text-sm text-primary-800 shadow-sm transition-colors duration-150",
+              "placeholder:text-primary-400 dark:placeholder:text-primary-500",
+              "dark:bg-primary-900/50 dark:text-primary-100",
               "focus:outline-none focus:ring-2 focus:ring-offset-0",
               error
                 ? "border-red-500 focus:ring-red-500/30 dark:border-red-400"
-                : "border-zinc-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-zinc-600 dark:focus:border-primary-400"
+                : "border-primary-200 focus:border-primary-500 focus:ring-primary-500/30 dark:border-primary-700 dark:focus:border-primary-400"
             )}
             role="combobox"
             aria-expanded={isOpen}
@@ -245,14 +249,28 @@ export function DealPicker({
 
       {/* Dropdown */}
       {isOpen && !selectedDeal && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-primary-200 bg-white shadow-lg dark:border-primary-700 dark:bg-primary-800">
           {isLoading ? (
-            <div className="px-3 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            <div className="px-3 py-4 text-center text-sm text-primary-500 dark:text-primary-400">
               Searching...
             </div>
           ) : results.length === 0 ? (
-            <div className="px-3 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-              {query.length < 1 ? "Type to search deals" : "No deals found"}
+            <div className="px-3 py-4 text-center text-sm text-primary-500 dark:text-primary-400">
+              {query.length < 1
+                ? "Type to search deals"
+                : "No deals found"}
+              {allowCreate && (
+                <button
+                  type="button"
+                  className="mt-2 block w-full text-center text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setShowCreateModal(true);
+                  }}
+                >
+                  + Create New Deal
+                </button>
+              )}
             </div>
           ) : (
             <ul role="listbox" className="max-h-60 overflow-auto py-1">
@@ -265,7 +283,7 @@ export function DealPicker({
                     "flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm",
                     highlightedIndex === index
                       ? "bg-primary-50 text-primary-900 dark:bg-primary-900/20 dark:text-primary-100"
-                      : "text-zinc-900 hover:bg-zinc-50 dark:text-zinc-100 dark:hover:bg-zinc-700/50"
+                      : "text-primary-800 hover:bg-primary-50 dark:text-primary-100 dark:hover:bg-primary-800/50"
                   )}
                   onClick={() => selectDeal(deal)}
                   onMouseEnter={() => setHighlightedIndex(index)}
@@ -275,19 +293,30 @@ export function DealPicker({
                     <p
                       className={cn(
                         "text-xs capitalize",
-                        statusColors[deal.status] || "text-zinc-500"
+                        statusColors[deal.status] || "text-primary-500"
                       )}
                     >
                       {deal.status}
                     </p>
                   </div>
                   {deal.value !== null && (
-                    <span className="shrink-0 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    <span className="shrink-0 text-xs font-medium text-primary-500 dark:text-primary-400">
                       {formatCurrency(deal.value, deal.currency)}
                     </span>
                   )}
                 </li>
               ))}
+              {allowCreate && (
+                <li
+                  className="cursor-pointer border-t border-primary-200 px-3 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-800/50"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setShowCreateModal(true);
+                  }}
+                >
+                  + Create New Deal
+                </li>
+              )}
             </ul>
           )}
         </div>
@@ -297,6 +326,25 @@ export function DealPicker({
         <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
+      )}
+
+      {allowCreate && (
+        <CreateDealModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreated={(dealId, dealName) => {
+            setShowCreateModal(false);
+            setSelectedDeal({
+              id: dealId,
+              name: dealName,
+              value: null,
+              currency: "USD",
+              status: "open",
+            });
+            onChange(dealId);
+            setQuery("");
+          }}
+        />
       )}
     </div>
   );

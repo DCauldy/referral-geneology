@@ -81,7 +81,6 @@ export function AutomationForm({ automation }: AutomationFormProps) {
         .from("tags")
         .select("*")
         .eq("org_id", org.id)
-        .eq("entity_type", "contact")
         .order("name");
       setTags(data ?? []);
     }

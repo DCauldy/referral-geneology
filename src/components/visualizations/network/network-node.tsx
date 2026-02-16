@@ -44,9 +44,9 @@ function NetworkNodeComponent({ data }: NodeProps) {
           {node.label}
         </p>
         {node.generation != null && (
-          <p className="text-center text-[8px] font-medium text-zinc-400 dark:text-zinc-500">
+          <span className="mt-0.5 rounded-full bg-zinc-100 px-1.5 py-0.5 text-[9px] font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
             Gen {node.generation}
-          </p>
+          </span>
         )}
       </div>
 

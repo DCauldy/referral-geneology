@@ -20,7 +20,6 @@ import {
 } from "@/lib/visualization/data-transformer";
 import { ViewToolbar } from "../shared/view-toolbar";
 import { ViewLegend } from "../shared/view-legend";
-import { ViewSwitcher } from "../shared/view-switcher";
 import { NetworkNode } from "./network-node";
 import { GhostNode } from "../shared/ghost-node";
 import { DEFAULT_VIEW_CONFIG, type ViewConfig } from "@/types/visualizations";
@@ -114,8 +113,7 @@ export function NetworkView() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <ViewSwitcher />
+      <div className="flex items-center justify-end">
         <ViewToolbar config={config} onConfigChange={handleConfigChange} />
       </div>
 

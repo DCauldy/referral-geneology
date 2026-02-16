@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { formatDate } from "@/lib/utils/format";
 
 interface AdminOrg {
   id: string;
@@ -192,7 +193,7 @@ export default function AdminOrganizationsPage() {
                       {formatCurrency(org.totalRevenue)}
                     </td>
                     <td className="whitespace-nowrap px-5 py-3 text-sm text-zinc-500">
-                      {new Date(org.created_at).toLocaleDateString()}
+                      {formatDate(org.created_at)}
                     </td>
                     <td className="whitespace-nowrap px-5 py-3 text-right">
                       <button

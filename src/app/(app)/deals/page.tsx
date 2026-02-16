@@ -12,21 +12,21 @@ export default function DealsPage() {
   return (
     <div>
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+        <h1 className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
           Deals
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Track and manage your deals and pipeline.
+        <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
+          Track your deals and pipeline progress.
         </p>
       </div>
 
-      <div className="mt-4 flex items-center gap-1 rounded-lg border border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="mt-4 flex items-center gap-1 rounded-lg border border-primary-200 bg-primary-50 p-1 dark:border-primary-700 dark:bg-primary-900/50">
         <button
           onClick={() => setView("table")}
           className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             view === "table"
-              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white"
-              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              ? "bg-white text-primary-800 shadow-sm dark:bg-primary-800 dark:text-primary-100"
+              : "text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
           }`}
         >
           Table
@@ -35,8 +35,8 @@ export default function DealsPage() {
           onClick={() => setView("pipeline")}
           className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             view === "pipeline"
-              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-white"
-              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              ? "bg-white text-primary-800 shadow-sm dark:bg-primary-800 dark:text-primary-100"
+              : "text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
           }`}
         >
           Pipeline Board

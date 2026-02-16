@@ -1,4 +1,4 @@
-export const APP_NAME = "Referral Genealogy";
+export const APP_NAME = "Trellis";
 export const APP_DESCRIPTION =
   "Visualize and grow your referral network like never before";
 
@@ -9,6 +9,7 @@ export const RELATIONSHIP_TYPES = [
   "vendor",
   "colleague",
   "friend",
+  "family",
 ] as const;
 
 export const REFERRAL_TYPES = [

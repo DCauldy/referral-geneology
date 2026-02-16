@@ -6,9 +6,7 @@ import {
   FunnelIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
-  ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
-import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import type { ViewConfig } from "@/types/visualizations";
 
 interface ViewToolbarProps {
@@ -28,12 +26,10 @@ export function ViewToolbar({
   onFitView,
   className,
 }: ViewToolbarProps) {
-  const { canExchangeReferrals } = usePlanLimits();
-
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900",
+        "flex flex-wrap items-center gap-3 rounded-lg border border-primary-200 bg-white px-4 py-2.5 shadow-sm dark:border-primary-800 dark:bg-primary-950",
         className
       )}
     >
@@ -42,18 +38,18 @@ export function ViewToolbar({
         <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
         <input
           type="text"
-          placeholder="Search nodes..."
+          placeholder="Search..."
           value={config.filters.search}
           onChange={(e) =>
             onConfigChange({
               filters: { ...config.filters, search: e.target.value },
             })
           }
-          className="rounded-md border border-zinc-200 bg-zinc-50 py-1 pl-8 pr-3 text-xs text-zinc-900 placeholder:text-zinc-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+          className="rounded-md border border-primary-200 bg-primary-50/50 py-1.5 pl-8 pr-4 text-xs text-primary-900 placeholder:text-primary-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-primary-800 dark:bg-primary-950 dark:text-primary-100"
         />
       </div>
 
-      <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
+      <div className="h-5 w-px bg-primary-200 dark:bg-primary-800" />
 
       {/* Color by */}
       <select
@@ -66,7 +62,7 @@ export function ViewToolbar({
             },
           })
         }
-        className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+        className="rounded-md border border-primary-200 bg-primary-50/50 px-3 py-1.5 text-xs text-primary-700 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-300"
       >
         <option value="relationship">Color: Type</option>
         <option value="industry">Color: Industry</option>
@@ -86,7 +82,7 @@ export function ViewToolbar({
             },
           })
         }
-        className="rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+        className="rounded-md border border-primary-200 bg-primary-50/50 px-3 py-1.5 text-xs text-primary-700 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-300"
       >
         <option value="referrals">Size: Referrals</option>
         <option value="value">Size: Value</option>
@@ -94,10 +90,10 @@ export function ViewToolbar({
         <option value="uniform">Size: Uniform</option>
       </select>
 
-      <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
+      <div className="h-5 w-px bg-primary-200 dark:bg-primary-800" />
 
       {/* Labels toggle */}
-      <label className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+      <label className="flex items-center gap-1.5 text-xs text-primary-600 dark:text-primary-400">
         <input
           type="checkbox"
           checked={config.display.showLabels}
@@ -111,53 +107,35 @@ export function ViewToolbar({
         Labels
       </label>
 
-      {/* Inter-network toggle (paid plans only) */}
-      {canExchangeReferrals && (
+      {/* Zoom controls — only shown when callbacks are provided */}
+      {(onZoomIn || onZoomOut || onFitView) && (
         <>
-          <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
-          <label className="flex items-center gap-1.5 text-xs text-cyan-600 dark:text-cyan-400">
-            <input
-              type="checkbox"
-              checked={config.filters.showInterNetwork}
-              onChange={(e) =>
-                onConfigChange({
-                  filters: { ...config.filters, showInterNetwork: e.target.checked },
-                })
-              }
-              className="h-3 w-3 rounded border-cyan-300 text-cyan-600"
-            />
-            <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" />
-            Exchange
-          </label>
+          <div className="flex-1" />
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onZoomOut}
+              className="rounded-md p-1.5 text-primary-500 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900 dark:hover:text-primary-300"
+              title="Zoom out"
+            >
+              <ArrowsPointingInIcon className="h-4 w-4" />
+            </button>
+            <button
+              onClick={onFitView}
+              className="rounded-md p-1.5 text-primary-500 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900 dark:hover:text-primary-300"
+              title="Fit view"
+            >
+              <FunnelIcon className="h-4 w-4" />
+            </button>
+            <button
+              onClick={onZoomIn}
+              className="rounded-md p-1.5 text-primary-500 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-900 dark:hover:text-primary-300"
+              title="Zoom in"
+            >
+              <ArrowsPointingOutIcon className="h-4 w-4" />
+            </button>
+          </div>
         </>
       )}
-
-      <div className="flex-1" />
-
-      {/* Zoom controls */}
-      <div className="flex items-center gap-1">
-        <button
-          onClick={onZoomOut}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-          title="Zoom out"
-        >
-          <ArrowsPointingInIcon className="h-4 w-4" />
-        </button>
-        <button
-          onClick={onFitView}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-          title="Fit view"
-        >
-          <FunnelIcon className="h-4 w-4" />
-        </button>
-        <button
-          onClick={onZoomIn}
-          className="rounded p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-          title="Zoom in"
-        >
-          <ArrowsPointingOutIcon className="h-4 w-4" />
-        </button>
-      </div>
     </div>
   );
 }

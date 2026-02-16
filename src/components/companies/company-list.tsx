@@ -65,7 +65,7 @@ export function CompanyList() {
         sortable: true,
         render: (company) => (
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-800">
               {company.logo_url ? (
                 <img
                   src={company.logo_url}
@@ -73,7 +73,7 @@ export function CompanyList() {
                   className="h-8 w-8 rounded-lg object-cover"
                 />
               ) : (
-                <BuildingOfficeIcon className="h-4 w-4 text-zinc-400" />
+                <BuildingOfficeIcon className="h-4 w-4 text-primary-400" />
               )}
             </div>
             <span className="font-medium">{company.name}</span>
@@ -84,7 +84,7 @@ export function CompanyList() {
         key: "industry",
         header: "Industry",
         render: (company) => (
-          <span className="text-zinc-600 dark:text-zinc-400">
+          <span className="text-primary-600 dark:text-primary-400">
             {company.industry ?? "--"}
           </span>
         ),
@@ -104,7 +104,7 @@ export function CompanyList() {
               {company.website.replace(/^https?:\/\/(www\.)?/, "")}
             </a>
           ) : (
-            <span className="text-zinc-400">--</span>
+            <span className="text-primary-400">--</span>
           ),
       },
       {
@@ -119,7 +119,7 @@ export function CompanyList() {
         header: "Revenue",
         sortable: true,
         render: (company) => (
-          <span className="text-zinc-600 dark:text-zinc-400">
+          <span className="text-primary-600 dark:text-primary-400">
             {company.annual_revenue
               ? formatCurrency(company.annual_revenue)
               : "--"}
@@ -131,7 +131,7 @@ export function CompanyList() {
         header: "Created",
         sortable: true,
         render: (company) => (
-          <span className="text-zinc-500 dark:text-zinc-400">
+          <span className="text-primary-500 dark:text-primary-400">
             {formatDate(company.created_at)}
           </span>
         ),
@@ -146,32 +146,24 @@ export function CompanyList() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={handleSearch} className="flex flex-1 gap-2">
           <div className="relative flex-1 sm:max-w-xs">
-            <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search companies..."
-              className="block w-full rounded-lg border border-zinc-300 py-2 pl-9 pr-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
+              className="block w-full rounded-lg border border-primary-200 py-2 pl-9 pr-3 text-sm text-primary-800 placeholder:text-primary-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-100 dark:placeholder:text-primary-600"
             />
           </div>
           <button
             type="submit"
-            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-lg border border-primary-200 px-3 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
           >
             Search
           </button>
         </form>
 
         <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={industry}
-            onChange={(e) => updateParams({ industry: e.target.value })}
-            placeholder="Industry"
-            className="w-36 rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:placeholder:text-zinc-500"
-          />
-
           <Link
             href="/companies/new"
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
@@ -194,8 +186,8 @@ export function CompanyList() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-zinc-200 pt-4 dark:border-zinc-800">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center justify-between border-t border-primary-200 pt-4 dark:border-zinc-800">
+          <p className="text-sm text-primary-500 dark:text-primary-400">
             Showing {page * PAGE_SIZE + 1} to{" "}
             {Math.min((page + 1) * PAGE_SIZE, totalCount)} of {totalCount}{" "}
             companies
@@ -205,25 +197,25 @@ export function CompanyList() {
               disabled={page === 0}
               onClick={() => updateParams({ page: String(page - 1) })}
               className={cn(
-                "rounded-lg border border-zinc-300 p-2 text-sm dark:border-zinc-700",
+                "rounded-lg border border-primary-200 p-2 text-sm dark:border-primary-700",
                 page === 0
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  : "hover:bg-primary-50 dark:hover:bg-primary-800"
               )}
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </button>
-            <span className="px-3 text-sm text-zinc-700 dark:text-zinc-300">
+            <span className="px-3 text-sm text-primary-700 dark:text-primary-300">
               Page {page + 1} of {totalPages}
             </span>
             <button
               disabled={page >= totalPages - 1}
               onClick={() => updateParams({ page: String(page + 1) })}
               className={cn(
-                "rounded-lg border border-zinc-300 p-2 text-sm dark:border-zinc-700",
+                "rounded-lg border border-primary-200 p-2 text-sm dark:border-primary-700",
                 page >= totalPages - 1
                   ? "cursor-not-allowed opacity-50"
-                  : "hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  : "hover:bg-primary-50 dark:hover:bg-primary-800"
               )}
             >
               <ChevronRightIcon className="h-4 w-4" />

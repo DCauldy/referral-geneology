@@ -42,10 +42,10 @@ interface CompanyFormProps {
 }
 
 const inputClassName =
-  "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
+  "block w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 shadow-sm placeholder:text-primary-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-100 dark:placeholder:text-primary-600";
 
 const labelClassName =
-  "mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300";
+  "mb-1.5 block text-sm font-medium text-primary-700 dark:text-primary-300";
 
 const errorClassName = "mt-1 text-xs text-red-600 dark:text-red-400";
 
@@ -142,7 +142,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-8">
       {/* Basic Information */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Basic Information
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -217,7 +217,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
       {/* Address */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Address
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -298,7 +298,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
       {/* Company Details */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Company Details
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -346,7 +346,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
       {/* Social */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Social
         </h3>
         <div>
@@ -364,7 +364,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
       </section>
 
       {/* Submit */}
-      <div className="flex items-center gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-700">
+      <div className="flex items-center gap-3 border-t border-primary-200 pt-6 dark:border-primary-700">
         <button
           type="submit"
           disabled={isSubmitting}

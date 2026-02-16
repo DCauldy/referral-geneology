@@ -506,6 +506,8 @@ export interface DirectoryProfile {
   referral_categories: string[];
   accepts_referrals: boolean;
   is_visible: boolean;
+  contact_email: string | null;
+  contact_phone: string | null;
   created_at: string;
   updated_at: string;
 }

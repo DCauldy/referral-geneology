@@ -70,7 +70,7 @@ export function RecentActivity() {
 
       {activities.length === 0 ? (
         <p className="mt-4 text-center text-sm text-primary-400 dark:text-primary-500">
-          No activity yet. Add your first contact to start growing your trellis.
+          No activity yet. Add your first contact to get started.
         </p>
       ) : (
         <div className="mt-4 space-y-1">

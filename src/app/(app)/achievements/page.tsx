@@ -311,7 +311,7 @@ export default function AchievementsPage() {
           Achievements
         </h1>
         <p className="mt-1 text-sm text-primary-400 dark:text-primary-500">
-          Earn bronze, silver, and gold as your trellis grows.
+          Earn bronze, silver, and gold as your network grows.
         </p>
       </div>
 

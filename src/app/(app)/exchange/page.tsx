@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { usePlanLimits } from "@/lib/hooks/use-plan-limits";
 import {
   useReferralExchange,
@@ -10,7 +9,9 @@ import {
 } from "@/lib/hooks/use-referral-exchange";
 import { useTrustScore } from "@/lib/hooks/use-trust-score";
 import { useToast } from "@/components/providers/toast-provider";
+import { SendReferralModal } from "@/components/referrals/send-referral-modal";
 import { cn } from "@/lib/utils/cn";
+import { formatDate } from "@/lib/utils/format";
 import type { ReferralExchange } from "@/types/database";
 import {
   InboxIcon,
@@ -26,6 +27,7 @@ import {
   ArrowPathIcon,
   EyeIcon,
   EyeSlashIcon,
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 
@@ -38,7 +40,7 @@ const statusColors: Record<string, string> = {
     "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   declined: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   expired:
-    "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+    "bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-400",
   undeliverable:
     "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
 };
@@ -52,7 +54,7 @@ const statusIcons: Record<string, typeof ClockIcon> = {
 };
 
 const receiverStatusColors: Record<string, string> = {
-  none: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
+  none: "bg-primary-100 text-primary-500 dark:bg-primary-800 dark:text-primary-400",
   in_progress:
     "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
   converted:
@@ -67,13 +69,6 @@ const receiverStatusLabels: Record<string, string> = {
   lost: "Lost",
 };
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function TrustBadge({ userId }: { userId: string }) {
   const { score } = useTrustScore(userId);
@@ -86,7 +81,7 @@ function TrustBadge({ userId }: { userId: string }) {
       ? "text-emerald-600 dark:text-emerald-400"
       : rating >= 40
         ? "text-yellow-600 dark:text-yellow-400"
-        : "text-zinc-400";
+        : "text-primary-400";
 
   return (
     <span
@@ -102,27 +97,23 @@ function TrustBadge({ userId }: { userId: string }) {
 export default function ReferralExchangePage() {
   const { canExchangeReferrals, isFreePlan } = usePlanLimits();
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
+  const [showSendModal, setShowSendModal] = useState(false);
 
   if (!canExchangeReferrals) {
     return (
       <div>
-        <Breadcrumbs
-          items={[
-            { label: "Exchange" },
-          ]}
-        />
         <div className="mx-auto max-w-lg py-16 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
             <ArrowTopRightOnSquareIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
           </div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-primary-800 dark:text-white">
             Referral Exchange
           </h1>
-          <p className="mt-2 text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-primary-500 dark:text-primary-400">
             Send and receive referrals across networks. Share contacts with
             other professionals to expand your reach.
           </p>
-          <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-4 text-sm text-primary-500 dark:text-primary-400">
             {isFreePlan
               ? "Upgrade to a Pro or Team plan to unlock inter-network referral exchange."
               : "This feature is available on paid plans."}
@@ -140,25 +131,27 @@ export default function ReferralExchangePage() {
 
   return (
     <div>
-      <Breadcrumbs
-        items={[
-          { label: "Referrals", href: "/referrals" },
-          { label: "Exchange" },
-        ]}
-      />
-
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
-          Referral Exchange
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Send and receive referrals across networks to grow your business
-          together.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary-800 dark:text-white">
+            Referral Exchange
+          </h1>
+          <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
+            Send and receive referrals across networks to grow your business
+            together.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowSendModal(true)}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-primary-700"
+        >
+          <PlusIcon className="h-4 w-4" />
+          Send Referral
+        </button>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="mb-6 border-b border-primary-200 dark:border-primary-800">
         <nav className="-mb-px flex gap-6">
           {(
             [
@@ -177,7 +170,7 @@ export default function ReferralExchangePage() {
                 "inline-flex items-center gap-2 border-b-2 pb-3 text-sm font-medium transition-colors",
                 activeTab === tab.key
                   ? "border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400"
-                  : "border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200"
+                  : "border-transparent text-primary-500 hover:border-primary-300 hover:text-primary-700 dark:text-primary-400 dark:hover:border-primary-600 dark:hover:text-primary-200"
               )}
             >
               <tab.icon className="h-4 w-4" />
@@ -188,6 +181,13 @@ export default function ReferralExchangePage() {
       </div>
 
       {activeTab === "inbox" ? <InboxTab /> : <OutboxTab />}
+
+      {showSendModal && (
+        <SendReferralModal
+          onClose={() => setShowSendModal(false)}
+          onSuccess={() => setShowSendModal(false)}
+        />
+      )}
     </div>
   );
 }
@@ -245,7 +245,7 @@ function InboxTab() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-32 animate-pulse rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800"
+            className="h-32 animate-pulse rounded-xl border border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800"
           />
         ))}
       </div>
@@ -254,9 +254,9 @@ function InboxTab() {
 
   if (exchanges.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-        <InboxIcon className="mx-auto h-10 w-10 text-zinc-400" />
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="rounded-xl border border-dashed border-primary-300 p-12 text-center dark:border-primary-700">
+        <InboxIcon className="mx-auto h-10 w-10 text-primary-400" />
+        <p className="mt-2 text-sm text-primary-500 dark:text-primary-400">
           No referrals received yet. When someone sends you a referral, it will
           appear here.
         </p>
@@ -292,7 +292,7 @@ function OutboxTab() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-32 animate-pulse rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800"
+            className="h-32 animate-pulse rounded-xl border border-primary-200 bg-primary-50 dark:border-primary-700 dark:bg-primary-800"
           />
         ))}
       </div>
@@ -301,10 +301,10 @@ function OutboxTab() {
 
   if (exchanges.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
-        <PaperAirplaneIcon className="mx-auto h-10 w-10 text-zinc-400" />
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          No referrals sent yet. Send a referral from any contact&apos;s page to share
+      <div className="rounded-xl border border-dashed border-primary-300 p-12 text-center dark:border-primary-700">
+        <PaperAirplaneIcon className="mx-auto h-10 w-10 text-primary-400" />
+        <p className="mt-2 text-sm text-primary-500 dark:text-primary-400">
+          No referrals sent yet. Click &ldquo;Send Referral&rdquo; above to share a vine
           with another network.
         </p>
       </div>
@@ -355,10 +355,10 @@ function ReceiverStatusPanel({
   }
 
   return (
-    <div className="mt-4 space-y-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+    <div className="mt-4 space-y-3 border-t border-primary-100 pt-4 dark:border-primary-800">
       <div className="flex items-center gap-2">
-        <ArrowPathIcon className="h-4 w-4 text-zinc-400" />
-        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+        <ArrowPathIcon className="h-4 w-4 text-primary-400" />
+        <span className="text-xs font-medium text-primary-600 dark:text-primary-300">
           Share your status update with the sender
         </span>
       </div>
@@ -372,7 +372,7 @@ function ReceiverStatusPanel({
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
               status === s
                 ? receiverStatusColors[s]
-                : "bg-zinc-50 text-zinc-500 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                : "bg-primary-50 text-primary-500 hover:bg-primary-100 dark:bg-primary-800 dark:text-primary-400 dark:hover:bg-primary-700"
             )}
           >
             {receiverStatusLabels[s]}
@@ -381,12 +381,12 @@ function ReceiverStatusPanel({
       </div>
 
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <label className="flex items-center gap-2 text-xs text-primary-500 dark:text-primary-400">
           <input
             type="checkbox"
             checked={visible}
             onChange={(e) => setVisible(e.target.checked)}
-            className="h-3.5 w-3.5 rounded border-zinc-300 text-primary-600 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800"
+            className="h-3.5 w-3.5 rounded border-primary-300 text-primary-600 focus:ring-primary-500 dark:border-primary-600 dark:bg-primary-800"
           />
           {visible ? (
             <span className="inline-flex items-center gap-1">
@@ -439,21 +439,21 @@ function ExchangeCard({
       : exchange.receiver_user_id;
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="rounded-xl border border-primary-200 bg-white p-5 shadow-sm dark:border-primary-700 dark:bg-primary-900/50">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           {/* Sender/receiver info */}
-          <div className="mb-3 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="mb-3 flex items-center gap-2 text-xs text-primary-500 dark:text-primary-400">
             {direction === "received" ? (
               <>
                 <span>From</span>
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                <span className="font-medium text-primary-700 dark:text-primary-300">
                   {exchange.sender_profile?.full_name || "Unknown"}
                 </span>
                 {exchange.sender_org && (
                   <>
                     <span>at</span>
-                    <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                    <span className="font-medium text-primary-700 dark:text-primary-300">
                       {exchange.sender_org.name}
                     </span>
                   </>
@@ -463,7 +463,7 @@ function ExchangeCard({
             ) : (
               <>
                 <span>To</span>
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                <span className="font-medium text-primary-700 dark:text-primary-300">
                   {exchange.receiver_email}
                 </span>
                 {trustUserId && <TrustBadge userId={trustUserId} />}
@@ -479,10 +479,10 @@ function ExchangeCard({
               <UserIcon className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-medium text-zinc-900 dark:text-white">
+              <p className="font-medium text-primary-800 dark:text-white">
                 {contactName}
               </p>
-              <div className="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+              <div className="flex items-center gap-3 text-sm text-primary-500 dark:text-primary-400">
                 {snapshot.company_name && (
                   <span className="inline-flex items-center gap-1">
                     <BuildingOfficeIcon className="h-3.5 w-3.5" />
@@ -496,7 +496,7 @@ function ExchangeCard({
 
           {/* Context note */}
           {exchange.context_note && (
-            <p className="mt-3 text-sm italic text-zinc-600 dark:text-zinc-400">
+            <p className="mt-3 text-sm italic text-primary-600 dark:text-primary-400">
               &ldquo;{exchange.context_note}&rdquo;
             </p>
           )}
@@ -516,7 +516,7 @@ function ExchangeCard({
 
       {/* Actions for pending inbox items */}
       {direction === "received" && exchange.status === "pending" && (
-        <div className="mt-4 flex items-center gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+        <div className="mt-4 flex items-center gap-3 border-t border-primary-100 pt-4 dark:border-primary-800">
           <button
             onClick={onAccept}
             disabled={isSubmitting}
@@ -528,7 +528,7 @@ function ExchangeCard({
           <button
             onClick={onDecline}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 disabled:opacity-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
           >
             <XCircleIcon className="h-4 w-4" />
             Decline
@@ -541,7 +541,7 @@ function ExchangeCard({
         exchange.status === "accepted" &&
         exchange.imported_contact_id && (
           <>
-            <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+            <div className="mt-4 border-t border-primary-100 pt-4 dark:border-primary-800">
               <Link
                 href={`/contacts/${exchange.imported_contact_id}`}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
@@ -561,9 +561,9 @@ function ExchangeCard({
       {direction === "sent" &&
         exchange.status === "accepted" &&
         exchange.imported_contact_id && (
-          <div className="mt-4 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+          <div className="mt-4 border-t border-primary-100 pt-4 dark:border-primary-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs text-primary-500 dark:text-primary-400">
                 Accepted on {exchange.accepted_at ? formatDate(exchange.accepted_at) : "N/A"}
               </span>
             </div>
@@ -572,11 +572,11 @@ function ExchangeCard({
 
       {/* Enhanced receiver status feedback (for sent items) */}
       {direction === "sent" && exchange.status === "accepted" && (
-        <div className="mt-3 border-t border-zinc-100 pt-3 dark:border-zinc-800">
+        <div className="mt-3 border-t border-primary-100 pt-3 dark:border-primary-800">
           {exchange.receiver_status_visible &&
           exchange.receiver_status !== "none" ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs text-primary-500 dark:text-primary-400">
                 Status update:
               </span>
               <span
@@ -592,7 +592,7 @@ function ExchangeCard({
               </span>
             </div>
           ) : (
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs text-primary-400 dark:text-primary-500">
               Awaiting status update from receiver...
             </p>
           )}

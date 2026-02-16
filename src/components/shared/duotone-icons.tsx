@@ -155,6 +155,36 @@ export const DUOTONE_ICONS: Record<string, React.ReactElement> = {
       <line x1="9" y1="11" x2="13" y2="11" stroke={D.accent} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
+  MapPinIcon: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill={D.fill} stroke={D.stroke} strokeWidth="1.8" strokeLinejoin="round" />
+      <circle cx="12" cy="9" r="2.5" fill={D.accent} />
+    </svg>
+  ),
+  CalendarIcon: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="5" width="18" height="16" rx="2" fill={D.fill} stroke={D.stroke} strokeWidth="1.8" />
+      <line x1="3" y1="10" x2="21" y2="10" stroke={D.stroke} strokeWidth="1.5" />
+      <line x1="8" y1="3" x2="8" y2="7" stroke={D.stroke} strokeWidth="1.8" strokeLinecap="round" />
+      <line x1="16" y1="3" x2="16" y2="7" stroke={D.stroke} strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="8" cy="14" r="1" fill={D.accent} />
+      <circle cx="12" cy="14" r="1" fill={D.accent} />
+      <circle cx="16" cy="14" r="1" fill={D.accent} />
+      <circle cx="8" cy="18" r="1" fill={D.accent} />
+      <circle cx="12" cy="18" r="1" fill={D.accent} />
+    </svg>
+  ),
+  HeartIcon: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={D.fill} stroke={D.stroke} strokeWidth="1.8" strokeLinejoin="round" />
+    </svg>
+  ),
+  TagIcon: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M2 4.5A1.5 1.5 0 013.5 3h7.09a1.5 1.5 0 011.06.44l8.91 8.91a1.5 1.5 0 010 2.12l-7.09 7.09a1.5 1.5 0 01-2.12 0L2.44 12.65A1.5 1.5 0 012 11.59V4.5z" fill={D.fill} stroke={D.stroke} strokeWidth="1.8" strokeLinejoin="round" />
+      <circle cx="7" cy="8" r="1.5" fill={D.accent} />
+    </svg>
+  ),
   GlobeAltIcon: (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" fill={D.fill} stroke={D.stroke} strokeWidth="1.8" />

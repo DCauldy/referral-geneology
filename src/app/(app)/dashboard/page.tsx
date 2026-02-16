@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { KpiGrid } from "@/components/dashboard/kpi-grid";
+import { PipelineOverview } from "@/components/dashboard/pipeline-overview";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { TopReferrers } from "@/components/dashboard/top-referrers";
 import { ExchangeAnalytics } from "@/components/dashboard/exchange-analytics";
@@ -49,7 +50,11 @@ export default function DashboardPage() {
         <KpiGrid />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
+        <PipelineOverview />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
           <RecentActivity />
         </div>

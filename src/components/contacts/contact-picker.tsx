@@ -7,6 +7,7 @@ import { Avatar } from "@/components/catalyst/avatar";
 import { cn } from "@/lib/utils/cn";
 import { getInitials, getFullName } from "@/lib/utils/format";
 import { XMarkIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import { CreateContactModal } from "@/components/contacts/create-contact-modal";
 
 interface ContactResult {
   id: string;
@@ -23,6 +24,7 @@ interface ContactPickerProps {
   label?: string;
   error?: string;
   placeholder?: string;
+  allowCreate?: boolean;
 }
 
 export function ContactPicker({
@@ -32,6 +34,7 @@ export function ContactPicker({
   label,
   error,
   placeholder = "Search contacts...",
+  allowCreate = false,
 }: ContactPickerProps) {
   const supabase = useSupabase();
   const { org } = useOrg();
@@ -45,6 +48,7 @@ export function ContactPicker({
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -184,7 +188,7 @@ export function ContactPicker({
   return (
     <div ref={containerRef} className="relative w-full">
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label className="mb-1.5 block text-sm font-medium text-primary-700 dark:text-primary-300">
           {label}
         </label>
       )}
@@ -192,10 +196,10 @@ export function ContactPicker({
       {selectedContact ? (
         <div
           className={cn(
-            "flex items-center gap-2 rounded-md border bg-white px-3 py-2 dark:bg-zinc-900",
+            "flex items-center gap-2 rounded-md border bg-white px-3 py-2 dark:bg-primary-900/50",
             error
               ? "border-red-500 dark:border-red-400"
-              : "border-zinc-300 dark:border-zinc-600"
+              : "border-primary-200 dark:border-primary-700"
           )}
         >
           <Avatar
@@ -206,28 +210,28 @@ export function ContactPicker({
             )}
             size="xs"
           />
-          <span className="flex-1 truncate text-sm text-zinc-900 dark:text-zinc-100">
+          <span className="flex-1 truncate text-sm text-primary-800 dark:text-primary-100">
             {getFullName(
               selectedContact.first_name,
               selectedContact.last_name ?? undefined
             )}
           </span>
           {selectedContact.email && (
-            <span className="hidden truncate text-xs text-zinc-500 sm:inline dark:text-zinc-400">
+            <span className="hidden truncate text-xs text-primary-500 sm:inline dark:text-primary-400">
               {selectedContact.email}
             </span>
           )}
           <button
             type="button"
             onClick={clearSelection}
-            className="shrink-0 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+            className="shrink-0 text-primary-400 hover:text-primary-600 dark:hover:text-primary-300"
           >
             <XMarkIcon className="h-4 w-4" />
           </button>
         </div>
       ) : (
         <div className="relative">
-          <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400" />
           <input
             ref={inputRef}
             type="text"
@@ -244,13 +248,13 @@ export function ContactPicker({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "block w-full rounded-md border bg-white py-2 pl-9 pr-3 text-sm text-zinc-900 shadow-sm transition-colors duration-150",
-              "placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
-              "dark:bg-zinc-900 dark:text-zinc-100",
+              "block w-full rounded-md border bg-white py-2 pl-9 pr-3 text-sm text-primary-800 shadow-sm transition-colors duration-150",
+              "placeholder:text-primary-400 dark:placeholder:text-primary-500",
+              "dark:bg-primary-900/50 dark:text-primary-100",
               "focus:outline-none focus:ring-2 focus:ring-offset-0",
               error
                 ? "border-red-500 focus:ring-red-500/30 dark:border-red-400"
-                : "border-zinc-300 focus:border-primary-500 focus:ring-primary-500/30 dark:border-zinc-600 dark:focus:border-primary-400"
+                : "border-primary-200 focus:border-primary-500 focus:ring-primary-500/30 dark:border-primary-700 dark:focus:border-primary-400"
             )}
             role="combobox"
             aria-expanded={isOpen}
@@ -261,16 +265,28 @@ export function ContactPicker({
 
       {/* Dropdown */}
       {isOpen && !selectedContact && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-primary-200 bg-white shadow-lg dark:border-primary-700 dark:bg-primary-800">
           {isLoading ? (
-            <div className="px-3 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            <div className="px-3 py-4 text-center text-sm text-primary-500 dark:text-primary-400">
               Searching...
             </div>
           ) : results.length === 0 ? (
-            <div className="px-3 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            <div className="px-3 py-4 text-center text-sm text-primary-500 dark:text-primary-400">
               {query.length < 1
                 ? "Type to search contacts"
                 : "No contacts found"}
+              {allowCreate && (
+                <button
+                  type="button"
+                  className="mt-2 block w-full text-center text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setShowCreateModal(true);
+                  }}
+                >
+                  + Create New Contact
+                </button>
+              )}
             </div>
           ) : (
             <ul role="listbox" className="max-h-60 overflow-auto py-1">
@@ -283,7 +299,7 @@ export function ContactPicker({
                     "flex cursor-pointer items-center gap-3 px-3 py-2 text-sm",
                     highlightedIndex === index
                       ? "bg-primary-50 text-primary-900 dark:bg-primary-900/20 dark:text-primary-100"
-                      : "text-zinc-900 hover:bg-zinc-50 dark:text-zinc-100 dark:hover:bg-zinc-700/50"
+                      : "text-primary-800 hover:bg-primary-50 dark:text-primary-100 dark:hover:bg-primary-800/50"
                   )}
                   onClick={() => selectContact(contact)}
                   onMouseEnter={() => setHighlightedIndex(index)}
@@ -304,13 +320,24 @@ export function ContactPicker({
                       )}
                     </p>
                     {contact.email && (
-                      <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="truncate text-xs text-primary-500 dark:text-primary-400">
                         {contact.email}
                       </p>
                     )}
                   </div>
                 </li>
               ))}
+              {allowCreate && (
+                <li
+                  className="cursor-pointer border-t border-primary-200 px-3 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-800/50"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setShowCreateModal(true);
+                  }}
+                >
+                  + Create New Contact
+                </li>
+              )}
             </ul>
           )}
         </div>
@@ -320,6 +347,26 @@ export function ContactPicker({
         <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">
           {error}
         </p>
+      )}
+
+      {allowCreate && (
+        <CreateContactModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreated={(contactId, displayName) => {
+            setShowCreateModal(false);
+            // Set the selected contact directly
+            setSelectedContact({
+              id: contactId,
+              first_name: displayName.split(" ")[0] || displayName,
+              last_name: displayName.split(" ").slice(1).join(" ") || null,
+              email: null,
+              profile_photo_url: null,
+            });
+            onChange(contactId);
+            setQuery("");
+          }}
+        />
       )}
     </div>
   );

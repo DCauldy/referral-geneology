@@ -11,7 +11,9 @@ import { RELATIONSHIP_TYPES } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils/cn";
 import { getInitials } from "@/lib/utils/format";
 import { uploadContactPhoto, deleteContactPhoto } from "@/lib/supabase/storage";
-import type { Contact, ContactChild, ImportantDate, ContactFavorites } from "@/types/database";
+import type { Contact, ContactChild, ImportantDate, ContactFavorites, Tag } from "@/types/database";
+import { CreateCompanyModal } from "@/components/companies/create-company-modal";
+import { TagInput } from "@/components/shared/tag-input";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon, CameraIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -71,15 +73,15 @@ interface ContactFormProps {
 }
 
 const inputClassName =
-  "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
+  "block w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 shadow-sm placeholder:text-primary-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-primary-700 dark:bg-primary-900/50 dark:text-primary-100 dark:placeholder:text-primary-600";
 
 const labelClassName =
-  "mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300";
+  "mb-1.5 block text-sm font-medium text-primary-700 dark:text-primary-300";
 
 const errorClassName = "mt-1 text-xs text-red-600 dark:text-red-400";
 
 const smallBtnClassName =
-  "inline-flex items-center gap-1 rounded-md border border-zinc-300 px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800";
+  "inline-flex items-center gap-1 rounded-md border border-primary-200 px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-800";
 
 function formatPhone(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -106,6 +108,10 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
   const toast = useToast();
   const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCompanyModal, setShowCompanyModal] = useState(false);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [initialTagIds, setInitialTagIds] = useState<Set<string>>(new Set());
   const isEditing = !!contact;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -196,18 +202,71 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
   const currentRating = watch("rating");
 
   // Load companies for the dropdown
+  async function loadCompanies() {
+    if (!org) return;
+    const { data } = await supabase
+      .from("companies")
+      .select("id, name")
+      .eq("org_id", org.id)
+      .order("name");
+    setCompanies(data ?? []);
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadCompanies(); }, [supabase, org]);
+
+  // Load all org-level tags (shared across contacts, companies, etc.)
+  async function loadTags() {
+    if (!org) return;
+    const { data } = await supabase
+      .from("tags")
+      .select("*")
+      .eq("org_id", org.id)
+      .order("name");
+    setAvailableTags(data ?? []);
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadTags(); }, [supabase, org]);
+
   useEffect(() => {
-    async function loadCompanies() {
-      if (!org) return;
+    async function loadContactTags() {
+      if (!contact || !org) return;
       const { data } = await supabase
-        .from("companies")
-        .select("id, name")
-        .eq("org_id", org.id)
-        .order("name");
-      setCompanies(data ?? []);
+        .from("entity_tags")
+        .select("tag:tags(*)")
+        .eq("entity_type", "contact")
+        .eq("entity_id", contact.id);
+      if (data) {
+        const tags = data.map((r) => r.tag as unknown as Tag).filter(Boolean);
+        setSelectedTags(tags);
+        setInitialTagIds(new Set(tags.map((t) => t.id)));
+      }
     }
-    loadCompanies();
-  }, [supabase, org]);
+    loadContactTags();
+  }, [supabase, contact, org]);
+
+  async function handleCreateTag(name: string) {
+    if (!org) return;
+    const { data, error } = await supabase
+      .from("tags")
+      .insert({ name, org_id: org.id, entity_type: "contact", color: "#2f5435" })
+      .select("*")
+      .single();
+    if (error) {
+      toast.error("Failed to create tag", error.message);
+      return;
+    }
+    setAvailableTags((prev) => [...prev, data as Tag].sort((a, b) => a.name.localeCompare(b.name)));
+    setSelectedTags((prev) => [...prev, data as Tag]);
+  }
+
+  // Called when a company is created via the modal
+  async function handleCompanyCreated(companyId: string) {
+    await loadCompanies();
+    setValue("company_id", companyId);
+    setShowCompanyModal(false);
+  }
 
   async function onSubmit(values: ContactFormValues) {
     if (!org) return;
@@ -289,6 +348,8 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         }),
       };
 
+      let contactId: string;
+
       if (isEditing) {
         const { error } = await supabase
           .from("contacts")
@@ -296,6 +357,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
           .eq("id", contact.id);
 
         if (error) throw error;
+        contactId = contact.id;
         toast.success("Contact updated", "The contact details have been saved.");
       } else {
         const { data: inserted, error } = await supabase
@@ -305,6 +367,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
           .single();
 
         if (error) throw error;
+        contactId = inserted.id;
 
         // Upload photo for newly created contact
         if (photoFile && inserted) {
@@ -321,6 +384,30 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         }
 
         toast.success("Contact created", "The contact has been added to your network.");
+      }
+
+      // Sync tags: remove deleted, add new
+      const currentTagIds = new Set(selectedTags.map((t) => t.id));
+      const toRemove = [...initialTagIds].filter((id) => !currentTagIds.has(id));
+      const toAdd = [...currentTagIds].filter((id) => !initialTagIds.has(id));
+
+      if (toRemove.length > 0) {
+        await supabase
+          .from("entity_tags")
+          .delete()
+          .eq("entity_type", "contact")
+          .eq("entity_id", contactId)
+          .in("tag_id", toRemove);
+      }
+
+      if (toAdd.length > 0) {
+        await supabase.from("entity_tags").insert(
+          toAdd.map((tagId) => ({
+            tag_id: tagId,
+            entity_type: "contact",
+            entity_id: contactId,
+          }))
+        );
       }
 
       onSuccess?.();
@@ -371,7 +458,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-8">
       {/* Photo */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Photo
         </h3>
         <div className="flex items-center gap-5">
@@ -391,7 +478,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
               >
                 <CameraIcon className="h-4 w-4" />
                 {photoPreview ? "Change photo" : "Upload photo"}
@@ -416,7 +503,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             {photoError && (
               <p className={errorClassName}>{photoError}</p>
             )}
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs text-primary-400 dark:text-primary-500">
               JPEG, PNG, GIF, or WebP. Max 5 MB.
             </p>
           </div>
@@ -425,7 +512,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
       {/* Basic Information */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Basic Information
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -502,7 +589,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
       {/* Personal Details */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Personal Details
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -561,7 +648,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
       {/* Professional Information */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Professional Information
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -581,18 +668,29 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             <label htmlFor="company_id" className={labelClassName}>
               Company
             </label>
-            <select
-              id="company_id"
-              {...register("company_id")}
-              className={inputClassName}
-            >
-              <option value="">Select a company</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                id="company_id"
+                {...register("company_id")}
+                className={cn(inputClassName, "flex-1")}
+              >
+                <option value="">Select a company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setShowCompanyModal(true)}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-primary-200 px-2.5 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-800"
+                title="Create new company"
+              >
+                <PlusIcon className="h-4 w-4" />
+                New
+              </button>
+            </div>
           </div>
           <div>
             <label htmlFor="industry" className={labelClassName}>
@@ -625,9 +723,26 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
         </div>
       </section>
 
+      {/* Tags */}
+      <section>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
+          Tags
+        </h3>
+        <TagInput
+          availableTags={availableTags}
+          selectedTags={selectedTags}
+          onAddTag={(tag) => setSelectedTags((prev) => [...prev, tag])}
+          onRemoveTag={(tagId) =>
+            setSelectedTags((prev) => prev.filter((t) => t.id !== tagId))
+          }
+          onCreateTag={handleCreateTag}
+          placeholder="Add tags to this contact..."
+        />
+      </section>
+
       {/* Address */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Address
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -708,7 +823,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
       {/* Social Links */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Social Links
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -765,7 +880,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
       {/* Interests & Family */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Interests & Family
         </h3>
         <div className="space-y-5">
@@ -779,7 +894,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
               </button>
             </div>
             {children.length === 0 && (
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs text-primary-400 dark:text-primary-500">
                 No children added yet.
               </p>
             )}
@@ -802,7 +917,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                   <button
                     type="button"
                     onClick={() => removeChild(i)}
-                    className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-red-500 dark:hover:bg-zinc-800"
+                    className="rounded p-1 text-primary-400 hover:bg-primary-100 hover:text-red-500 dark:hover:bg-primary-800"
                   >
                     <XMarkIcon className="h-4 w-4" />
                   </button>
@@ -823,7 +938,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
               className={inputClassName}
               placeholder="Golf, Reading, Cooking"
             />
-            <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="mt-1 text-xs text-primary-400 dark:text-primary-500">
               Comma-separated list
             </p>
           </div>
@@ -838,7 +953,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
               </button>
             </div>
             {importantDates.length === 0 && (
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs text-primary-400 dark:text-primary-500">
                 No important dates added yet.
               </p>
             )}
@@ -861,7 +976,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                   <button
                     type="button"
                     onClick={() => removeImportantDate(i)}
-                    className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-red-500 dark:hover:bg-zinc-800"
+                    className="rounded p-1 text-primary-400 hover:bg-primary-100 hover:text-red-500 dark:hover:bg-primary-800"
                   >
                     <XMarkIcon className="h-4 w-4" />
                   </button>
@@ -875,7 +990,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
             <label className={labelClassName}>Favorites</label>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label htmlFor="fav_restaurant" className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                <label htmlFor="fav_restaurant" className="mb-1 block text-xs text-primary-500 dark:text-primary-400">
                   Restaurant
                 </label>
                 <input
@@ -887,7 +1002,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                 />
               </div>
               <div>
-                <label htmlFor="fav_sports_team" className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                <label htmlFor="fav_sports_team" className="mb-1 block text-xs text-primary-500 dark:text-primary-400">
                   Sports Team
                 </label>
                 <input
@@ -899,7 +1014,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                 />
               </div>
               <div>
-                <label htmlFor="fav_other" className="mb-1 block text-xs text-zinc-500 dark:text-zinc-400">
+                <label htmlFor="fav_other" className="mb-1 block text-xs text-primary-500 dark:text-primary-400">
                   Other
                 </label>
                 <input
@@ -917,7 +1032,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
 
       {/* Notes & Rating */}
       <section>
-        <h3 className="mb-4 text-base font-semibold text-zinc-900 dark:text-white">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-tan-500">
           Notes & Rating
         </h3>
         <div className="space-y-4">
@@ -943,7 +1058,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
                   onClick={() =>
                     setValue("rating", currentRating === star ? 0 : star)
                   }
-                  className="text-zinc-300 transition-colors hover:text-primary-400 dark:text-zinc-600"
+                  className="text-primary-200 transition-colors hover:text-primary-400 dark:text-primary-600"
                 >
                   {star <= (currentRating ?? 0) ? (
                     <StarIcon className="h-6 w-6 text-primary-400" />
@@ -958,7 +1073,7 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
       </section>
 
       {/* Submit */}
-      <div className="flex items-center gap-3 border-t border-zinc-200 pt-6 dark:border-zinc-700">
+      <div className="flex items-center gap-3 border-t border-primary-200 pt-6 dark:border-primary-700">
         <button
           type="submit"
           disabled={isSubmitting}
@@ -973,6 +1088,12 @@ export function ContactForm({ contact, onSuccess }: ContactFormProps) {
               : "Create Contact"}
         </button>
       </div>
+
+      <CreateCompanyModal
+        open={showCompanyModal}
+        onClose={() => setShowCompanyModal(false)}
+        onCreated={handleCompanyCreated}
+      />
     </form>
   );
 }

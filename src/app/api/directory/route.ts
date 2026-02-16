@@ -56,8 +56,28 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Pull fresh avatar_url from user_profiles so directory always shows
+  // the latest profile photo without requiring users to re-save their
+  // directory profile after uploading a new avatar.
+  let profiles = data || [];
+  if (profiles.length > 0) {
+    const userIds = profiles.map((p) => p.user_id);
+    const { data: avatars } = await supabase
+      .from("user_profiles")
+      .select("id, avatar_url")
+      .in("id", userIds);
+
+    if (avatars) {
+      const avatarMap = new Map(avatars.map((a) => [a.id, a.avatar_url]));
+      profiles = profiles.map((p) => ({
+        ...p,
+        avatar_url: avatarMap.get(p.user_id) ?? p.avatar_url,
+      }));
+    }
+  }
+
   return NextResponse.json({
-    profiles: data || [],
+    profiles,
     total: count || 0,
     page,
     perPage,

@@ -9,7 +9,6 @@ import {
 } from "@/lib/visualization/data-transformer";
 import { ViewToolbar } from "../shared/view-toolbar";
 import { ViewLegend } from "../shared/view-legend";
-import { ViewSwitcher } from "../shared/view-switcher";
 import { DEFAULT_VIEW_CONFIG, type ViewConfig } from "@/types/visualizations";
 import type { VisualizationNode, VisualizationEdge } from "@/types/visualizations";
 import { getInitials } from "@/lib/utils/format";
@@ -19,7 +18,6 @@ type SimLink = d3.SimulationLinkDatum<SimNode> & VisualizationEdge;
 
 const CLUSTER_OPTIONS = [
   { value: "relationship", label: "Relationship Type" },
-  { value: "industry", label: "Industry" },
   { value: "company", label: "Company" },
 ];
 
@@ -64,36 +62,68 @@ export function GalaxyView() {
     canvas.style.height = `${height}px`;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
+    // Preload profile photos
+    const imageCache = new Map<string, HTMLImageElement>();
+    let imagesLoaded = 0;
+    const imagesToLoad = vizNodes.filter((n) => n.profilePhotoUrl);
+
+    function onImageReady() {
+      imagesLoaded++;
+      // Trigger a re-render once all images loaded
+      if (imagesLoaded >= imagesToLoad.length) {
+        simulation.alpha(0.01).restart();
+      }
+    }
+
+    imagesToLoad.forEach((n) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        imageCache.set(n.id, img);
+        onImageReady();
+      };
+      img.onerror = () => onImageReady();
+      img.src = n.profilePhotoUrl!;
+    });
+
+    const cx = width / 2;
+    const cy = height / 2;
+    const radius = Math.min(width, height) * 0.3;
+
+    // Resolve cluster key for a node
+    function getClusterKey(n: VisualizationNode): string {
+      if (clusterBy === "relationship") return n.relationshipType;
+      if (clusterBy === "company") return n.company || "independent";
+      return "other";
+    }
+
     // Create cluster centroids
     const clusterKeys = new Set<string>();
-    vizNodes.forEach((n) => {
-      let key = "other";
-      if (clusterBy === "relationship") key = n.relationshipType;
-      else if (clusterBy === "industry") key = n.industry || "unknown";
-      else if (clusterBy === "company") key = n.company || "independent";
-      clusterKeys.add(key);
-    });
+    vizNodes.forEach((n) => clusterKeys.add(getClusterKey(n)));
 
     const clusterCentroids = new Map<string, { x: number; y: number }>();
     const angleStep = (2 * Math.PI) / Math.max(clusterKeys.size, 1);
-    const radius = Math.min(width, height) * 0.3;
     let i = 0;
     clusterKeys.forEach((key) => {
       clusterCentroids.set(key, {
-        x: width / 2 + radius * Math.cos(angleStep * i),
-        y: height / 2 + radius * Math.sin(angleStep * i),
+        x: cx + radius * Math.cos(angleStep * i),
+        y: cy + radius * Math.sin(angleStep * i),
       });
       i++;
     });
 
+    // Count nodes per cluster for labels
+    const clusterCounts = new Map<string, number>();
+    vizNodes.forEach((n) => {
+      const key = getClusterKey(n);
+      clusterCounts.set(key, (clusterCounts.get(key) || 0) + 1);
+    });
+
     // Create sim nodes
     const simNodes: SimNode[] = vizNodes.map((n) => {
-      let cluster = "other";
-      if (clusterBy === "relationship") cluster = n.relationshipType;
-      else if (clusterBy === "industry") cluster = n.industry || "unknown";
-      else if (clusterBy === "company") cluster = n.company || "independent";
+      const cluster = getClusterKey(n);
+      const centroid = clusterCentroids.get(cluster) || { x: cx, y: cy };
 
-      const centroid = clusterCentroids.get(cluster) || { x: width / 2, y: height / 2 };
       return {
         ...n,
         color: getNodeColor(n, config.display.colorBy),
@@ -117,8 +147,9 @@ export function GalaxyView() {
     // Cluster force
     function clusterForce(alpha: number) {
       simNodes.forEach((node) => {
+        if (node.x == null || node.y == null) return;
         const centroid = clusterCentroids.get(node.cluster);
-        if (centroid && node.x != null && node.y != null) {
+        if (centroid) {
           node.vx = (node.vx || 0) + (centroid.x - node.x) * alpha * 0.1;
           node.vy = (node.vy || 0) + (centroid.y - node.y) * alpha * 0.1;
         }
@@ -129,32 +160,59 @@ export function GalaxyView() {
       .forceSimulation(simNodes)
       .force("link", d3.forceLink(simLinks).id((d) => (d as SimNode).id).distance(80).strength(0.3))
       .force("charge", d3.forceManyBody().strength(-100))
-      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("center", d3.forceCenter(cx, cy))
       .force("collision", d3.forceCollide().radius((d) => ((d as SimNode).size || 10) / 2 + 5))
       .force("cluster", clusterForce)
       .on("tick", render);
+
+    function formatClusterLabel(key: string): string {
+      return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    }
 
     function render() {
       ctx.clearRect(0, 0, width, height);
 
       // Draw cluster boundaries
+      const clusterRadius = radius * 0.4;
       clusterCentroids.forEach((centroid, key) => {
-        const clusterNodes = simNodes.filter((n) => n.cluster === key);
-        if (clusterNodes.length === 0) return;
+        const count = clusterCounts.get(key) || 0;
+        if (count === 0) return;
+
+        // Radial gradient fill
+        const grad = ctx.createRadialGradient(
+          centroid.x, centroid.y, 0,
+          centroid.x, centroid.y, clusterRadius
+        );
+        grad.addColorStop(0, "rgba(47, 84, 53, 0.18)");
+        grad.addColorStop(0.6, "rgba(47, 84, 53, 0.10)");
+        grad.addColorStop(1, "rgba(47, 84, 53, 0)");
 
         ctx.beginPath();
-        ctx.arc(centroid.x, centroid.y, radius * 0.4, 0, 2 * Math.PI);
-        ctx.fillStyle = "rgba(148, 163, 184, 0.05)";
+        ctx.arc(centroid.x, centroid.y, clusterRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = grad;
         ctx.fill();
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.15)";
-        ctx.lineWidth = 1;
+
+        // Dashed ring
+        ctx.beginPath();
+        ctx.arc(centroid.x, centroid.y, clusterRadius, 0, 2 * Math.PI);
+        ctx.setLineDash([4, 6]);
+        ctx.strokeStyle = "rgba(176, 147, 82, 0.35)";
+        ctx.lineWidth = 1.5;
         ctx.stroke();
+        ctx.setLineDash([]);
 
         // Cluster label
-        ctx.font = "11px Inter, system-ui, sans-serif";
-        ctx.fillStyle = "rgba(148, 163, 184, 0.6)";
+        const label = formatClusterLabel(key);
+        ctx.font = "bold 14px Inter, system-ui, sans-serif";
+        ctx.fillStyle = "rgba(176, 147, 82, 1)";
         ctx.textAlign = "center";
-        ctx.fillText(key.replace("_", " "), centroid.x, centroid.y - radius * 0.35);
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, centroid.x, centroid.y - 8);
+
+        // Node count
+        ctx.font = "11px Inter, system-ui, sans-serif";
+        ctx.fillStyle = "rgba(176, 147, 82, 0.65)";
+        ctx.fillText(`${count} contact${count !== 1 ? "s" : ""}`, centroid.x, centroid.y + 10);
       });
 
       // Draw links
@@ -166,11 +224,11 @@ export function GalaxyView() {
         ctx.beginPath();
         if (link.isInterNetwork) {
           ctx.setLineDash([6, 3]);
-          ctx.strokeStyle = "rgba(6, 182, 212, 0.6)"; // teal
+          ctx.strokeStyle = "rgba(6, 182, 212, 0.6)";
           ctx.lineWidth = 2;
         } else {
           ctx.setLineDash([]);
-          ctx.strokeStyle = "rgba(148, 163, 184, 0.3)";
+          ctx.strokeStyle = "rgba(47, 84, 53, 0.25)";
           ctx.lineWidth = 1;
         }
         ctx.moveTo(source.x, source.y!);
@@ -222,30 +280,75 @@ export function GalaxyView() {
             ctx.fillText(node.label, node.x, node.y + r + 6);
           }
         } else {
-          // Normal node: circle
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
-          ctx.fillStyle = node.color;
-          ctx.fill();
-          ctx.strokeStyle = "rgba(255,255,255,0.8)";
-          ctx.lineWidth = 2;
-          ctx.stroke();
+          const photo = imageCache.get(node.id);
 
-          // Initials
-          ctx.font = `bold ${Math.max(10, r * 0.6)}px Inter, system-ui, sans-serif`;
-          ctx.fillStyle = "white";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(
-            getInitials(node.firstName, node.lastName || undefined),
-            node.x,
-            node.y
-          );
+          if (photo) {
+            // Profile photo node — clipped circle with branded border
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+            ctx.clip();
+            ctx.drawImage(photo, node.x - r, node.y - r, r * 2, r * 2);
+            ctx.restore();
+
+            // Border ring
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+            ctx.strokeStyle = "rgba(255,255,255,0.9)";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Subtle color indicator ring (outer)
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, r + 1.5, 0, 2 * Math.PI);
+            ctx.strokeStyle = node.color;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          } else {
+            // Normal node: circle with color fill + initials
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+            ctx.fillStyle = node.color;
+            ctx.fill();
+            ctx.strokeStyle = "rgba(255,255,255,0.8)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Initials
+            ctx.font = `bold ${Math.max(10, r * 0.6)}px Inter, system-ui, sans-serif`;
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(
+              getInitials(node.firstName, node.lastName || undefined),
+              node.x,
+              node.y
+            );
+          }
+
+          // Generation badge — top-right of node
+          if (node.generation != null) {
+            const badgeText = `G${node.generation}`;
+            const badgeX = node.x + r * 0.6;
+            const badgeY = node.y - r * 0.6;
+            const badgeR = 8;
+
+            ctx.beginPath();
+            ctx.arc(badgeX, badgeY, badgeR, 0, 2 * Math.PI);
+            ctx.fillStyle = "rgba(176, 147, 82, 0.9)";
+            ctx.fill();
+
+            ctx.font = "bold 8px Inter, system-ui, sans-serif";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(badgeText, badgeX, badgeY);
+          }
 
           // Label below
           if (config.display.showLabels && r > 15) {
             ctx.font = "10px Inter, system-ui, sans-serif";
-            ctx.fillStyle = "rgba(113, 113, 122, 0.8)";
+            ctx.fillStyle = "rgba(176, 147, 82, 0.7)";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(node.label, node.x, node.y + r + 4);
@@ -286,39 +389,36 @@ export function GalaxyView() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[600px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="text-sm text-zinc-500">Loading galaxy view...</div>
+      <div className="flex h-[600px] items-center justify-center rounded-xl border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-950">
+        <div className="text-sm text-primary-500">Loading galaxy view...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <ViewSwitcher />
-          <select
-            value={clusterBy}
-            onChange={(e) => setClusterBy(e.target.value)}
-            className="rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-          >
-            {CLUSTER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                Cluster: {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <select
+          value={clusterBy}
+          onChange={(e) => setClusterBy(e.target.value)}
+          className="rounded-md border border-primary-200 bg-white px-3 py-2 text-xs text-primary-700 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-300"
+        >
+          {CLUSTER_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              Cluster: {opt.label}
+            </option>
+          ))}
+        </select>
         <ViewToolbar config={config} onConfigChange={handleConfigChange} />
       </div>
 
       <div
         ref={containerRef}
-        className="relative h-[600px] overflow-hidden rounded-xl border border-zinc-200 bg-zinc-950 dark:border-zinc-800"
+        className="relative h-[600px] overflow-hidden rounded-xl border border-primary-200 bg-primary-950 dark:border-primary-800"
       >
         {vizNodes.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-primary-400">
               No referral data to visualize. Create some contacts and referrals first.
             </p>
           </div>
@@ -328,14 +428,14 @@ export function GalaxyView() {
 
         {tooltip && (
           <div
-            className="pointer-events-none absolute z-50 rounded-lg border border-zinc-700 bg-zinc-800 p-2 shadow-xl"
+            className="pointer-events-none absolute z-50 rounded-lg border border-primary-700 bg-primary-900 p-2 shadow-xl"
             style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}
           >
             <p className="text-xs font-semibold text-white">{tooltip.node.label}</p>
             {tooltip.node.company && (
-              <p className="text-[10px] text-zinc-400">{tooltip.node.company}</p>
+              <p className="text-[10px] text-primary-300">{tooltip.node.company}</p>
             )}
-            <p className="mt-1 text-[10px] text-zinc-400">
+            <p className="mt-1 text-[10px] text-primary-300">
               Score: {tooltip.node.referralScore} | Refs: {tooltip.node.referralCount}
               {tooltip.node.generation != null && ` | Gen ${tooltip.node.generation}`}
             </p>

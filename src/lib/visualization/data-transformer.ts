@@ -11,6 +11,7 @@ const RELATIONSHIP_COLORS: Record<string, string> = {
   vendor: "#5d8a5a",
   colleague: "#22c55e",
   friend: "#ec4899",
+  family: "#f59e0b",
 };
 
 const INDUSTRY_COLORS: Record<string, string> = {

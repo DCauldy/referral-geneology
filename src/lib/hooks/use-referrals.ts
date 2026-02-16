@@ -8,6 +8,7 @@ import type { Referral } from "@/types/database";
 interface UseReferralsOptions {
   contactId?: string;
   status?: string;
+  stageId?: string;
   sortKey?: string;
   sortDirection?: "asc" | "desc";
   page?: number;
@@ -25,6 +26,7 @@ export function useReferrals(options: UseReferralsOptions = {}) {
   const {
     contactId,
     status,
+    stageId,
     sortKey = "referral_date",
     sortDirection = "desc",
     page = 0,
@@ -38,10 +40,21 @@ export function useReferrals(options: UseReferralsOptions = {}) {
     setError(null);
 
     try {
+      // When filtering by stage, first get deal IDs in that stage
+      let dealIdsForStage: string[] | null = null;
+      if (stageId) {
+        const { data: stageDeals } = await supabase
+          .from("deals")
+          .select("id")
+          .eq("org_id", org.id)
+          .eq("stage_id", stageId);
+        dealIdsForStage = stageDeals?.map((d) => d.id) ?? [];
+      }
+
       let query = supabase
         .from("referrals")
         .select(
-          "*, referrer:contacts!referrals_referrer_id_fkey(id, first_name, last_name, email, generation), referred:contacts!referrals_referred_id_fkey(id, first_name, last_name, email, generation), deal:deals(id, name, value)",
+          "*, referrer:contacts!referrals_referrer_id_fkey(id, first_name, last_name, email, generation), referred:contacts!referrals_referred_id_fkey(id, first_name, last_name, email, generation), deal:deals(id, name, value, stage:pipeline_stages(id, name, color))",
           { count: "exact" }
         )
         .eq("org_id", org.id);
@@ -53,6 +66,16 @@ export function useReferrals(options: UseReferralsOptions = {}) {
       }
       if (status) {
         query = query.eq("status", status);
+      }
+      if (dealIdsForStage !== null) {
+        if (dealIdsForStage.length === 0) {
+          // No deals in this stage — return empty
+          setReferrals([]);
+          setTotalCount(0);
+          setIsLoading(false);
+          return;
+        }
+        query = query.in("deal_id", dealIdsForStage);
       }
 
       query = query
@@ -73,7 +96,7 @@ export function useReferrals(options: UseReferralsOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, org, contactId, status, sortKey, sortDirection, page, pageSize]);
+  }, [supabase, org, contactId, status, stageId, sortKey, sortDirection, page, pageSize]);
 
   useEffect(() => {
     fetchReferrals();

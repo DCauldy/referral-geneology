@@ -53,7 +53,7 @@ export default function OrganizationSettingsPage() {
       await refreshOrg();
       toast.success(
         "Organization updated",
-        "Your roots have been strengthened with new details."
+        "Your organization details have been updated."
       );
     } catch (err) {
       toast.error(
@@ -70,7 +70,7 @@ export default function OrganizationSettingsPage() {
       {/* Organization Details */}
       <SettingsSection
         title="Organization Details"
-        description="Manage the roots of your referral network."
+        description="Manage your organization settings and details."
       >
         <form onSubmit={handleSave} className="grid max-w-lg gap-6">
           <div>

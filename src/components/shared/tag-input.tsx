@@ -51,7 +51,7 @@ export function TagInput({
         {selectedTags.map((tag) => (
           <span
             key={tag.id}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium"
+            className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
             style={{
               backgroundColor: tag.color + "20",
               color: tag.color,
@@ -113,7 +113,7 @@ export function TagInput({
 export function TagBadge({ tag }: { tag: Tag }) {
   return (
     <span
-      className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium"
+      className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
       style={{
         backgroundColor: tag.color + "20",
         color: tag.color,

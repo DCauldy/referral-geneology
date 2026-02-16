@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { formatDate } from "@/lib/utils/format";
 
 interface AdminUser {
   id: string;
@@ -182,7 +183,7 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-5 py-3 text-sm text-zinc-500">
-                      {new Date(user.created_at).toLocaleDateString()}
+                      {formatDate(user.created_at)}
                     </td>
                     <td className="whitespace-nowrap px-5 py-3 text-right">
                       {user.memberships.length > 0 && !user.is_platform_admin && (

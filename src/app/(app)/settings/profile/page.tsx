@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils/cn";
 import { CameraIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const inputClassName =
-  "block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500";
+  "block w-full rounded-lg border border-primary-200 px-3 py-2 text-sm text-primary-800 shadow-sm placeholder:text-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none dark:border-primary-700 dark:bg-primary-800 dark:text-white dark:placeholder:text-primary-500";
 
 const labelClassName =
-  "mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300";
+  "mb-1.5 block text-sm font-medium text-primary-700 dark:text-primary-300";
 
 const themeOptions = [
   { value: "light", label: "Light" },
@@ -50,6 +50,8 @@ export default function ProfileSettingsPage() {
   const [dirSpecialties, setDirSpecialties] = useState<string[]>([]);
   const [dirCategories, setDirCategories] = useState<string[]>([]);
   const [dirAcceptsReferrals, setDirAcceptsReferrals] = useState(true);
+  const [dirEmail, setDirEmail] = useState("");
+  const [dirPhone, setDirPhone] = useState("");
   const [newSpecialty, setNewSpecialty] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [isSavingDir, setIsSavingDir] = useState(false);
@@ -90,6 +92,8 @@ export default function ProfileSettingsPage() {
       setDirSpecialties(dirProfile.specialties || []);
       setDirCategories(dirProfile.referral_categories || []);
       setDirAcceptsReferrals(dirProfile.accepts_referrals);
+      setDirEmail(dirProfile.contact_email || "");
+      setDirPhone(dirProfile.contact_phone || "");
     } else if (!dirLoading && profile) {
       // Pre-fill from user profile
       setDirDisplayName(profile.full_name || "");
@@ -126,7 +130,7 @@ export default function ProfileSettingsPage() {
       const file = fileInputRef.current?.files?.[0];
       if (file) {
         const ext = file.name.split(".").pop();
-        const path = `avatars/${profile.id}.${ext}`;
+        const path = `${profile.id}/avatar.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from("avatars")
           .upload(path, file, { upsert: true });
@@ -156,7 +160,7 @@ export default function ProfileSettingsPage() {
       await refreshOrg();
       toast.success(
         "Profile updated",
-        "Your branch details have been saved to the tree."
+        "Your profile has been saved."
       );
     } catch (err) {
       toast.error(
@@ -169,11 +173,11 @@ export default function ProfileSettingsPage() {
   }
 
   return (
-    <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+    <div className="divide-y divide-primary-200 dark:divide-primary-800">
       {/* Personal Information */}
       <SettingsSection
         title="Personal Information"
-        description="Update your personal details and how others see you on the tree."
+        description="Update your personal details and profile photo."
       >
         <form onSubmit={handleSave} className="grid max-w-lg gap-6">
           {/* Avatar */}
@@ -194,7 +198,7 @@ export default function ProfileSettingsPage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 px-3 py-1.5 text-sm font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
                 >
                   <CameraIcon className="h-4 w-4" />
                   {photoPreview ? "Change" : "Upload"}
@@ -216,7 +220,7 @@ export default function ProfileSettingsPage() {
                 onChange={handlePhotoSelect}
                 className="hidden"
               />
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="text-xs text-primary-400 dark:text-primary-500">
                 JPEG, PNG, GIF, or WebP. Max 5 MB.
               </p>
             </div>
@@ -262,9 +266,9 @@ export default function ProfileSettingsPage() {
               type="email"
               value={email}
               readOnly
-              className={cn(inputClassName, "cursor-not-allowed bg-zinc-50 dark:bg-zinc-900")}
+              className={cn(inputClassName, "cursor-not-allowed bg-primary-50 dark:bg-primary-900")}
             />
-            <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="mt-1 text-xs text-primary-400 dark:text-primary-500">
               Managed by your authentication provider.
             </p>
           </div>
@@ -328,7 +332,7 @@ export default function ProfileSettingsPage() {
                   "rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
                   theme === opt.value
                     ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300"
-                    : "border-zinc-300 text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    : "border-primary-200 text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
                 )}
               >
                 {opt.label}
@@ -342,7 +346,7 @@ export default function ProfileSettingsPage() {
       {canExchangeReferrals && (
         <SettingsSection
           title="Directory Presence"
-          description="Control how you appear in the grower directory. Other paid members can find you and send seeds your way."
+          description="Control how you appear in the member directory. Other members can find you and send referrals your way."
         >
           <form
             onSubmit={async (e) => {
@@ -360,11 +364,13 @@ export default function ProfileSettingsPage() {
                   referral_categories: dirCategories,
                   accepts_referrals: dirAcceptsReferrals,
                   is_visible: dirVisible,
+                  contact_email: dirEmail,
+                  contact_phone: dirPhone,
                 });
                 toast.success(
                   "Directory profile saved",
                   dirVisible
-                    ? "You are now visible in the grower directory."
+                    ? "You are now visible in the member directory."
                     : "Your directory profile has been saved but is hidden."
                 );
               } catch (err) {
@@ -384,9 +390,9 @@ export default function ProfileSettingsPage() {
                 type="checkbox"
                 checked={dirVisible}
                 onChange={(e) => setDirVisible(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-300 text-primary-600 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800"
+                className="h-4 w-4 rounded border-primary-300 text-primary-600 focus:ring-primary-500 dark:border-primary-600 dark:bg-primary-800"
               />
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
                 List me in the directory
               </span>
             </label>
@@ -451,6 +457,39 @@ export default function ProfileSettingsPage() {
               />
             </div>
 
+            {/* Contact Email + Phone */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="dir_email" className={labelClassName}>
+                  Public Email
+                </label>
+                <input
+                  id="dir_email"
+                  type="email"
+                  value={dirEmail}
+                  onChange={(e) => setDirEmail(e.target.value)}
+                  className={inputClassName}
+                  placeholder="you@company.com"
+                />
+              </div>
+              <div>
+                <label htmlFor="dir_phone" className={labelClassName}>
+                  Public Phone
+                </label>
+                <input
+                  id="dir_phone"
+                  type="tel"
+                  value={dirPhone}
+                  onChange={(e) => setDirPhone(e.target.value)}
+                  className={inputClassName}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+            <p className="-mt-4 text-xs text-primary-400 dark:text-primary-500">
+              These will be visible to other members in the directory.
+            </p>
+
             {/* Bio */}
             <div>
               <label htmlFor="dir_bio" className={labelClassName}>
@@ -462,7 +501,7 @@ export default function ProfileSettingsPage() {
                 onChange={(e) => setDirBio(e.target.value)}
                 rows={3}
                 className={inputClassName}
-                placeholder="A brief intro for other growers..."
+                placeholder="A brief intro about you and your business..."
               />
             </div>
 
@@ -511,7 +550,7 @@ export default function ProfileSettingsPage() {
                       setNewSpecialty("");
                     }
                   }}
-                  className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="rounded-lg border border-primary-200 px-3 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
                 >
                   Add
                 </button>
@@ -521,7 +560,7 @@ export default function ProfileSettingsPage() {
             {/* Referral Categories */}
             <div>
               <label className={labelClassName}>Referral Categories</label>
-              <p className="mb-2 text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="mb-2 text-xs text-primary-400 dark:text-primary-500">
                 What types of referrals are you looking for?
               </p>
               <div className="mb-2 flex flex-wrap gap-1.5">
@@ -566,7 +605,7 @@ export default function ProfileSettingsPage() {
                       setNewCategory("");
                     }
                   }}
-                  className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                  className="rounded-lg border border-primary-200 px-3 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800"
                 >
                   Add
                 </button>
@@ -579,9 +618,9 @@ export default function ProfileSettingsPage() {
                 type="checkbox"
                 checked={dirAcceptsReferrals}
                 onChange={(e) => setDirAcceptsReferrals(e.target.checked)}
-                className="h-4 w-4 rounded border-zinc-300 text-primary-600 focus:ring-primary-500 dark:border-zinc-600 dark:bg-zinc-800"
+                className="h-4 w-4 rounded border-primary-300 text-primary-600 focus:ring-primary-500 dark:border-primary-600 dark:bg-primary-800"
               />
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
                 I am currently accepting referrals
               </span>
             </label>

@@ -8,7 +8,7 @@ export default function PipelineSettingsPage() {
     <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
       <SettingsSection
         title="Pipeline Stages"
-        description="Configure the stages that fruit moves through in your grove."
+        description="Configure the stages that deals move through in your pipeline."
       >
         <PipelineStageEditor />
       </SettingsSection>

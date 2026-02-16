@@ -24,6 +24,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
+import { formatPhone, formatDate } from "@/lib/utils/format";
 
 /* ───────── types ───────── */
 
@@ -495,7 +496,7 @@ function PreviewPanel({
                   <PhoneIcon className="inline size-4 mr-1 -mt-0.5" />
                   Phone
                 </dt>
-                <dd>{s(d.phone)}</dd>
+                <dd>{formatPhone(s(d.phone))}</dd>
               </>
             ) : null}
             {d.linkedin_url ? (
@@ -567,7 +568,7 @@ function PreviewPanel({
                   <PhoneIcon className="inline size-4 mr-1 -mt-0.5" />
                   Phone
                 </dt>
-                <dd>{s(d.phone)}</dd>
+                <dd>{formatPhone(s(d.phone))}</dd>
               </>
             ) : null}
             {d.email ? (
@@ -660,7 +661,7 @@ function PreviewPanel({
                 Expected Close
               </dt>
               <dd>
-                {new Date(s(d.expected_close_date)).toLocaleDateString()}
+                {formatDate(s(d.expected_close_date))}
               </dd>
             </>
           ) : null}

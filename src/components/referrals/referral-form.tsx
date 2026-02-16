@@ -118,7 +118,7 @@ export function ReferralForm({
       // (recursive CTE that computes minimum-path generation for every contact)
       await supabase.rpc("recalculate_generations", { p_org_id: org.id });
 
-      toast.success("Referral created", "New growth has been recorded on your trellis.");
+      toast.success("Referral created", "The referral has been added to your network.");
       onSuccess?.();
     } catch (err) {
       toast.error(
@@ -145,6 +145,7 @@ export function ReferralForm({
               excludeIds={referredId ? [referredId] : []}
               error={errors.referrer_id?.message}
               placeholder="Who made the referral?"
+              allowCreate
             />
           )}
         />
@@ -163,6 +164,7 @@ export function ReferralForm({
               excludeIds={referrerId ? [referrerId] : []}
               error={errors.referred_id?.message}
               placeholder="Who was referred?"
+              allowCreate
             />
           )}
         />
@@ -179,6 +181,7 @@ export function ReferralForm({
               value={field.value}
               onChange={(id) => field.onChange(id)}
               error={errors.deal_id?.message}
+              allowCreate
             />
           )}
         />

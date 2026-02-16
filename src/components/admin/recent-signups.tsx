@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatDate } from "@/lib/utils/format";
 
 interface RecentUser {
   id: string;
@@ -78,7 +79,7 @@ export function RecentSignups() {
                   {user.memberships?.[0]?.org_name || "—"}
                 </td>
                 <td className="whitespace-nowrap px-5 py-3 text-sm text-zinc-500">
-                  {new Date(user.created_at).toLocaleDateString()}
+                  {formatDate(user.created_at)}
                 </td>
               </tr>
             ))}

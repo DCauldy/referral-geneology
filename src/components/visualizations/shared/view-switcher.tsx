@@ -16,7 +16,7 @@ export function ViewSwitcher() {
   const { canAccessView } = usePlanLimits();
 
   return (
-    <div className="inline-flex rounded-lg border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="inline-flex rounded-lg border border-primary-200 bg-primary-50 p-1.5 dark:border-primary-800 dark:bg-primary-950">
       {views.map((view) => {
         const active = pathname === view.href;
         const hasAccess = canAccessView(view.view);
@@ -26,10 +26,10 @@ export function ViewSwitcher() {
             <Link
               key={view.view}
               href="/settings/billing"
-              className="flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium text-zinc-400 dark:text-zinc-600"
+              className="flex items-center gap-1 rounded-md px-4 py-2 text-xs font-medium text-primary-400 dark:text-primary-600"
             >
               {view.name}
-              <span className="rounded bg-zinc-200 px-1 py-0.5 text-[9px] dark:bg-zinc-800">
+              <span className="rounded bg-tan-100 px-1 py-0.5 text-[9px] font-semibold text-tan-700 dark:bg-tan-900 dark:text-tan-300">
                 PRO
               </span>
             </Link>
@@ -41,10 +41,10 @@ export function ViewSwitcher() {
             key={view.view}
             href={view.href}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-md px-4 py-2 text-xs font-medium transition-colors",
               active
-                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-white"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+                ? "bg-white text-primary-800 shadow-sm dark:bg-primary-900 dark:text-primary-100"
+                : "text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-100"
             )}
           >
             {view.name}

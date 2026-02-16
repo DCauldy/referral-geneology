@@ -8,8 +8,8 @@ export function ViewLegend({ colorBy, showInterNetwork }: { colorBy: string; sho
   if (items.length === 0) return null;
 
   return (
-    <div className="absolute bottom-4 left-4 z-10 rounded-lg border border-zinc-200 bg-white/90 p-3 text-xs shadow-sm backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-900/90">
-      <p className="mb-2 font-semibold text-zinc-700 capitalize dark:text-zinc-300">
+    <div className="absolute bottom-4 left-4 z-10 rounded-lg border border-primary-200 bg-white/90 p-3 text-xs shadow-sm backdrop-blur-sm dark:border-primary-800 dark:bg-primary-950/90">
+      <p className="mb-2 font-serif font-semibold text-primary-700 capitalize dark:text-primary-300">
         {colorBy}
       </p>
       <div className="space-y-1">
@@ -19,7 +19,7 @@ export function ViewLegend({ colorBy, showInterNetwork }: { colorBy: string; sho
               className="h-2.5 w-2.5 rounded-full"
               style={{ backgroundColor: item.color }}
             />
-            <span className="text-zinc-600 capitalize dark:text-zinc-400">
+            <span className="text-primary-600 capitalize dark:text-primary-400">
               {item.label}
             </span>
           </div>

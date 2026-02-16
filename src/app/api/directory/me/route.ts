@@ -66,6 +66,8 @@ export async function PATCH(request: NextRequest) {
     referral_categories,
     accepts_referrals,
     is_visible,
+    contact_email,
+    contact_phone,
   } = body;
 
   // Check if profile already exists
@@ -90,6 +92,8 @@ export async function PATCH(request: NextRequest) {
         referral_categories: referral_categories || [],
         accepts_referrals: accepts_referrals ?? true,
         is_visible: is_visible ?? false,
+        contact_email: contact_email || null,
+        contact_phone: contact_phone || null,
       })
       .eq("user_id", user.id)
       .select()
@@ -116,6 +120,8 @@ export async function PATCH(request: NextRequest) {
         referral_categories: referral_categories || [],
         accepts_referrals: accepts_referrals ?? true,
         is_visible: is_visible ?? false,
+        contact_email: contact_email || null,
+        contact_phone: contact_phone || null,
       })
       .select()
       .single();

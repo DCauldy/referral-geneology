@@ -27,7 +27,7 @@ const statusDescriptions = [
   },
   {
     name: "Inactive",
-    color: "bg-zinc-400",
+    color: "bg-primary-400",
     description:
       "The referral went cold — no recent activity or response from the referred contact.",
   },
@@ -69,11 +69,11 @@ export default function NewReferralPage() {
           { label: "Add Referral" },
         ]}
       />
-      <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+      <h1 className="font-serif text-2xl font-bold text-primary-800 dark:text-primary-100">
         Add Referral
       </h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Record new growth between the vines in your network.
+      <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
+        Record a new referral between contacts.
       </p>
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1fr_420px]">
@@ -84,9 +84,9 @@ export default function NewReferralPage() {
         {/* Reference sidebar */}
         <div className="space-y-4">
           {/* Status guide */}
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-800/50">
-            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              <InformationCircleIcon className="h-4 w-4 text-zinc-500" />
+          <div className="rounded-xl border border-primary-200 bg-primary-50/50 p-5 dark:border-primary-700 dark:bg-primary-900/30">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
+              <InformationCircleIcon className="h-4 w-4 text-tan-500" />
               Status Guide
             </div>
             <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
@@ -96,10 +96,10 @@ export default function NewReferralPage() {
                     className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${s.color}`}
                   />
                   <div>
-                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    <span className="text-sm font-medium text-primary-800 dark:text-primary-100">
                       {s.name}
                     </span>
-                    <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                    <p className="text-xs leading-relaxed text-primary-500 dark:text-primary-400">
                       {s.description}
                     </p>
                   </div>
@@ -109,18 +109,18 @@ export default function NewReferralPage() {
           </div>
 
           {/* Type guide */}
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-800/50">
-            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              <InformationCircleIcon className="h-4 w-4 text-zinc-500" />
+          <div className="rounded-xl border border-primary-200 bg-primary-50/50 p-5 dark:border-primary-700 dark:bg-primary-900/30">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
+              <InformationCircleIcon className="h-4 w-4 text-tan-500" />
               Type Guide
             </div>
             <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
               {typeDescriptions.map((t) => (
                 <li key={t.name}>
-                  <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  <span className="text-sm font-medium text-primary-800 dark:text-primary-100">
                     {t.name}
                   </span>
-                  <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs leading-relaxed text-primary-500 dark:text-primary-400">
                     {t.description}
                   </p>
                 </li>

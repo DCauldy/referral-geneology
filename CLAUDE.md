@@ -34,47 +34,18 @@ background-size: 16px 16px;
 
 ---
 
-## Vine & Trellis Vocabulary
+## Copy Guidelines
 
-All user-facing copy in the **logged-in app** (`src/app/(app)/` and its components) must use vine/trellis metaphors. This reinforces the "Trellis" brand identity.
+All user-facing copy in the **logged-in app** (`src/app/(app)/` and its components) should use clear, professional business language.
 
-### Vocabulary Mapping
+### Tone
 
-| Business Term       | Brand Term     | Example Usage                                    |
-|---------------------|----------------|--------------------------------------------------|
-| Contact(s)          | Vine(s)        | "Add a new vine to your trellis."                |
-| Company / Companies | Root(s)        | "Plant new roots in your network."               |
-| Deal(s)             | Fruit          | "New fruit has been added to your garden."       |
-| Referral(s)         | New Growth     | "Follow the new growth extending from every vine." |
-| Pipeline            | Garden         | "Track the fruit growing across your garden."    |
-| Won Revenue         | Harvest        | KPI title: "Harvest"                             |
-| Conversion Rate     | Yield Rate     | KPI title: "Yield Rate"                          |
-| Delete contact      | Prune a vine   | "Are you sure you want to prune this vine?"      |
-| Activity            | Growth Log     | Tab/section label only (e.g., "Growth Log" heading). Empty state: "Notes, calls, and meetings for this contact will appear here." |
+- Keep descriptions concise and action-oriented.
+- Use plain business terms (contacts, companies, deals, referrals, pipeline, network).
+- Page descriptions should briefly explain what the page does.
+- Toast messages should confirm what happened clearly.
+- Empty states should guide the user toward their next action.
 
-### Where to Apply Brand Language
+### Formatting Standards
 
-- Page **descriptions** (the `<p>` below `<h1>` titles)
-- KPI card **titles** on the dashboard
-- **Empty-state** messages (e.g., "No vines yet.")
-- **Toast** messages (success titles and descriptions after CRUD operations)
-- **Confirmation dialogs** (e.g., delete prompts)
-- **Placeholder text** in tab panels (e.g., "Fruit borne from this vine will appear here.")
-
-### Where NOT to Apply Brand Language
-
-- **Navigation labels** (sidebar, mobile nav)
-- **Page `<h1>` titles** and breadcrumbs
-- **Form field labels** and placeholders (e.g., "First Name", "Email")
-- **Table headers** (e.g., "Name", "Email", "Status")
-- **Button text** (e.g., "Add Contact", "Create Deal", "Search")
-- **URLs and routes**
-- **Error messages** from the system or API
-- **Landing page / marketing site** (`src/app/page.tsx`)
-
-### Tone Guidelines
-
-- Keep the metaphor natural and light — avoid forcing it where it feels awkward.
-- Mix brand terms with plain English when needed for clarity (e.g., "Add your first contact to start growing your trellis.").
-- Never sacrifice usability or comprehension for brand voice.
-- The metaphor should feel like a consistent theme, not a puzzle the user has to decode.
+- **Phone numbers**: Always use `formatPhone()` from `src/lib/utils/format.ts` when displaying phone numbers. Format: `(000) 000-0000` for US numbers. Never display raw/unformatted phone strings.

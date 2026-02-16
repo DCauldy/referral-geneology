@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { useOrg } from "@/components/providers/org-provider";
-import type { Contact } from "@/types/database";
+import type { Contact, Tag } from "@/types/database";
 
 interface UseContactsOptions {
   search?: string;
@@ -85,7 +85,33 @@ export function useContacts(options: UseContactsOptions = {}): UseContactsReturn
         return;
       }
 
-      setContacts(data || []);
+      const contactsList = (data || []) as Contact[];
+
+      // Batch-fetch tags for all contacts via polymorphic entity_tags junction
+      if (contactsList.length > 0) {
+        const ids = contactsList.map((c) => c.id);
+        const { data: tagRows } = await supabase
+          .from("entity_tags")
+          .select("entity_id, tag:tags(*)")
+          .eq("entity_type", "contact")
+          .in("entity_id", ids);
+
+        if (tagRows) {
+          const tagsByContact = new Map<string, Tag[]>();
+          for (const row of tagRows) {
+            const tag = row.tag as unknown as Tag;
+            if (!tag) continue;
+            const list = tagsByContact.get(row.entity_id) || [];
+            list.push(tag);
+            tagsByContact.set(row.entity_id, list);
+          }
+          for (const contact of contactsList) {
+            contact.tags = tagsByContact.get(contact.id) || [];
+          }
+        }
+      }
+
+      setContacts(contactsList);
       setTotalCount(count || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch contacts");
@@ -134,7 +160,19 @@ export function useContact(id: string) {
         return;
       }
 
-      setContact(data);
+      // Fetch tags via polymorphic entity_tags junction
+      const { data: tagRows } = await supabase
+        .from("entity_tags")
+        .select("tag:tags(*)")
+        .eq("entity_type", "contact")
+        .eq("entity_id", id);
+
+      const contactData = data as Contact;
+      contactData.tags = tagRows
+        ? tagRows.map((r) => r.tag as unknown as Tag).filter(Boolean)
+        : [];
+
+      setContact(contactData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch contact");
     } finally {
