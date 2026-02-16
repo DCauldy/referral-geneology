@@ -63,7 +63,7 @@ export function RecentActivity() {
     <div className="rounded-xl border border-primary-200 bg-white p-6 shadow-sm dark:border-primary-800 dark:bg-primary-900">
       <h3 className="flex items-center gap-2 text-sm font-semibold text-primary-800 dark:text-primary-100">
         <div className="flex h-6 w-6 items-center justify-center">
-          {DUOTONE_ICONS.DocumentTextIcon}
+          {DUOTONE_ICONS.BoltIcon}
         </div>
         Recent Activity
       </h3>
