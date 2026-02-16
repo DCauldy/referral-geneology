@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCompanies } from "@/lib/hooks/use-companies";
 import { DataTable, type Column } from "@/components/shared/data-table";
-import { formatDate, formatCurrency } from "@/lib/utils/format";
+import { formatDate, formatPhone } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import type { Company } from "@/types/database";
 import {
@@ -81,8 +81,28 @@ export function CompanyList() {
         ),
       },
       {
+        key: "phone",
+        header: "Phone",
+        render: (company) => (
+          <span className="text-primary-600 dark:text-primary-400">
+            {company.phone ? formatPhone(company.phone) : "--"}
+          </span>
+        ),
+      },
+      {
+        key: "email",
+        header: "Email",
+        className: "hidden md:table-cell",
+        render: (company) => (
+          <span className="text-primary-600 dark:text-primary-400">
+            {company.email ?? "--"}
+          </span>
+        ),
+      },
+      {
         key: "industry",
         header: "Industry",
+        className: "hidden lg:table-cell",
         render: (company) => (
           <span className="text-primary-600 dark:text-primary-400">
             {company.industry ?? "--"}
@@ -92,6 +112,7 @@ export function CompanyList() {
       {
         key: "website",
         header: "Website",
+        className: "hidden lg:table-cell",
         render: (company) =>
           company.website ? (
             <a
@@ -110,26 +131,16 @@ export function CompanyList() {
       {
         key: "contacts",
         header: "Contacts",
+        className: "hidden xl:table-cell",
         render: (company) => (
-          <span>{company._contact_count ?? "--"}</span>
-        ),
-      },
-      {
-        key: "annual_revenue",
-        header: "Revenue",
-        sortable: true,
-        render: (company) => (
-          <span className="text-primary-600 dark:text-primary-400">
-            {company.annual_revenue
-              ? formatCurrency(company.annual_revenue)
-              : "--"}
-          </span>
+          <span>{company._contact_count ?? 0}</span>
         ),
       },
       {
         key: "created_at",
         header: "Created",
         sortable: true,
+        className: "hidden lg:table-cell",
         render: (company) => (
           <span className="text-primary-500 dark:text-primary-400">
             {formatDate(company.created_at)}

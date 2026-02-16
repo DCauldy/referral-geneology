@@ -40,7 +40,7 @@ export function useCompanies(options: UseCompaniesOptions = {}) {
     try {
       let query = supabase
         .from("companies")
-        .select("*", { count: "exact" })
+        .select("*, contacts(count)", { count: "exact" })
         .eq("org_id", org.id);
 
       if (search) {
@@ -62,7 +62,14 @@ export function useCompanies(options: UseCompaniesOptions = {}) {
         return;
       }
 
-      setCompanies(data || []);
+      const mapped = (data || []).map((c: Record<string, unknown>) => {
+        const contacts = c.contacts as { count: number }[] | undefined;
+        return {
+          ...c,
+          _contact_count: contacts?.[0]?.count ?? 0,
+        };
+      }) as Company[];
+      setCompanies(mapped);
       setTotalCount(count || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch companies");
