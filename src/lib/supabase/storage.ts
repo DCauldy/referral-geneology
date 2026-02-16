@@ -50,7 +50,7 @@ export async function deleteContactPhoto(
 
 /**
  * Upload a company logo and return its public URL.
- * Path: contact-photos/companies/{orgId}/{companyId}/{timestamp}.{ext}
+ * Path: contact-photos/{orgId}/companies/{companyId}/{timestamp}.{ext}
  */
 export async function uploadCompanyLogo(
   supabase: SupabaseClient,
@@ -59,7 +59,7 @@ export async function uploadCompanyLogo(
   file: File
 ): Promise<string> {
   const ext = file.name.split(".").pop() ?? "jpg";
-  const path = `companies/${orgId}/${companyId}/${Date.now()}.${ext}`;
+  const path = `${orgId}/companies/${companyId}/${Date.now()}.${ext}`;
 
   const { error } = await supabase.storage.from(COMPANY_BUCKET).upload(path, file, {
     cacheControl: "3600",
